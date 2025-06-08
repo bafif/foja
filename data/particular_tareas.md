@@ -1,5 +1,5 @@
 # Modalidades
-Clases presenciales y virtuales recurrentes.
+Clases presenciales y virtuales.
 # Rango
 Alumnos secundarios o universitarios.
 # Materias
