@@ -62,8 +62,40 @@ def load_data() -> dict:
                         experiencia["Tareas"].append(i)
     return data
 
+def make_latex(data: dict, *args):
+    out = ""
+    start = []
+    for file in args:
+        with open(file, "r") as input:
+            text = input.read()
+            start.append(text)
+    out = "\n".join(start)
+    
+    document = []
+    document.append("\\begin{document}")
+    document.append("\\title{Currículum}")
+    document.append(f"\\author{{{" ".join(data["Apellidos"])}, {" ".join(data["Nombres"])}}}")
+    document.append("\\maketitle")
+    
+    document.append("\\section{Habilidades}")
+    for categoria, lista in data["Habilidades"].items():
+        if categoria != "Idiomas":
+            document.append(f"\\subsection{{{categoria}}}")
+            document.append(", ".join(lista))
+        else:
+            document.append("\\subsection{Idiomas}")
+            idiomas = []
+            for k, w in lista.items():
+                idiomas.append(f"\\textbf{{{k}}}: {w}")
+            document.append(". ".join(idiomas))
+
+    document.append("\\end{document}")
+    out = out + "\n" + "\n".join(document)
+
+    return out
+    
 def main():
-    pass
+    print(make_latex(load_data(), "python/st.sty"))
 
 if __name__ == "__main__":
     main()
