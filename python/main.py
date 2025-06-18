@@ -69,14 +69,8 @@ def load_data() -> dict:
 
     return data
 
-
 def main():
-    
-    data: dict= load_data()
-    print("\n"*3)
-    print(data)
-    
-    # print(markdown2dict(fortalezas_dir))
+    data = load_data()
 
 if __name__ == "__main__":
     main()
