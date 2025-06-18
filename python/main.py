@@ -55,22 +55,15 @@ def load_data() -> dict:
 
     for experiencias in data["Experiencia"].values():
         for experiencia in experiencias:
-            print("\n"*2)
-            print("experiencias", experiencia.values())
-            print("\n"*2)
             for w in experiencia.values():
                 if type(w) is str and w in tareas_dirs.keys():
                     dict_: dict= markdown2dict(tareas_dirs[w])
-                    print("dict_:\n", dict_)
-                    print("\n"*2)
-                    print(dict_.values())
                     for i in dict_.values():
                         experiencia["Tareas"].append(i)
-
     return data
 
 def main():
-    data = load_data()
+    pass
 
 if __name__ == "__main__":
     main()
