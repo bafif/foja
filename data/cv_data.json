@@ -12,6 +12,11 @@
         "Provincia": "Santa Fé",
         "Ciudad": "Rosario"
     },
+    "Contactos": {
+        "Teléfono": "+54 9 341 000-0000",
+        "Correo": "correo@ejemplo.com",
+        "GitHub": "www.github.com/bafif"
+    },
     "Habilidades": {
         "Programación": ["C", "C++", "Python"],
         "Micro": ["Arduino (C++)", "AVR Assembly"],

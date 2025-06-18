@@ -71,24 +71,42 @@ def make_latex(data: dict, *args):
             start.append(text)
     out = "\n".join(start)
     
-    document = []
-    document.append("\\begin{document}")
-    document.append("\\title{Currículum}")
-    document.append(f"\\author{{{" ".join(data["Apellidos"])}, {" ".join(data["Nombres"])}}}")
-    document.append("\\maketitle")
-    
-    document.append("\\section{Habilidades}")
-    for categoria, lista in data["Habilidades"].items():
-        if categoria != "Idiomas":
-            document.append(f"\\subsection{{{categoria}}}")
-            document.append(", ".join(lista))
-        else:
-            document.append("\\subsection{Idiomas}")
-            idiomas = []
-            for k, w in lista.items():
-                idiomas.append(f"\\textbf{{{k}}}: {w}")
-            document.append(". ".join(idiomas))
+    columna = []
+    nombre = " ".join(data["Nombres"])
+    nombre += " " + " ".join(data["Apellidos"])
+    celular = data["Contactos"]["Teléfono"]
+    mail = data["Contactos"]["Correo"]
+    github = data["Contactos"]["GitHub"]
+    pais = data["Ubicación"]["País"]
+    provincia = data["Ubicación"]["Provincia"]
+    ciudad = data["Ubicación"]["Ciudad"]
+    columna.append("\\userinformation{\n" +
+    "\\begin{flushright}\n" +
+    "\\includegraphics[width=0.6\\columnwidth]{img/photo.jpg}\\\\[\\baselineskip]\n" +
+    "\\small\n" +
+    nombre + " \\\\\n" +
+    "\\url{"+ mail +"} \\\\\n" +
+    "\\url{"+ github + "} \\\\\n" +
+    celular + " \\\\\n" +
+    "\\Sep\n" +
+    "\\textbf{Lugar} \\\\\n" +
+    ciudad + " \\\\\n" +
+    ", ".join([provincia, pais]) + " \\\\\n" +
+    "\\vfill\n" +
+    "\\end{flushright}\n" +
+    "}")
+    out += "\n" + "\n".join(columna)
 
+    document = []
+    titulo = data["Tipo"]
+    document.append("\\begin{document}")
+    document.append("\\userinformation" +
+    "\\framebreak\n" +
+    f"\\cvheading{{{nombre}}}\n" +
+    f"\\cvsubheading{{{titulo}}}\n" +
+    f"\\aboutme{{Perfil}}{{{data["Perfil"]}}}\n" +
+    "\\CVSection{Educación}"
+    )
     document.append("\\end{document}")
     out = out + "\n" + "\n".join(document)
 
