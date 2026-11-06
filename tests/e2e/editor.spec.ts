@@ -1,14 +1,21 @@
 import { readFileSync } from "node:fs";
-import { expect, previewMarkup, startExample, test } from "./fixtures";
+import { expect, previewMarkup, startExample, startFictional, test } from "./fixtures";
 
-test("the example renders on one page", async ({ page, errors }) => {
+test("the example is my CV and renders on one page", async ({ page, errors }) => {
   await startExample(page);
+  await expect(page.getByLabel("Subtítulo")).toHaveValue("Programador");
+  await expect(page.getByTestId("page-badge")).toContainText("1 página");
+  expect(errors).toEqual([]);
+});
+
+test("the fictional fixture renders on one page", async ({ page, errors }) => {
+  await startFictional(page);
   await expect(page.getByTestId("page-badge")).toContainText("1 página");
   expect(errors).toEqual([]);
 });
 
 test("editing updates the preview, saves and survives a reload", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const before = await previewMarkup(page);
   const subtitle = page.getByLabel("Subtítulo");
   await subtitle.fill("Ingeniera de software");
@@ -19,7 +26,7 @@ test("editing updates the preview, saves and survives a reload", async ({ page }
 });
 
 test("undo and redo", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const subtitle = page.getByLabel("Subtítulo");
   await subtitle.fill("Otro puesto");
   await page.locator("body").click({ position: { x: 5, y: 300 } });
@@ -30,7 +37,7 @@ test("undo and redo", async ({ page }) => {
 });
 
 test("an entry edited once changes in every profile that uses it", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Banco de entradas" }).click();
   await page.getByRole("button", { name: /Desarrolladora full stack/ }).click();
   await expect(page.getByText(/La usan los perfiles: Desarrolladora, Docente/)).toBeVisible();
@@ -41,7 +48,7 @@ test("an entry edited once changes in every profile that uses it", async ({ page
 });
 
 test("layout options reach the preview", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const before = await previewMarkup(page);
   await page.getByRole("button", { name: "Diseño" }).click();
   await page.getByLabel("Columnas").selectOption("1");
@@ -57,7 +64,7 @@ for (const [label, ext, magic] of [
   ["JPG (una imagen por página)", ".jpg", "\xff\xd8"],
 ] as const) {
   test(`export ${label}`, async ({ page, errors }) => {
-    await startExample(page);
+    await startFictional(page);
     await page.getByRole("button", { name: "Exportar" }).click();
     await page.getByLabel(label).check();
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar" }).click()]);
@@ -76,7 +83,7 @@ test("importing something that is not a project explains why", async ({ page }) 
 });
 
 test("markup in the text never reaches the page as HTML", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const before = await previewMarkup(page);
   await page.getByLabel("Subtítulo").fill('<img src=x onerror="window.__xss=1"><b>hola</b>');
   await expect.poll(() => previewMarkup(page)).not.toBe(before);

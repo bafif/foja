@@ -4,7 +4,7 @@ import exampleEn from "../../../../examples/example.en.project.json";
 import { useLanguage } from "./i18n";
 import { newId } from "./forms/Skills";
 
-/** The fictional example, in the interface's language. */
+/** The example, my own CV as a programmer, in the interface's language. */
 export const exampleProject = (): Project => structuredClone(useLanguage.getState().lang === "es" ? exampleEs : exampleEn) as Project;
 
 export function emptyProject(): Project {

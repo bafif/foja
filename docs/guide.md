@@ -8,7 +8,7 @@ stays on your computer.
 
 Open the editor and pick one of:
 
-- **Start with the example**: a fictional CV with two profiles, to see how things fit together.
+- **Start with the example**: my own CV as a programmer, to see how a real one is put together.
 - **Empty project**: a blank CV.
 - **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared).
 

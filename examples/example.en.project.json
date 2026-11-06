@@ -1,92 +1,263 @@
 {
   "format": "foja/2",
   "language": "en",
-  "person": { "givenNames": ["Inés"], "familyNames": ["Ejemplo"], "photo": null },
+  "person": {
+    "givenNames": [
+      "Bautista",
+      "Damián"
+    ],
+    "familyNames": [
+      "Fiori"
+    ],
+    "photo": null
+  },
   "contacts": {
-    "phone": "+1 555 0100",
-    "email": "ines.ejemplo@example.com",
-    "github": "github.com/ines-ejemplo",
-    "location": "Edinburgh, UK"
+    "linkedin": "linkedin.com/in/b-d-fiori"
   },
   "skills": {
-    "languages": { "title": "Languages", "items": ["TypeScript", "Python", "SQL", "Rust"] },
-    "tools": { "title": "Tools", "items": ["React", "PostgreSQL", "Docker", "Git"] },
-    "spoken": { "title": "Spoken", "items": ["English (native)", "Swedish (C1)", "Spanish (B1)"] }
+    "web": {
+      "title": "Web",
+      "items": [
+        "HTML",
+        "JavaScript",
+        "TypeScript"
+      ]
+    },
+    "programming": {
+      "title": "Programming",
+      "items": [
+        "C",
+        "C++",
+        "Python",
+        "Racket"
+      ]
+    },
+    "microcontrollers": {
+      "title": "Microcontrollers",
+      "items": [
+        "Arduino (C++)",
+        "AVR Assembly"
+      ]
+    },
+    "languages": {
+      "title": "Languages",
+      "items": [
+        "Spanish (native)",
+        "English, general (C2)",
+        "English, technical (C1)"
+      ]
+    }
   },
   "entries": {
-    "northwind": {
-      "title": "Software engineer",
-      "place": "Northwind Labs (fictional)",
-      "start": "2022-09",
+    "obrok": {
+      "title": "Software developer",
+      "place": "Obrok",
+      "start": "2026-05",
+      "end": null,
+      "note": "Intern from 05/2026 to 08/2026; developer since 08/2026",
+      "items": [
+        {
+          "text": "Full stack development of a project, including its servers, cybersecurity and DevOps."
+        },
+        {
+          "text": "Programming with advanced AI agents: prompt, context and loop engineering, and spec-driven development (SDD)."
+        }
+      ]
+    },
+    "tecso": {
+      "title": "Development intern",
+      "place": "tecso",
+      "start": "2024-09",
+      "end": "2024-10",
+      "items": [
+        {
+          "heading": "ATtiny85 datalogger",
+          "text": "Design of a datalogger in C++ based on the ATtiny85 microcontroller."
+        },
+        {
+          "heading": "Charging station upgrade",
+          "text": "Took an early working version of a drone charging station in C++ to a more polished one based on the ESP32 microcontroller."
+        },
+        {
+          "heading": "Camera system",
+          "text": "An automatic camera system written in Python for a Raspberry Pi, with a Telegram bot that can send it commands."
+        }
+      ]
+    },
+    "repair": {
+      "title": "Computer repair",
+      "place": "Kernel Computación",
+      "start": "2018-12",
+      "end": null,
+      "note": "Freelance since 12/2018; at Kernel Computación since 02/2026",
+      "items": [
+        {
+          "heading": "Customer service",
+          "text": "Talking with customers, diagnosis and quotes."
+        },
+        {
+          "heading": "Services for Windows users",
+          "text": "Remote support via TeamViewer. Windows licensing with PowerShell scripts, malware removal and tuning each computer to what its user needs."
+        },
+        {
+          "heading": "Custom environments",
+          "text": "Executable programs in Bash, Batch and Python that automate recurring tasks on Windows and Linux."
+        },
+        {
+          "heading": "Prevention",
+          "text": "Automated backups and synchronisation of folders and servers."
+        },
+        {
+          "heading": "Services for Linux users",
+          "text": "Installation, setup and customisation of Linux environments."
+        }
+      ]
+    },
+    "teaching": {
+      "title": "Private tutor",
+      "place": "Freelance",
+      "start": "2018-07",
       "end": null,
       "items": [
-        { "heading": "Payments", "text": "Rebuilt the invoicing service in TypeScript and PostgreSQL; response times halved." },
-        { "heading": "Quality", "text": "Brought in integration tests and code review for a team of six." },
-        { "text": "Mentored two junior engineers through their first year." }
+        {
+          "heading": "Format",
+          "text": "In-person and online classes."
+        },
+        {
+          "heading": "Students",
+          "text": "Secondary school and university students."
+        },
+        {
+          "heading": "Main subjects",
+          "text": "Electronics, algebra, calculus, physics, programming (C, C++, Python, pseudocode, Racket), chemistry and epistemology."
+        },
+        {
+          "heading": "AI for learning",
+          "text": "I teach how to study with AI without letting it do all the work: telling AI for working (“solve this”) apart from AI for learning (“teach me”)."
+        }
       ]
     },
-    "open-data": {
-      "title": "Software intern",
-      "place": "City Open Data Office (fictional)",
-      "start": "2021-06",
-      "end": "2021-12",
+    "tuia": {
+      "title": "University Technical Degree in Artificial Intelligence",
+      "place": "Universidad Nacional de Rosario",
+      "note": "In progress · 30.77 % of the degree passed · average 8.50"
+    },
+    "lcc": {
+      "title": "Degree in Computer Science",
+      "place": "Universidad Nacional de Rosario",
+      "note": "In progress"
+    },
+    "technician": {
+      "title": "Electronics Technician",
+      "place": "Instituto Politécnico Superior",
       "items": [
-        { "text": "Cleaned and published datasets with **Python** and pandas." },
-        { "text": "Built an indicators dashboard in React for the public site." }
+        {
+          "text": "Microprocessors, automation, control systems, network protocols and power electronics."
+        }
       ]
-    },
-    "tutor": {
-      "title": "Teaching assistant, Algorithms",
-      "place": "University of Edinburgh",
-      "start": "2020-09",
-      "end": "2022-06",
-      "items": [{ "text": "Ran tutorials on data structures for groups of 30 students." }, { "text": "Marked coursework and wrote problem sheets." }]
-    },
-    "degree": {
-      "title": "BSc Computer Science",
-      "place": "University of Edinburgh",
-      "start": "2018-09",
-      "end": "2022-06",
-      "note": "First-class honours"
-    },
-    "course": { "title": "Accessible interface design", "place": "Online course, 40 hours", "start": "2023-05" },
-    "library": { "title": "Community library catalogue", "place": "Volunteer project · TypeScript · SQLite" }
+    }
   },
   "profiles": {
-    "engineer": {
-      "name": "Engineer",
-      "subtitle": "Full-stack software engineer",
-      "contacts": ["phone", "email", "github", "location"],
-      "skills": [["languages", "tools"], ["spoken"]],
-      "summary": "Software engineer with four years of experience building web applications. I care about systems that last: clear code, tests, and documentation someone else can follow.",
+    "programmer": {
+      "name": "Programmer",
+      "subtitle": "Programmer",
+      "contacts": [
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "web",
+          "programming"
+        ],
+        [
+          "microcontrollers"
+        ],
+        [
+          "languages"
+        ]
+      ],
+      "summary": "I am an electronics technician, currently studying Computer Science and Artificial Intelligence. I am comfortable in work that calls for independence and problem solving. I am looking for a chance to learn new tools of the trade, technical or human, and to put what I already know to active use.",
       "sections": [
-        { "id": "experience", "title": "Experience", "blocks": [{ "type": "entry", "entry": "northwind" }, { "type": "entry", "entry": "open-data" }] },
-        { "id": "education", "title": "Education", "compact": true, "blocks": [{ "type": "entry", "entry": "degree" }, { "type": "entry", "entry": "course" }] },
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "obrok"
+            },
+            {
+              "type": "entry",
+              "entry": "tecso"
+            },
+            {
+              "type": "entry",
+              "entry": "repair"
+            },
+            {
+              "type": "entry",
+              "entry": "teaching"
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            },
+            {
+              "type": "entry",
+              "entry": "technician"
+            }
+          ]
+        },
         {
           "id": "strengths",
           "title": "Strengths",
           "column": "side",
           "blocks": [
-            { "type": "item", "heading": "Order", "text": "I break large problems into steps that can be reviewed." },
-            { "type": "item", "heading": "Communication", "text": "I explain technical decisions to people who do not program." }
+            {
+              "type": "item",
+              "heading": "Problem solving",
+              "text": "I can find the solution to problems on my own and I work focused on moving towards the result. I handle stress well and can hurry without losing my calm. I rarely go blank."
+            },
+            {
+              "type": "item",
+              "heading": "Drive",
+              "text": "I usually work at a lively pace, without getting frustrated by difficulty and without losing track of what I have to do. I am not shy about raising a problem or asking for help. I am even-tempered, neither touchy nor offensive."
+            },
+            {
+              "type": "item",
+              "heading": "Technical communication",
+              "text": "I speak literally and specifically. I can explain or report a situation without ambiguity. I take instructions exactly as they are written. Reading technical documentation is part of my everyday work."
+            }
           ]
         },
-        { "id": "projects", "title": "Projects", "column": "side", "blocks": [{ "type": "entry", "entry": "library" }] }
-      ]
-    },
-    "teacher": {
-      "name": "Teacher",
-      "subtitle": "Programming teacher",
-      "highlight": { "title": "Applying for", "text": "Introduction to programming" },
-      "contacts": ["email", "location"],
-      "skills": [["languages"], ["spoken"]],
-      "summary": "Two years as a teaching assistant and an engineer in practice: I teach with examples from real work.",
-      "sections": [
-        { "id": "teaching", "title": "Teaching", "blocks": [{ "type": "entry", "entry": "tutor" }] },
-        { "id": "experience", "title": "Professional experience", "compact": true, "blocks": [{ "type": "entry", "entry": "northwind" }, { "type": "entry", "entry": "open-data" }] },
-        { "id": "education", "title": "Education", "compact": true, "blocks": [{ "type": "entry", "entry": "degree" }, { "type": "entry", "entry": "course" }] }
+        {
+          "id": "personal-projects",
+          "title": "Personal projects",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "text": "At **bafif.github.io**"
+            }
+          ]
+        }
       ],
-      "layout": { "template": "banda", "photo": "none" }
+      "layout": {
+        "margins": {
+          "top": 10,
+          "bottom": 10
+        }
+      }
     }
   }
 }

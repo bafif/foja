@@ -1,7 +1,7 @@
-import { expect, startExample, test } from "./fixtures";
+import { expect, startFictional, test } from "./fixtures";
 
 test("every control of every panel has an accessible name", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const panels = ["Personales", "Contactos", "Habilidades", "Banco de entradas", "Texto del perfil", "Estilo y diseño", "Experiencia", "Fortalezas"];
   for (const panel of panels) {
     await page.getByRole("navigation", { name: "Secciones" }).getByRole("button", { name: new RegExp(panel) }).first().click();
@@ -20,7 +20,7 @@ test("every control of every panel has an accessible name", async ({ page }) => 
 });
 
 test("names are typed with spaces", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Personales" }).click();
   const given = page.getByLabel("Nombres");
   await given.fill("");
@@ -29,7 +29,7 @@ test("names are typed with spaces", async ({ page }) => {
 });
 
 test("a project replaced by a new one can be restored", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByLabel("Subtítulo").fill("Mi subtítulo único");
   await page.getByRole("button", { name: "Proyecto ▾" }).click();
   await page.getByRole("button", { name: "Nuevo proyecto" }).click();
@@ -40,7 +40,7 @@ test("a project replaced by a new one can be restored", async ({ page }) => {
 });
 
 test("menus close with Escape", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Proyecto ▾" }).click();
   await expect(page.getByRole("button", { name: "Nuevo proyecto" })).toBeVisible();
   await page.keyboard.press("Escape");
@@ -52,7 +52,7 @@ test("menus close with Escape", async ({ page }) => {
 });
 
 test("a second tab does not edit at the same time, and can take over", async ({ page, context }) => {
-  await startExample(page);
+  await startFictional(page);
   const second = await context.newPage();
   await second.goto("/editor");
   await expect(second.getByText("Foja ya está abierto en otra pestaña")).toBeVisible();
@@ -63,7 +63,7 @@ test("a second tab does not edit at the same time, and can take over", async ({ 
 
 test("a long CV updates page by page and ends up as a full render would", async ({ page }) => {
   const { readFileSync } = await import("node:fs");
-  const long = JSON.parse(readFileSync("examples/example.project.json", "utf8"));
+  const long = JSON.parse(readFileSync("examples/fictional.project.json", "utf8"));
   const exp = long.profiles.desarrolladora.sections[0];
   exp.blocks = Array.from({ length: 10 }, () => exp.blocks).flat();
   await page.goto("/editor");

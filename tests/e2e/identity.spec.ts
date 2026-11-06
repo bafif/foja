@@ -1,7 +1,7 @@
-import { expect, previewMarkup, startExample, test } from "./fixtures";
+import { expect, previewMarkup, startFictional, test } from "./fixtures";
 
 test("a style is picked, copied into Typst and edited", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Estilo y diseño" }).click();
   const before = await previewMarkup(page);
   await page.locator('[data-style="banda"]').click();
@@ -30,7 +30,7 @@ test("a style is picked, copied into Typst and edited", async ({ page }) => {
 });
 
 test("a style from scratch compiles and can be used by another profile", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Estilo y diseño" }).click();
   await page.getByRole("button", { name: "Nuevo estilo desde cero" }).click();
   await expect(page.getByLabel("Código Typst")).toHaveValue(/A CV style of your own/);
@@ -42,7 +42,7 @@ test("a style from scratch compiles and can be used by another profile", async (
 });
 
 test("themes: built-in, mode, imported and the plugin API", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const root = () => page.evaluate(() => ({ theme: document.documentElement.dataset.theme, mode: document.documentElement.dataset.mode }));
   expect((await root()).theme).toBe("papel");
 
@@ -72,7 +72,7 @@ test("themes: built-in, mode, imported and the plugin API", async ({ page }) => 
 });
 
 test("the interface speaks English too, and remembers it", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: /Apariencia/ }).click();
   await page.getByLabel("Idioma de la interfaz").selectOption("en");
   await expect(page.getByRole("button", { name: "Export", exact: true })).toBeVisible();
@@ -83,5 +83,5 @@ test("the interface speaks English too, and remembers it", async ({ page }) => {
   // The example follows the interface language.
   await page.getByRole("button", { name: "Project ▾" }).click();
   await page.getByRole("button", { name: "Start with the example" }).click();
-  await expect(page.getByLabel("Subtitle")).toHaveValue("Full-stack software engineer");
+  await expect(page.getByLabel("Subtitle")).toHaveValue("Programmer");
 });

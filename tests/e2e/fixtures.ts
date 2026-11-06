@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { test as base, chromium, expect, type Page } from "@playwright/test";
 
 // The browser is the host's Chrome, reached over CDP (see scripts/e2e.sh). Every test gets a
@@ -21,10 +22,20 @@ export const test = base.extend<{ errors: string[] }, {}>({
 
 export { expect };
 
-/** Opens the editor on the example project and waits for the first render. */
+/** Opens the editor on the example project (my own CV) and waits for the first render. */
 export async function startExample(page: Page) {
   await page.goto("/editor");
   await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
+  await expect(page.locator(".foja-page svg")).toBeAttached();
+}
+
+/** The fictional fixture, which the tests rely on; the example changes whenever my CV does. */
+export const fictional = JSON.parse(readFileSync("examples/fictional.project.json", "utf8"));
+
+/** Opens the editor on a project imported as JSON (the fictional fixture by default) and waits for the first render. */
+export async function startFictional(page: Page, project: object = fictional) {
+  await page.goto("/editor");
+  await page.getByText("Importar JSON").locator("input").setInputFiles({ name: "project.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(project)) });
   await expect(page.locator(".foja-page svg")).toBeAttached();
 }
 

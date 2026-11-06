@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
-import { expect, previewMarkup, startExample, test } from "./fixtures";
+import { expect, previewMarkup, startFictional, test } from "./fixtures";
 
-const example = JSON.parse(readFileSync("examples/example.project.json", "utf8"));
+const example = JSON.parse(readFileSync("examples/fictional.project.json", "utf8"));
 
 test("selecting a part highlights it, clicking the preview selects it", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Banco de entradas" }).click();
   await page.getByRole("button", { name: /Pasante de desarrollo/ }).click();
   const box = page.getByTestId("highlight-box").first();
@@ -38,7 +38,7 @@ test("a CV that does not fit says by how much and what overflows", async ({ page
 });
 
 test("sections reorder by keyboard drag and drop", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   const nav = page.getByRole("navigation");
   const titles = () => nav.locator("li button:not([aria-label])").allInnerTexts();
   const before = await titles();
@@ -55,7 +55,7 @@ test("sections reorder by keyboard drag and drop", async ({ page }) => {
 });
 
 test("the command palette goes anywhere", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.keyboard.press("Control+k");
   await page.getByPlaceholder(/Ir a/).fill("diseno");
   await page.keyboard.press("Enter");
@@ -67,7 +67,7 @@ test("the command palette goes anywhere", async ({ page }) => {
 });
 
 test("a photo is cropped and goes into the CV", async ({ page }) => {
-  await startExample(page);
+  await startFictional(page);
   await page.getByRole("button", { name: "Personales" }).click();
   const before = await previewMarkup(page);
   // A 40×30 PNG made in the page.
@@ -93,7 +93,7 @@ test.describe("on a phone", () => {
   test.use({ viewport: { width: 400, height: 800 }, isMobile: true, hasTouch: true });
 
   test("one pane at a time, nothing wider than the screen", async ({ page }) => {
-    await startExample(page);
+    await startFictional(page);
     const panes = page.getByRole("navigation", { name: "Paneles" });
     await expect(page.getByLabel("Subtítulo")).toBeVisible();
     await panes.getByRole("button", { name: "Vista previa" }).click();

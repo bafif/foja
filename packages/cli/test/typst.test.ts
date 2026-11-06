@@ -7,7 +7,9 @@ import { parseMarkdown } from "../src/convert.ts";
 
 const read = (path: string): Project => JSON.parse(readFileSync(new URL(`../../../examples/${path}`, import.meta.url), "utf8"));
 const curriculum = read("curriculum.project.json");
-const example = read("example.project.json");
+// The editor's example is my own CV; the fictional project is the fixture the tests shape at will.
+const examples = [read("example.project.json"), read("example.en.project.json")];
+const fictional = read("fictional.project.json");
 const A4 = { width: 595.28, height: 841.89 };
 
 function withStyle(project: Project, style: string, layout: Layout = {}): Project {
@@ -18,7 +20,7 @@ function withStyle(project: Project, style: string, layout: Layout = {}): Projec
 
 describe.each(BUILTIN_STYLES.map((s) => s.id))("style %s", (style) => {
   test("compiles every profile, with marks in pairs and a declared geometry", () => {
-    for (const project of [curriculum, example]) {
+    for (const project of [curriculum, fictional, ...examples]) {
       const p = withStyle(project, style);
       const typst = new Typst(p);
       for (const id of Object.keys(p.profiles)) {
@@ -34,13 +36,15 @@ describe.each(BUILTIN_STYLES.map((s) => s.id))("style %s", (style) => {
   });
 });
 
-test("the example fits on one page in the default style", () => {
-  const typst = new Typst(example);
-  for (const id of Object.keys(example.profiles)) expect(typst.compile(id).numOfPages).toBe(1);
+test("the examples fit on one page in the default style", () => {
+  for (const project of [fictional, ...examples]) {
+    const typst = new Typst(project);
+    for (const id of Object.keys(project.profiles)) expect(typst.compile(id).numOfPages).toBe(1);
+  }
 });
 
 describe("click geometry (Legajo)", () => {
-  const typst = new Typst(example);
+  const typst = new Typst(fictional);
   const doc = typst.compile("desarrolladora");
   const marks = typst.marks(doc);
   const geometry = typst.geometry(doc)!;
@@ -60,7 +64,7 @@ describe("click geometry (Legajo)", () => {
 
   test("overflow is counted in lines", () => {
     expect(overflowLines(marks)).toBe(0);
-    const long = structuredClone(example);
+    const long = structuredClone(fictional);
     const s = long.profiles.desarrolladora.sections[0];
     s.blocks = Array.from({ length: 6 }, () => s.blocks).flat();
     const t2 = new Typst(long);
@@ -94,7 +98,7 @@ describe("layout options", () => {
 
 describe("styles of one's own", () => {
   test("the skeleton compiles as a project style", () => {
-    const p = structuredClone(example);
+    const p = structuredClone(fictional);
     p.templates = { mio: { name: "Mío", source: STYLE_SKELETON } };
     p.profiles.desarrolladora.layout = { template: "mio" };
     expect(validate(p)).toEqual([]);
@@ -104,14 +108,14 @@ describe("styles of one's own", () => {
   });
 
   test("a style that does not exist is a validation error", () => {
-    const p = structuredClone(example);
+    const p = structuredClone(fictional);
     p.profiles.desarrolladora.layout = { template: "nada" };
     expect(validate(p).map((x) => x.path)).toEqual(["/profiles/desarrolladora/layout/template"]);
   });
 
   test("a style cannot read files outside the project", () => {
     for (const path of ["/etc/hostname", "../../../../etc/hostname", "/proc/self/environ"]) {
-      const p = structuredClone(example);
+      const p = structuredClone(fictional);
       p.templates = { espia: { name: "Espía", source: `#import "/lib.typ": *\n#read(${JSON.stringify(path)})` } };
       p.profiles.desarrolladora.layout = { template: "espia" };
       expect(() => new Typst(p).compile("desarrolladora"), path).toThrow(/Typst failed/);
@@ -119,13 +123,13 @@ describe("styles of one's own", () => {
   });
 
   test("an incomplete date does not break the layout", () => {
-    const p = structuredClone(example);
+    const p = structuredClone(fictional);
     p.entries[Object.keys(p.entries)[0]].end = "";
     expect(new Typst(p).compile("desarrolladora").numOfPages).toBeGreaterThanOrEqual(1);
   });
 
   test("a style with a Typst error reports it", () => {
-    const p = structuredClone(example);
+    const p = structuredClone(fictional);
     p.templates = { roto: { name: "Roto", source: '#import "/lib.typ": *\n#cv.nope' } };
     p.profiles.desarrolladora.layout = { template: "roto" };
     expect(() => new Typst(p).compile("desarrolladora")).toThrow(/Typst failed/);
@@ -133,7 +137,7 @@ describe("styles of one's own", () => {
 });
 
 test("the Typst bundle compiles on its own", () => {
-  const p = withStyle(example, "banda");
+  const p = withStyle(fictional, "banda");
   const files = typstBundle(p, "docente", templateFiles());
   expect(Object.keys(files)).toEqual(expect.arrayContaining(["cv.typ", "lib.typ", "styles/legajo.typ", "styles/banda.typ", "styles/minimal.typ"]));
   const fontBlobs = Object.entries(files)

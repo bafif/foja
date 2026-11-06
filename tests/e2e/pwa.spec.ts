@@ -26,7 +26,7 @@ test.describe("production build", () => {
       await page.getByRole("button", { name: "Exportar", exact: true }).click();
       await page.getByLabel(label).check();
       const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar" }).click()]);
-      expect(download.suggestedFilename()).toMatch(/^ines-ejemplo-desarrolladora\./);
+      expect(download.suggestedFilename()).toMatch(/^bautista-damian-fiori-programador\./);
     }
     expect(violations).toEqual([]);
     expect(errors).toEqual([]);
