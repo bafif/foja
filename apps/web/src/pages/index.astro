@@ -8,7 +8,7 @@ const formats = [
   ["Typst", "el código fuente, que abre en typst.app"],
   ["LaTeX", "para Overleaf o tu instalación de TeX"],
   ["Markdown", "para un README o un perfil de GitHub"],
-  ["JSON", "tu proyecto, para guardarlo o pasarlo a otra computadora"],
+  ["JSON", "tu proyecto, para guardarlo o pasarlo a otro dispositivo"],
 ];
 ---
 
@@ -28,7 +28,10 @@ const formats = [
             <a class="rounded bg-accent px-5 py-2.5 font-medium text-on-accent hover:opacity-90" href={`${base}editor/`}>Abrir el editor</a>
             <a class="rounded border border-line px-5 py-2.5 hover:bg-surface-2" href="https://github.com/bafif/foja">Código fuente</a>
           </div>
-          <p class="text-sm text-muted">Gratis, sin cuentas, y funciona sin conexión una vez abierto.</p>
+          <p class="text-sm text-muted">
+            Gratis, sin cuentas, y funciona sin conexión una vez abierto. En el celular se instala como una app: desde Chrome en Android y
+            desde Safari en iPhone (Compartir → «Agregar a inicio»).
+          </p>
         </div>
         <img
           src={`${base}screenshot.jpg`}
@@ -41,7 +44,7 @@ const formats = [
 
       <section class="grid gap-8 sm:grid-cols-3">
         <div>
-          <h2 class="mb-2 font-semibold">Tus datos no salen de tu computadora</h2>
+          <h2 class="mb-2 font-semibold">Tus datos no salen de tu dispositivo</h2>
           <p class="text-sm text-muted">
             Foja corre entero en el navegador: el compilador de Typst incluido. No hay servidor que guarde tu CV; queda en este navegador y en
             los archivos que exportes.

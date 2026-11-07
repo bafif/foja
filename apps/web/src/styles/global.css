@@ -83,6 +83,21 @@ body {
   height: 100%;
 }
 
+/* On phones, the height that is visible between the browser's bars (100% above is the fallback). */
+body {
+  height: 100dvh;
+}
+
+/* Safari on iOS zooms into any field whose text is under 16px as soon as it gets focus. Outside
+   Tailwind's layers, so it wins over `text-sm`. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 body {
   font-family: var(--foja-font-ui);
   background: var(--foja-bg);

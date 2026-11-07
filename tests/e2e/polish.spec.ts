@@ -106,4 +106,41 @@ test.describe("on a phone", () => {
     await page.getByRole("button", { name: "Más acciones" }).click();
     await expect(page.getByRole("button", { name: "+ Nuevo perfil" })).toBeVisible();
   });
+
+  test("fields are big enough that Safari does not zoom into them", async ({ page }) => {
+    await startFictional(page);
+    expect(await page.getByLabel("Subtítulo").evaluate((e) => getComputedStyle(e).fontSize)).toBe("16px");
+  });
+
+  test("the export goes to the share sheet once the file is ready", async ({ page, errors }) => {
+    // Chromium on Linux has no Web Share; this stands in for the one on Android and iOS.
+    await page.addInitScript(() => {
+      const shared: string[] = [];
+      Object.assign(window, { shared });
+      Object.defineProperty(navigator, "canShare", { value: () => true });
+      Object.defineProperty(navigator, "share", { value: async (data: ShareData) => void shared.push(...(data.files ?? []).map((f) => f.name)) });
+    });
+    await startFictional(page);
+    await page.getByRole("button", { name: "Exportar", exact: true }).click();
+    await page.getByLabel("PDF").check();
+    await page.getByRole("button", { name: "Preparar el archivo" }).click();
+    await expect(page.getByRole("status")).toContainText(/Listo: .+\.pdf/);
+    await page.getByRole("button", { name: "Compartir o guardar…" }).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { shared: string[] }).shared)).toEqual([expect.stringMatching(/\.pdf$/)]);
+    await expect(page.getByRole("dialog")).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test.describe("on an iPhone", () => {
+    test.use({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1" });
+
+    test("the welcome screen and the menu say how to add it to the Home Screen", async ({ page }) => {
+      await page.goto("/editor");
+      await expect(page.getByTestId("ios-install")).toContainText("Agregar a inicio");
+      await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
+      await page.getByRole("button", { name: "Más acciones" }).click();
+      await page.getByRole("button", { name: "Instalar como app" }).click();
+      await expect(page.getByText("En Safari, tocá Compartir")).toBeVisible();
+    });
+  });
 });

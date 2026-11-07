@@ -10,7 +10,8 @@ Everything runs in the browser; your CV never leaves your machine.
 - **One-page discipline**: the preview says whether the CV fits and what spills over; click a
   part of the preview to edit it.
 - **Exports**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.
-- **Private and offline**: no accounts, no server; installable as an app; Spanish and English.
+- **Private and offline**: no accounts, no server; installable as an app on computers and on
+  Android and iPhone; Spanish and English.
 
 User guide: [`docs/guide.md`](docs/guide.md). Writing a style: [`docs/templates.md`](docs/templates.md).
 Interface themes: [`docs/themes.md`](docs/themes.md). Security model: [`docs/security.md`](docs/security.md).
@@ -20,8 +21,9 @@ Foja started as cvgen, the generator I wrote for my own CV: JSON files turned in
 Python generator through LaTeX and by a second one in C. It still lives here, in
 [`cvgen/`](cvgen/README.md), with my CV data, and its history is where this repository's begins.
 
-Status: the editor, the exporters and the CLI work; the site is not published yet. What is
-built, what comes next and why: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Status: the editor, the exporters and the CLI work, and the editor is online at
+<https://bafif.github.io/foja/>, on phones too. What is built, what comes next and why:
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Layout
 

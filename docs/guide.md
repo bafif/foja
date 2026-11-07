@@ -2,7 +2,7 @@
 
 Foja is a CV editor built on [Typst](https://typst.app). You fill in forms; the preview next to
 them is the real Typst output, updated as you type. Everything runs in your browser: your data
-stays on your computer.
+stays on your device. It is at <https://bafif.github.io/foja/>.
 
 ## Getting started
 
@@ -71,11 +71,26 @@ navigation. Click any part of the preview to edit it.
 | Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. |
 | LaTeX (`.zip`) | In the Legajo look; LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |
-| JSON | The project file, to import it again or move it to another computer. |
+| JSON | The project file, to import it again or move it to another device. |
 | All formats | Every one of them in a `.zip`. |
 
 Names in non-Latin scripts: the bundled fonts cover Latin alphabets only, so other scripts show
 as missing glyphs for now.
+
+## On a phone or a tablet
+
+Foja works in the phone's browser too, one pane at a time: **Sections**, **Edit** and **Preview**,
+switched from the bar at the bottom.
+
+- **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or
+  Chrome's own menu → *Add to Home screen*). On iPhone and iPad, in Safari: **Share → Add to Home
+  Screen**. It opens full screen, without the browser's bars, and works offline.
+- **On an iPhone, install it if your CV lives there.** Safari deletes what a site saved when the
+  site goes a week without being opened, unless it is on the Home Screen. Exporting the project
+  as JSON now and then keeps a copy either way.
+- **Exports go to the share sheet:** **Export → Prepare the file → Share or save…** offers Save to
+  Files, mail and messaging apps. What the system cannot share (on Android, Word files and
+  `.zip`s) downloads as usual.
 
 ## Privacy and storage
 

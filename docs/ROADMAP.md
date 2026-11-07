@@ -88,6 +88,13 @@ Containers (rootless Podman) stay for development only, with hot reload behind n
   offered on GitHub Releases with instructions.
 - **Signed Windows installers outside the Store**: SignPath Foundation signs open-source
   projects for free once they have some reputation.
+- **Android**: the PWA installs from Chrome as a real app (Chrome packages it as a WebAPK), with
+  its icon in the app drawer. A native package can come later from the same Tauri 2 shell as the
+  desktop app, which also builds for Android, on GitHub Releases and on F-Droid if it meets their
+  build rules. Google Play charges a registration fee, so it stays out.
+- **iPhone and iPad**: the App Store needs the paid Apple Developer Program, so the PWA added to
+  the Home Screen from Safari is the iOS app. Installing a build with a free Apple ID expires
+  after seven days, which is no way to ship it to anyone.
 - **CLI**: npm.
 
 ### Exporters in TypeScript
@@ -159,14 +166,25 @@ The work so far, in the order it happened:
   the preview; the service worker could break open tabs on update; and several accessibility
   gaps. My three real profiles now fit on one page in Legajo, and the preview replaces only the
   pages that changed, so long CVs no longer block typing.
+- **Online** (November 7, 2026). The site is on GitHub Pages at
+  [`bafif.github.io/foja/`](https://bafif.github.io/foja/). The deployment still runs by hand
+  (Actions → Deploy to GitHub Pages), so a push to `main` does not publish by itself.
+- **Phones.** The phone layout was already there; the rest of the work was what a phone does
+  differently. Exports go to the system's share sheet (Save to Files, mail, messaging apps),
+  because a download from a web app installed on an iPhone often does nothing. Fields use 16 px
+  text on touch screens so Safari does not zoom in on them. On phones and in the installed app,
+  Foja asks the browser to keep the project when space runs low. The menu has an Install button
+  where Chrome offers one, and on an iPhone it shows the steps instead, as does the welcome
+  screen, since a site left in a Safari tab loses its data after a week without use. iOS also
+  got its own Home Screen icon.
 
 ## What comes next
 
 In this order:
 
-1. **Publish the site** on GitHub Pages at `bafif.github.io/foja/`: switch the Pages source to
-   GitHub Actions and run the deployment workflow (or let it run on every push to `main`). Then
-   promote it.
+1. **Try it on real phones**, an Android with Chrome and an iPhone with Safari: install it, edit,
+   export through the share sheet, and use it offline. The automated tests emulate a phone in
+   Chromium, which has neither Safari's quirks nor a real share sheet.
 2. **Publish the CLI on npm** as `foja` (the name was still free at the end of October 2026). The
    package already bundles itself on `npm pack`; it needs an npm account and
    `npm publish -w packages/cli`.
@@ -175,6 +193,9 @@ In this order:
 4. **Desktop app and Flathub**: the Tauri 2 shell with native file access, a Flatpak built from
    source, and the Flathub submission. Also AUR and unsigned builds for macOS and Windows on
    GitHub Releases, and SignPath Foundation for Windows once the project qualifies.
+5. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases
+   and, if it qualifies, on F-Droid. On iPhone the PWA remains the app (see the distribution
+   channels above).
 
 Smaller things that can go in at any point:
 

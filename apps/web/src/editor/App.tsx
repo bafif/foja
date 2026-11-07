@@ -25,6 +25,7 @@ import { Preview } from "./Preview";
 import { Palette } from "./Palette";
 import { ThemeMenu } from "./ThemeMenu";
 import { startThemes } from "./themes";
+import { install, installed, ios, keepStorage, useInstall } from "./device";
 
 startThemes();
 
@@ -34,6 +35,7 @@ async function saveNow() {
   setSaveState("saving");
   try {
     await save({ project, profileId });
+    keepStorage();
     // Only mark it saved if nothing changed while writing.
     if (useEditor.getState().project === project) setSaveState("saved");
   } catch {
@@ -203,6 +205,22 @@ function Editor() {
   );
 }
 
+/** "Install as an app" in the narrow menu: Chrome's prompt where there is one, the steps on an iPhone. */
+function InstallControl() {
+  const prompt = useInstall((s) => s.prompt);
+  const [steps, setSteps] = useState(false);
+  if (prompt) return <Button onClick={() => void install()}>{t.install}</Button>;
+  if (!ios() || installed()) return null;
+  return (
+    <>
+      <Button expanded={steps} onClick={() => setSteps(!steps)}>
+        {t.install}
+      </Button>
+      {steps && <p className="px-2 text-xs text-muted">{t.installIos}</p>}
+    </>
+  );
+}
+
 function TopBar({ onExport }: { onExport: () => void }) {
   const project = useEditor((s) => s.project!);
   const profileId = useEditor((s) => s.profileId);
@@ -333,6 +351,9 @@ function TopBar({ onExport }: { onExport: () => void }) {
             </div>
           )}
         </div>
+        <span className="contents lg:hidden">
+          <InstallControl />
+        </span>
         <ThemeMenu />
         <Button variant="ghost" title="Ctrl+K" onClick={() => (setMore(false), openEvent("foja:palette")())}>
           ⌘ {t.palette.title}

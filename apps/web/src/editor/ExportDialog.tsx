@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ExportFormat, ExportedFile } from "@foja/core/export";
 import { svgToJpegs } from "../lib/jpg";
+import { canShareFiles, shareable } from "./device";
 import { download } from "./download";
 import { t } from "./i18n";
 import { styleOf } from "@foja/core";
@@ -54,10 +55,31 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   const [choice, setChoice] = useState(remembered);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  // On a phone the file is built first and then shared: the share sheet needs a fresh tap, and
+  // building a PDF can take longer than the browser keeps the first one valid.
+  const [ready, setReady] = useState<{ built: ExportedFile; file: File }>();
+  const sharing = canShareFiles();
 
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
+
+  function choose(next: typeof choice) {
+    setChoice(next);
+    setReady(undefined);
+  }
+
+  async function share() {
+    if (!ready) return;
+    setError(undefined);
+    try {
+      await navigator.share({ files: [ready.file], title: ready.file.name });
+      onClose();
+    } catch (e) {
+      // Closing the share sheet without picking anything is not an error.
+      if ((e as Error).name !== "AbortError") setError(`${t.exportFailed} ${(e as Error).message}`);
+    }
+  }
 
   async function run() {
     setBusy(true);
@@ -68,8 +90,13 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
       // Storage can be unavailable (private windows); the choice is just not remembered.
     }
     try {
-      const file = await build(choice.format, choice.dpi);
-      download(file.name, file.data, file.mime);
+      const built = await build(choice.format, choice.dpi);
+      const file = shareable(built.name, built.data, built.mime);
+      if (file) {
+        setReady({ built, file });
+        return;
+      }
+      download(built.name, built.data, built.mime);
       onClose();
     } catch (e) {
       setError(`${t.exportFailed} ${(e as Error).message}`);
@@ -93,7 +120,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
           <legend className="sr-only">{t.format}</legend>
           {CHOICES.map((f) => (
             <label key={f} className="flex items-center gap-2 text-sm">
-              <input type="radio" name="format" value={f} checked={choice.format === f} onChange={() => setChoice({ ...choice, format: f })} />
+              <input type="radio" name="format" value={f} checked={choice.format === f} onChange={() => choose({ ...choice, format: f })} />
               {t.formats[f]}
             </label>
           ))}
@@ -101,7 +128,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
         {(choice.format === "jpg" || choice.format === "all") && (
           <label className="flex items-center gap-2 text-sm">
             {t.dpi}
-            <select className="rounded border border-line px-2 py-1" value={choice.dpi} onChange={(e) => setChoice({ ...choice, dpi: Number(e.target.value) })}>
+            <select className="rounded border border-line px-2 py-1" value={choice.dpi} onChange={(e) => choose({ ...choice, dpi: Number(e.target.value) })}>
               {[72, 150, 300].map((d) => (
                 <option key={d} value={d}>
                   {d} dpi
@@ -115,13 +142,33 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
             {error}
           </p>
         )}
-        <div className="flex justify-end gap-2">
+        {ready && (
+          <p role="status" className="text-sm break-all">
+            {t.exportReady} <strong>{ready.file.name}</strong>
+          </p>
+        )}
+        <div className="flex flex-wrap justify-end gap-2">
           <button type="button" className="rounded border border-line px-3 py-1 text-sm" onClick={onClose}>
             {t.close}
           </button>
-          <button type="submit" disabled={busy} className="rounded bg-accent px-3 py-1 text-sm text-on-accent disabled:opacity-50">
-            {busy ? t.exporting : t.downloadButton}
-          </button>
+          {ready ? (
+            <>
+              <button
+                type="button"
+                className="rounded border border-line px-3 py-1 text-sm"
+                onClick={() => (download(ready.built.name, ready.built.data, ready.built.mime), onClose())}
+              >
+                {t.downloadButton}
+              </button>
+              <button type="button" className="rounded bg-accent px-3 py-1 text-sm text-on-accent" onClick={() => void share()}>
+                {t.shareButton}
+              </button>
+            </>
+          ) : (
+            <button type="submit" disabled={busy} className="rounded bg-accent px-3 py-1 text-sm text-on-accent disabled:opacity-50">
+              {busy ? t.exporting : sharing ? t.prepareButton : t.downloadButton}
+            </button>
+          )}
         </div>
       </form>
     </dialog>

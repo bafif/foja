@@ -1,7 +1,7 @@
 {
   "name": "Foja — editor de CV",
   "short_name": "Foja",
-  "description": "Tu CV en Typst, sin escribir código. Todo queda en tu computadora.",
+  "description": "Tu CV en Typst, sin escribir código. Todo queda en tu dispositivo.",
   "lang": "es",
   "start_url": "./editor/",
   "scope": "./",
