@@ -83,11 +83,13 @@ Foja works in the phone's browser too, one pane at a time: **Sections**, **Edit*
 switched from the bar at the bottom.
 
 - **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or
-  Chrome's own menu → *Add to Home screen*). On iPhone and iPad, in Safari: **Share → Add to Home
-  Screen**. It opens full screen, without the browser's bars, and works offline.
-- **On an iPhone, install it if your CV lives there.** Safari deletes what a site saved when the
-  site goes a week without being opened, unless it is on the Home Screen. Exporting the project
-  as JSON now and then keeps a copy either way.
+  Chrome's own menu → *Add to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → Add to
+  Home Screen** (Chrome has Share in the address bar). It opens full screen, without the browser's bars, and works offline.
+- **On an iPhone, install it if your CV lives there.** iOS deletes what a site saved when the
+  site goes a week without being opened, unless it is on the Home Screen. The app on the Home
+  Screen keeps its own storage, apart from the browser's: to take a project you started in the
+  browser, export it as JSON and import it in the app. Exporting the JSON now and then keeps a
+  copy either way.
 - **Exports go to the share sheet:** **Export → Prepare the file → Share or save…** offers Save to
   Files, mail and messaging apps. What the system cannot share (on Android, Word files and
   `.zip`s) downloads as usual.

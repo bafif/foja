@@ -21,9 +21,9 @@ export const es = {
   project: "Proyecto",
   more: "Más acciones",
   install: "Instalar como app",
-  installIos: "En Safari, tocá Compartir y después «Agregar a inicio».",
+  installIos: "En Safari o en Chrome, tocá Compartir (en Chrome está en la barra de direcciones) y después «Agregar a inicio».",
   iosKeep:
-    "En iPhone y iPad, agregala a la pantalla de inicio desde Safari (Compartir → «Agregar a inicio»): queda como una app y Safari no borra tu CV si pasás una semana sin abrirla.",
+    "En iPhone y iPad, agregala a la pantalla de inicio desde Safari o Chrome (Compartir → «Agregar a inicio»): queda como una app y tu CV no se borra si pasás una semana sin abrirla.",
   restorePrevious: "Recuperar el proyecto anterior",
   tabs: {
     elsewhereTitle: "Foja ya está abierto en otra pestaña",
@@ -244,9 +244,9 @@ export const en: Strings = {
   project: "Project",
   more: "More actions",
   install: "Install as an app",
-  installIos: "In Safari, tap Share, then “Add to Home Screen”.",
+  installIos: "In Safari or Chrome, tap Share (in Chrome it is in the address bar), then “Add to Home Screen”.",
   iosKeep:
-    "On iPhone and iPad, add it to the Home Screen from Safari (Share → “Add to Home Screen”): it becomes an app, and Safari does not delete your CV if you leave it unopened for a week.",
+    "On iPhone and iPad, add it to the Home Screen from Safari or Chrome (Share → “Add to Home Screen”): it becomes an app, and your CV is not deleted if you leave it unopened for a week.",
   restorePrevious: "Restore the previous project",
   tabs: {
     elsewhereTitle: "Foja is already open in another tab",

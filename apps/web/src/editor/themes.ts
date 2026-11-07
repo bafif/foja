@@ -245,7 +245,8 @@ export const allThemes = (s: Pick<ThemeState, "added">) => [...BUILTIN_THEMES, .
 
 // ---------------------------------------------------------------- applying
 
-const cssName = (token: Token) => `--foja-${token.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`;
+/** The CSS variable of a token, as global.css names it: accentSoft → --foja-accent-soft, surface2 → --foja-surface-2. */
+const cssName = (token: Token) => `--foja-${token.replace(/[A-Z]|\d+/g, (c) => `-${c.toLowerCase()}`)}`;
 
 /** The full palette of a theme in a mode, with the default theme filling the gaps. */
 export function paletteOf(theme: Theme, dark: boolean): Palette {

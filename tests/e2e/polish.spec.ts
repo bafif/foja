@@ -89,6 +89,30 @@ test("a photo is cropped and goes into the CV", async ({ page }) => {
   expect(await previewMarkup(page)).toContain("data:image/jpeg");
 });
 
+test.describe("in dark mode", () => {
+  test.use({ colorScheme: "dark" });
+
+  test("the theme sets every colour the stylesheet declares", async ({ page }) => {
+    await page.goto("/editor");
+    await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
+    // Anything global.css declares on :root and the theme leaves alone keeps its light value.
+    const unset = await page.evaluate(() => {
+      const names = new Set<string>();
+      const walk = (rules: CSSRuleList) => {
+        for (const rule of Array.from(rules)) {
+          if (rule instanceof CSSStyleRule && rule.selectorText === ":root")
+            for (const name of Array.from(rule.style)) if (name.startsWith("--foja-")) names.add(name);
+          if ("cssRules" in rule) walk((rule as CSSGroupingRule).cssRules);
+        }
+      };
+      for (const sheet of Array.from(document.styleSheets)) walk(sheet.cssRules);
+      return { declared: names.size, unset: [...names].filter((name) => !document.documentElement.style.getPropertyValue(name)) };
+    });
+    expect(unset.declared).toBeGreaterThan(10);
+    expect(unset.unset).toEqual([]);
+  });
+});
+
 test.describe("on a phone", () => {
   test.use({ viewport: { width: 400, height: 800 }, isMobile: true, hasTouch: true });
 
@@ -140,7 +164,7 @@ test.describe("on a phone", () => {
       await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
       await page.getByRole("button", { name: "Más acciones" }).click();
       await page.getByRole("button", { name: "Instalar como app" }).click();
-      await expect(page.getByText("En Safari, tocá Compartir")).toBeVisible();
+      await expect(page.getByText("En Safari o en Chrome, tocá Compartir")).toBeVisible();
     });
   });
 });
