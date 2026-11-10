@@ -10,7 +10,7 @@ export function SkillsForm() {
   function add() {
     update((p) => {
       const id = newId("grupo", p.skills);
-      p.skills[id] = { title: "Nuevo grupo", items: [] };
+      p.skills[id] = { title: t.defaults.newGroup, items: [] };
     });
   }
 

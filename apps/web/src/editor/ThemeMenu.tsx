@@ -1,12 +1,11 @@
 import { useRef, useState } from "react";
 import { download } from "./download";
-import { LANGUAGES, setLanguage, t, useLanguage, type Language } from "./i18n";
+import { t } from "./i18n";
 import { allThemes, useThemes, type Mode } from "./themes";
 import { Button, useDismiss } from "./ui";
 
 export function ThemeMenu() {
   const state = useThemes();
-  const lang = useLanguage((s) => s.lang);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const themes = allThemes(state);
@@ -54,16 +53,6 @@ export function ThemeMenu() {
             ))}
           </fieldset>
           <label className="flex items-center justify-between gap-2 text-sm">
-            {t.themes.uiLanguage}
-            <select className="rounded border border-line bg-surface px-2 py-1" value={lang} onChange={(e) => setLanguage(e.target.value as Language)}>
-              {Object.entries(LANGUAGES).map(([id, l]) => (
-                <option key={id} value={id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center justify-between gap-2 text-sm">
             {t.themes.mode}
             <select className="rounded border border-line bg-surface px-2 py-1" value={state.mode} onChange={(e) => state.setMode(e.target.value as Mode)}>
               <option value="auto">{t.themes.auto}</option>
@@ -94,7 +83,7 @@ export function ThemeMenu() {
             >
               {t.themes.exportCurrent}
             </Button>
-            <a className="px-2 text-xs text-accent underline" href="https://github.com/bafif/foja/blob/main/docs/themes.md" target="_blank" rel="noreferrer">
+            <a className="px-2 text-xs text-accent underline" href={t.themes.docsUrl} target="_blank" rel="noreferrer">
               {t.themes.docs}
             </a>
             {error && (

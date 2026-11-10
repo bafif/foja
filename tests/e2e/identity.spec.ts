@@ -56,7 +56,7 @@ test("themes: built-in, mode, imported and the plugin API", async ({ page }) => 
   const input = page.getByText("Importar un tema (.json)…").locator("input");
   const bad = { id: "malo", name: "Malo", light: { bg: "url(https://example.com/x)" } };
   await input.setInputFiles({ name: "malo.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(bad)) });
-  await expect(page.getByRole("alert")).toContainText('"light.bg" is not a colour');
+  await expect(page.getByRole("alert")).toContainText("«light.bg» no es un color");
   const good = { id: "bosque", name: "Bosque", light: { accent: "#2d6a4f", bg: "#f1f7f3" } };
   await input.setInputFiles({ name: "bosque.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(good)) });
   await expect.poll(async () => (await root()).theme).toBe("bosque");
@@ -73,7 +73,6 @@ test("themes: built-in, mode, imported and the plugin API", async ({ page }) => 
 
 test("the interface speaks English too, and remembers it", async ({ page }) => {
   await startFictional(page);
-  await page.getByRole("button", { name: /Apariencia/ }).click();
   await page.getByLabel("Idioma de la interfaz").selectOption("en");
   await expect(page.getByRole("button", { name: "Export", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Style and layout" })).toBeVisible();

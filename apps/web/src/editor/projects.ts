@@ -1,7 +1,7 @@
 import { CONTACT_KINDS, validate, type Profile, type Project } from "@foja/core";
 import exampleEs from "../../../../examples/example.project.json";
 import exampleEn from "../../../../examples/example.en.project.json";
-import { useLanguage } from "./i18n";
+import { t, useLanguage } from "./i18n";
 import { newId } from "./forms/Skills";
 
 /** The example, my own CV as a programmer, in the interface's language. */
@@ -10,19 +10,19 @@ export const exampleProject = (): Project => structuredClone(useLanguage.getStat
 export function emptyProject(): Project {
   return {
     format: "foja/2",
-    language: "es",
-    person: { givenNames: ["Nombre"], familyNames: ["Apellido"], photo: null },
-    contacts: { email: "nombre@example.com" },
+    language: useLanguage.getState().lang,
+    person: { givenNames: [t.defaults.givenName], familyNames: [t.defaults.familyName], photo: null },
+    contacts: { email: t.defaults.email },
     skills: {},
     entries: {},
     profiles: {
       cv: {
         name: "CV",
-        subtitle: "Puesto que buscás",
+        subtitle: t.defaults.subtitle,
         contacts: ["email"],
         skills: [],
         summary: "",
-        sections: [{ id: "experiencia", title: "Experiencia", blocks: [] }],
+        sections: [{ id: "experiencia", title: t.defaults.experience, blocks: [] }],
       },
     },
   };
@@ -32,8 +32,8 @@ export function newProfile(project: Project): [string, Profile] {
   return [
     newId("perfil", project.profiles),
     {
-      name: "Nuevo perfil",
-      subtitle: "Puesto que buscás",
+      name: t.newProfile,
+      subtitle: t.defaults.subtitle,
       contacts: CONTACT_KINDS.filter((k) => project.contacts[k]),
       skills: [],
       summary: "",

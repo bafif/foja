@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { installed, ios } from "./device";
 import { t } from "./i18n";
+import { LanguageSelect } from "./LanguageSelect";
 import { emptyProject, exampleProject, parseProject } from "./projects";
 import { useEditor } from "./store";
 
@@ -9,6 +10,9 @@ export function Welcome() {
   const [error, setError] = useState<string>();
   return (
     <main className="mx-auto flex min-h-full max-w-xl flex-col justify-center gap-6 p-6">
+      <div className="flex justify-end">
+        <LanguageSelect />
+      </div>
       <h1 className="text-3xl font-semibold">{t.welcomeTitle}</h1>
       <p className="text-muted">{t.welcomeText}</p>
       {ios() && !installed() && (
