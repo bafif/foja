@@ -1,12 +1,17 @@
-// LaTeX export: one self-contained `cv.tex` (memoir + flowfram) in Foja's Legajo look, whatever
-// the Typst style of the profile, with its photo, in a `.zip`. It follows the layout options;
-// the measurements are in big points (`bp`, the Typst point), as in the Legajo style.
+// LaTeX export: one self-contained `cv.tex` (memoir) with its photo, in a `.zip`, in the look of the
+// profile's built-in style: Legajo (two columns with flowfram, or one), Banda or Minimal. A style
+// of the user's own is Typst code that cannot be turned into LaTeX, so it comes out as Legajo. It
+// follows the layout options; the measurements are in big points (`bp`, the Typst point).
 
-import type { ResolvedBlock, ResolvedCv, ResolvedSection } from "../resolve.ts";
+import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import { DEFAULT_ACCENT } from "../project.ts";
-import { resolveProfile } from "../resolve.ts";
 import type { Item, Project } from "../types.ts";
 import type { ZipInput } from "../zip.ts";
+import { resolveStyled, STYLE_NAMES, type ExportStyle } from "./style.ts";
+
+type LatexStyle = ExportStyle;
+const INK: Record<LatexStyle, string> = { legajo: "1F2A2E", banda: "1D2327", minimal: "141414" };
+const MARKER: Record<LatexStyle, string> = { legajo: "\\textcolor{accent}{--}", banda: "\\textcolor{accent}{\\textbullet}", minimal: "\\textcolor{muted}{--}" };
 
 const SPECIAL: Record<string, string> = {
   "\\": "\\textbackslash{}",
@@ -50,8 +55,7 @@ function photoFile(cv: ResolvedCv): string | undefined {
 }
 
 /** Sizes in bp: TikZ does not parse `\dimexpr`, so every length is a number here. */
-function photoCommand(cv: ResolvedCv, file: string, widthBp: number): string {
-  const shape = cv.layout.photo;
+function photoCommand(cv: ResolvedCv, file: string, widthBp: number, shape = cv.layout.photo): string {
   const width = bp(widthBp);
   if (shape === "square") return `\\includegraphics[width=${width}]{${file}}`;
   const size = cv.photo!.size ?? { width: 1, height: 1 };
@@ -84,7 +88,7 @@ function geometry(cv: ResolvedCv) {
   return { paper, textWidth, textHeight, gutter, side, main: l.columns === 2 ? textWidth - side - gutter : textWidth };
 }
 
-function preamble(cv: ResolvedCv): string[] {
+function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
   const l = cv.layout;
   const { paper, textHeight, gutter, side, main } = geometry(cv);
   const size = [9, 10, 11, 12].reduce((a, b) => (Math.abs(b - l.fontSize) < Math.abs(a - l.fontSize) ? b : a));
@@ -94,30 +98,42 @@ function preamble(cv: ResolvedCv): string[] {
   const font = l.font === "Noto Sans" ? "\\usepackage[sfdefault]{noto}" : "\\usepackage{XCharter}";
   const lines = [
     `\\documentclass[${paper.option},${size}pt]{memoir}`,
-    "% Made with Foja (https://github.com/bafif/foja), Legajo style. Compile with pdflatex, lualatex or tectonic.",
+    `% Made with Foja (https://github.com/bafif/foja), ${STYLE_NAMES[style]} style. Compile with pdflatex, lualatex or tectonic.`,
     "\\usepackage[T1]{fontenc}",
     font,
     `\\usepackage[${BABEL[cv.language.split("-")[0]] ?? "english"}]{babel}`,
     `\\usepackage[paperwidth=${paper.width}mm,paperheight=${paper.height}mm,top=${m.top}mm,bottom=${m.bottom}mm,left=${m.left}mm,right=${m.right}mm]{geometry}`,
     "\\usepackage{graphicx}",
-    "\\usepackage{flowfram}",
+    style === "legajo" ? "\\usepackage{flowfram}" : style === "banda" ? "\\usepackage{eso-pic}" : "",
     "\\usepackage{xcolor}",
     "\\usepackage{tikz}",
     "\\usepackage{enumitem}",
     "\\usepackage[hidelinks]{hyperref}",
     `\\definecolor{accent}{HTML}{${accent}}`,
-    "\\definecolor{ink}{HTML}{1F2A2E}",
+    `\\definecolor{ink}{HTML}{${INK[style]}}`,
     "\\colorlet{muted}{ink!62}",
     "\\colorlet{tint}{accent!8}",
     "\\pagestyle{empty}",
     "\\setlength{\\parindent}{0pt}",
     `\\setlength{\\parskip}{${+(0.15 * density).toFixed(2)}em}`,
     "\\color{ink}",
-    "\\setlist[itemize]{leftmargin=1em,label=\\textcolor{accent}{--},itemsep=0.2em,topsep=0.2em,parsep=0pt}",
+    `\\setlist[itemize]{leftmargin=1em,label=${MARKER[style]},itemsep=0.2em,topsep=0.2em,parsep=0pt}`,
     `\\newcommand{\\Sep}{\\vspace{${+(0.9 * density).toFixed(2)}em}}`,
     `\\newcommand{\\SmallSep}{\\vspace{${+(0.45 * density).toFixed(2)}em}}`,
     // Spaced capitals in a small size: XCharter's small caps lack accented letters in LaTeX.
     "\\newcommand{\\Caps}[1]{{\\footnotesize\\MakeUppercase{#1}}}",
+  ].filter(Boolean);
+  if (style === "banda") {
+    // A block of the accent colour, then the title.
+    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep{\\color{accent}\\rule[-0.12em]{3.5bp}{0.95em}}\\hspace{0.5em}{\\large\\bfseries #1}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+    return lines;
+  }
+  if (style === "minimal") {
+    // Small spaced capitals in bold, nothing else.
+    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\SmallSep{\\bfseries\\Caps{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+    return lines;
+  }
+  lines.push(
     // A section title in small caps, then a hairline to the end of the line.
     // \\nopagebreak keeps a title with what follows; needspace would misjudge flowfram's frames.
     "\\newcommand{\\CVSection}[1]{\\par\\Sep{\\color{accent}\\bfseries\\Caps{#1}}\\hspace{0.6em}{\\color{accent!50}\\leaders\\hrule height 0.36em depth -0.32em\\hfill}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}",
@@ -125,7 +141,7 @@ function preamble(cv: ResolvedCv): string[] {
     `\\newlength{\\DateWidth}\\setlength{\\DateWidth}{${bp(2 * 28.35 * (l.fontSize / 10))}}`,
     // An entry: the period in its own column, the rest beside it.
     "\\newcommand{\\CVEntry}[2]{\\par\\noindent\\parbox[t]{\\DateWidth}{\\raggedright\\small\\color{muted}#1}\\hspace{0.8em}\\parbox[t]{\\dimexpr\\linewidth-\\DateWidth-0.8em\\relax}{#2}\\par\\SmallSep}",
-  ];
+  );
   const header = 22 * MM * (l.fontSize / 10);
   if (l.columns === 2) {
     const left = l.sidebar === "left";
@@ -153,7 +169,34 @@ function items(list: Item[]): string[] {
   return ["\\begin{itemize}", ...list.map((it) => `\\item ${it.heading ? `\\textbf{${escapeLatex(it.heading)}.} ` : ""}${inlineLatex(it.text)}`), "\\end{itemize}"];
 }
 
-function mainSection(s: ResolvedSection): string[] {
+/** Legajo: the period in its own column, the rest beside it. */
+function legajoEntry(e: ResolvedEntry, compact: boolean): string {
+  const content = [
+    `\\textbf{${escapeLatex(e.title)}}`,
+    e.place ? `\\\\{\\itshape\\color{muted}${escapeLatex(e.place)}}` : "",
+    e.note ? `\\par{\\small\\color{muted}${escapeLatex(e.note)}}` : "",
+    !compact && e.items.length ? `\\par${items(e.items).join("\n")}` : "",
+  ].join("");
+  return `\\CVEntry{${escapeLatex(e.period)}}{${content}}`;
+}
+
+/** Banda and Minimal: the title with the period on the right, the place below it. */
+function lineEntry(style: "banda" | "minimal") {
+  return (e: ResolvedEntry, compact: boolean): string =>
+    [
+      "\\par\\SmallSep\\noindent ",
+      style === "banda" ? `\\textbf{${escapeLatex(e.title)}}` : escapeLatex(e.title),
+      `\\hfill{\\small\\color{muted}${escapeLatex(e.period)}}`,
+      e.place ? (style === "banda" ? `\\\\{\\small\\color{accent}\\bfseries ${escapeLatex(e.place)}}` : `\\\\{\\small\\color{muted}${escapeLatex(e.place)}}`) : "",
+      "\\par",
+      e.note ? `{\\small\\color{muted}${escapeLatex(e.note)}}\\par` : "",
+      !compact && e.items.length ? items(e.items).join("\n") : "",
+    ].join("");
+}
+
+type EntryLatex = (e: ResolvedEntry, compact: boolean) => string;
+
+function mainSection(s: ResolvedSection, entry: EntryLatex = legajoEntry): string[] {
   const out = [`\\CVSection{${escapeLatex(s.title)}}`];
   let pending: Item[] = [];
   const flush = () => {
@@ -167,16 +210,7 @@ function mainSection(s: ResolvedSection): string[] {
     }
     flush();
     if (b.type === "paragraph") out.push(`${inlineLatex(b.text)}\\par`);
-    else {
-      const e = b.entry;
-      const content = [
-        `\\textbf{${escapeLatex(e.title)}}`,
-        e.place ? `\\\\{\\itshape\\color{muted}${escapeLatex(e.place)}}` : "",
-        e.note ? `\\par{\\small\\color{muted}${escapeLatex(e.note)}}` : "",
-        !s.compact && e.items.length ? `\\par${items(e.items).join("\n")}` : "",
-      ].join("");
-      out.push(`\\CVEntry{${escapeLatex(e.period)}}{${content}}`);
-    }
+    else out.push(entry(b.entry, s.compact));
   }
   flush();
   return out;
@@ -244,7 +278,7 @@ function summary(cv: ResolvedCv): string[] {
 }
 
 function body(cv: ResolvedCv, photo: string | undefined): string[] {
-  const main = cv.sections.filter((s) => !s.side).flatMap(mainSection);
+  const main = cv.sections.filter((s) => !s.side).flatMap((s) => mainSection(s));
   if (cv.layout.columns === 2) {
     return ["\\begin{staticcontents*}{header}", ...heading(cv), "\\end{staticcontents*}", ...sidebar(cv, photo), "\\framebreak", ...summary(cv), ...main];
   }
@@ -263,24 +297,81 @@ function body(cv: ResolvedCv, photo: string | undefined): string[] {
     ? [`\\CVSection{${escapeLatex(cv.labels.skills)}}`, ...cv.skills.flat().map((g) => `{\\color{muted}\\Caps{${escapeLatex(g.title)}}}:\\enspace ${g.items.map(escapeLatex).join(", ")}\\par`)]
     : [];
   const highlight = cv.highlight ? [`{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}~~${escapeLatex(cv.highlight.text)}\\par`] : [];
-  return [...top, "\\bigskip", ...highlight, ...summary(cv), ...skills, ...cv.sections.flatMap(mainSection)];
+  return [...top, "\\bigskip", ...highlight, ...summary(cv), ...skills, ...cv.sections.flatMap((s) => mainSection(s))];
 }
 
-export function renderLatex(cv: ResolvedCv): string {
+const DOT = " $\\cdot$ ";
+const size = (cv: ResolvedCv, scale: number) => `\\fontsize{${+(cv.layout.fontSize * scale).toFixed(1)}}{${+(cv.layout.fontSize * scale * 1.2).toFixed(1)}}\\selectfont `;
+
+/** Banda: a band of the accent colour across the top of page 1 with the name and the photo in
+ * white; contacts, skills, highlight and summary below it; one column. */
+function bandaBody(cv: ResolvedCv, photo: string | undefined): string[] {
+  const band = 36; // mm, as in banda.typ
+  const inner = Math.max(band - cv.layout.margins.top, 12) * MM;
+  const photoWidth = Math.max(band - cv.layout.margins.top - 8, 10) * MM;
+  const names = [`{${size(cv, 2.3)}\\bfseries ${escapeLatex(cv.name)}\\par}`, "\\vspace{2bp}", `{${size(cv, 1.25)}${escapeLatex(cv.subtitle)}\\par}`];
+  const head = photo
+    ? [
+        `\\begin{minipage}{\\dimexpr\\linewidth-${bp(photoWidth)}-1em\\relax}`,
+        ...names,
+        `\\end{minipage}\\hfill\\begin{minipage}{${bp(photoWidth)}}${photoCommand(cv, photo, photoWidth, cv.layout.photo === "square" ? "rounded" : cv.layout.photo)}\\end{minipage}`,
+      ]
+    : names;
+  const out = [
+    `\\AddToShipoutPictureBG*{\\AtPageUpperLeft{\\color{accent}\\rule[-${band}mm]{\\paperwidth}{${band}mm}}}`,
+    `\\noindent\\parbox[b][${bp(inner)}][c]{\\linewidth}{\\color{white}`,
+    ...head,
+    "}\\par\\vspace{0.9em}",
+  ];
+  if (cv.contacts.length) out.push(`{\\small\\color{muted}${cv.contacts.map(contactValue).join("\\enspace{\\color{accent}\\textbullet}\\enspace ")}\\par}`);
+  for (const row of cv.skills) {
+    const group = (g: (typeof row)[number]) => `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(DOT)}`;
+    const width = `\\dimexpr(\\linewidth-${1.5 * (row.length - 1)}em)/${row.length}\\relax`;
+    out.push(`{\\small${row.map((g) => `\\parbox[t]{${width}}{\\raggedright ${group(g)}}`).join("\\hspace{1.5em}")}\\par}\\vspace{0.25em}`);
+  }
+  if (cv.highlight) out.push(`\\SmallSep{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.4em}${escapeLatex(cv.highlight.text)}\\par`);
+  if (cv.summary) out.push("\\SmallSep", ...summary(cv));
+  return [...out, ...cv.sections.flatMap((s) => mainSection(s, lineEntry("banda")))];
+}
+
+/** Minimal: the name in the accent colour, the subtitle below it, the contacts on the right; a
+ * lot of air, hierarchy from size and weight; one column. */
+function minimalBody(cv: ResolvedCv, photo: string | undefined): string[] {
+  const photoWidth = cv.layout.fontSize * 7.5;
+  const names = [`{${size(cv, 2.6)}\\color{accent}${escapeLatex(cv.name)}\\par}`, "\\vspace{2bp}", `{${size(cv, 1.2)}\\color{muted}${escapeLatex(cv.subtitle)}\\par}`];
+  const out = [`\\noindent\\begin{minipage}[b]{${cv.contacts.length || photo ? "0.55" : "1"}\\linewidth}`, ...names, "\\end{minipage}\\hfill"];
+  if (cv.contacts.length) out.push(`{\\small\\color{muted}\\begin{tabular}[b]{@{}r@{}}${cv.contacts.map(contactValue).join("\\\\{}")}\\end{tabular}}`);
+  if (photo) out.push(`\\hspace{1.4em}\\begin{minipage}[b]{${bp(photoWidth)}}${photoCommand(cv, photo, photoWidth)}\\end{minipage}`);
+  out.push("\\par");
+  if (cv.highlight) out.push(`\\Sep{\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.4em}${escapeLatex(cv.highlight.text)}\\par`);
+  if (cv.summary) out.push("\\Sep", ...summary(cv));
+  if (cv.skills.length) {
+    out.push(`\\CVSection{${escapeLatex(cv.labels.skills)}}`, "\\begin{tabular}{@{}p{0.22\\linewidth}@{\\hspace{1.5em}}p{\\dimexpr0.78\\linewidth-1.5em\\relax}@{}}");
+    out.push(...cv.skills.flat().map((g) => `\\leavevmode{\\small\\color{muted}${escapeLatex(g.title)}} & ${g.items.map(escapeLatex).join(DOT)}\\\\[0.3em]`));
+    out.push("\\end{tabular}\\par");
+  }
+  return [...out, ...cv.sections.flatMap((s) => mainSection(s, lineEntry("minimal")))];
+}
+
+export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo"): string {
   const photo = photoFile(cv);
-  return [...preamble(cv), "\\begin{document}", ...body(cv, photo), "\\end{document}", ""].join("\n");
+  const content = style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : body(cv, photo);
+  return [...preamble(cv, style), "\\begin{document}", ...content, "\\end{document}", ""].join("\n");
 }
 
 export function latexBundle(project: Project, profileId: string): ZipInput {
-  const cv = resolveProfile(project, profileId);
+  const { cv, style, custom } = resolveStyled(project, profileId);
   const files: ZipInput = {
-    "cv.tex": renderLatex(cv),
+    "cv.tex": renderLatex(cv, style),
     "README.txt": [
       "CV made with Foja (https://github.com/bafif/foja).",
       "",
       "Compile cv.tex with pdflatex (or lualatex, or tectonic); it needs the memoir, XCharter (or",
-      "noto), flowfram, tikz, enumitem and hyperref packages, which come with TeX Live",
-      "and MiKTeX. It is in Foja's Legajo look, whichever style the profile uses in Foja.",
+      "noto), flowfram, eso-pic, tikz, enumitem and hyperref packages, which come with TeX Live",
+      "and MiKTeX.",
+      custom
+        ? "The profile uses a style of your own, written in Typst, which cannot be turned into LaTeX: this is in Foja's Legajo look. The Typst export keeps your style."
+        : `It is in the look of Foja's ${STYLE_NAMES[style]} style, the one the profile uses.`,
       ...(cv.photo?.type === "image/svg+xml" ? ["", "The photo is an SVG, which pdflatex cannot include, so it was left out."] : []),
       "",
     ].join("\n"),

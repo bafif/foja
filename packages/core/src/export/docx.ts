@@ -1,7 +1,9 @@
-// Word export with the `docx` library, in Foja's Legajo look whatever the Typst style: the name
-// in small caps over a rule, the sidebar as a shaded cell, small-caps section titles, and every
-// entry as a row with its dates in a column of their own. One or two columns following the
-// layout options. Word has no XCharter, so the serif is Georgia (Windows and macOS; LibreOffice
+// Word export with the `docx` library, in the look of the profile's built-in style (Legajo for a
+// style of the user's own). Legajo: the name in small caps over a rule, the sidebar as a shaded
+// cell, small-caps section titles, and every entry as a row with its dates in a column of their
+// own; one or two columns following the layout options. Banda: the name in a band of the accent
+// colour, titles marked with a bar of it. Minimal: the name in the accent colour, plain capitals
+// for the titles. Both are one column. Word has no XCharter, so the serif is Georgia (Windows and macOS; LibreOffice
 // substitutes it); the sans option uses Noto Sans, or what the system offers for it.
 
 import {
@@ -28,6 +30,7 @@ import {
 import { DEFAULT_ACCENT, inlineRuns } from "../project.ts";
 import type { ResolvedBlock, ResolvedContact, ResolvedCv, ResolvedSection } from "../resolve.ts";
 import type { Item } from "../types.ts";
+import type { ExportStyle } from "./style.ts";
 
 const TWIP_PER_MM = 1440 / 25.4;
 const PAPER = { a4: { width: 210, height: 297 }, "us-letter": { width: 215.9, height: 279.4 } };
@@ -44,6 +47,7 @@ function lighten(hex: string, amount: number): string {
 
 interface Ctx {
   cv: ResolvedCv;
+  style: ExportStyle;
   font: string;
   accent: string;
   tint: string;
@@ -100,6 +104,14 @@ function photoRun(cv: ResolvedCv, widthPt: number): ImageRun | undefined {
 
 /** Small caps title with a hairline under it, kept with what follows. */
 function sectionTitle(ctx: Ctx, title: string): Paragraph {
+  if (ctx.style === "banda")
+    return para([plain(ctx, title, { bold: true, size: Math.round(ctx.size * 1.15) })], {
+      spacing: { before: ctx.sep, after: ctx.smallSep },
+      border: { left: { style: BorderStyle.SINGLE, size: 24, color: ctx.accent, space: 6 } },
+      keepNext: true,
+    });
+  if (ctx.style === "minimal")
+    return para([plain(ctx, title.toUpperCase(), { bold: true, size: ctx.small })], { spacing: { before: Math.round(ctx.sep * 1.3), after: ctx.smallSep }, keepNext: true });
   return para([plain(ctx, title.toLowerCase(), { bold: true, color: ctx.accent, smallCaps: true, size: Math.round(ctx.size * 1.1) })], {
     spacing: { before: ctx.sep, after: ctx.smallSep },
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: ctx.rule, space: 2 } },
@@ -152,6 +164,11 @@ function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragrap
 
 function header(ctx: Ctx): Paragraph[] {
   const { cv } = ctx;
+  if (ctx.style === "minimal")
+    return [
+      para([plain(ctx, cv.name, { color: ctx.accent, size: Math.round(ctx.size * 2.6) })], { spacing: { after: 40 } }),
+      para([plain(ctx, cv.subtitle, { color: MUTED, size: Math.round(ctx.size * 1.2) })], { spacing: { after: ctx.sep } }),
+    ];
   return [
     para([plain(ctx, cv.name, { smallCaps: true, size: Math.round(ctx.size * 2.3) })], {
       border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: ctx.accent, space: 1 } },
@@ -255,12 +272,35 @@ function twoColumns(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   ];
 }
 
+/** Banda's header: the name and the subtitle in white on the accent colour, the photo beside them. */
+function band(ctx: Ctx, textWidth: number): Table {
+  const { cv } = ctx;
+  const photo = photoRun(cv, ctx.size * 4.25);
+  const shading = { type: ShadingType.CLEAR, color: "auto", fill: ctx.accent };
+  const margins = { top: 160, bottom: 160, left: 200, right: 200 };
+  const names = [
+    para([plain(ctx, cv.name, { bold: true, color: "FFFFFF", size: Math.round(ctx.size * 2.3) })], { spacing: { after: 40 } }),
+    para([plain(ctx, cv.subtitle, { color: "FFFFFF", size: Math.round(ctx.size * 1.25) })]),
+  ];
+  const cells = [new TableCell({ borders: NO_BORDERS, shading, margins, verticalAlign: VerticalAlign.CENTER, children: names })];
+  if (photo) cells.push(new TableCell({ borders: NO_BORDERS, shading, margins, verticalAlign: VerticalAlign.CENTER, children: [para([photo], { alignment: AlignmentType.RIGHT })] }));
+  return new Table({
+    layout: TableLayoutType.FIXED,
+    width: { size: textWidth, type: WidthType.DXA },
+    columnWidths: photo ? [textWidth - 2000, 2000] : [textWidth],
+    borders: TableBorders.NONE,
+    rows: [new TableRow({ children: cells })],
+  });
+}
+
 function oneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const { cv } = ctx;
-  const contacts: ParagraphChild[] = cv.contacts.flatMap((c, i) => [...(i ? [plain(ctx, "  ·  ", { size: ctx.small, color: MUTED })] : []), contactChild(ctx, c, ctx.small)]);
-  const head = [...header(ctx), ...(contacts.length ? [para(contacts, { spacing: { after: ctx.sep } })] : [])];
+  const dot = ctx.style === "banda" ? plain(ctx, "  •  ", { size: ctx.small, color: ctx.accent }) : plain(ctx, "  ·  ", { size: ctx.small, color: MUTED });
+  const contacts: ParagraphChild[] = cv.contacts.flatMap((c, i) => [...(i ? [dot] : []), contactChild(ctx, c, ctx.small)]);
+  const contactLine = contacts.length ? [para(contacts, { spacing: { before: ctx.style === "banda" ? ctx.smallSep : 0, after: ctx.sep } })] : [];
+  const head = [...header(ctx), ...contactLine];
   const photo = photoRun(cv, ctx.size * 4.25);
-  const top: (Paragraph | Table)[] = photo
+  const top: (Paragraph | Table)[] = ctx.style === "banda" ? [band(ctx, textWidth), ...contactLine] : photo
     ? [
         new Table({
           layout: TableLayoutType.FIXED,
@@ -284,18 +324,25 @@ function oneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const skills = cv.skills.length
     ? [
         sectionTitle(ctx, cv.labels.skills),
-        ...cv.skills.flat().map((g) => para([plain(ctx, `${g.title.toLowerCase()}: `, { smallCaps: true, color: MUTED }), plain(ctx, g.items.join(", "))])),
+        ...cv.skills.flat().map((g) => {
+          const title =
+            ctx.style === "legajo"
+              ? plain(ctx, `${g.title.toLowerCase()}: `, { smallCaps: true, color: MUTED })
+              : plain(ctx, `${g.title}: `, ctx.style === "banda" ? { bold: true } : { color: MUTED });
+          return para([title, plain(ctx, g.items.join(", "))]);
+        }),
       ]
     : [];
   return [...top, ...highlight, ...summary(ctx), ...skills, ...cv.sections.flatMap((s) => mainSection(ctx, s, textWidth))];
 }
 
-export async function renderDocx(cv: ResolvedCv): Promise<Uint8Array> {
+export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"): Promise<Uint8Array> {
   const l = cv.layout;
   const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
   const accentHex = l.accent ?? DEFAULT_ACCENT;
   const ctx: Ctx = {
     cv,
+    style,
     font: l.font === "Noto Sans" ? "Noto Sans" : "Georgia",
     accent: accentHex.slice(1).toUpperCase(),
     tint: lighten(accentHex, 0.92),
@@ -327,9 +374,9 @@ export async function renderDocx(cv: ResolvedCv): Promise<Uint8Array> {
             {
               level: 0,
               format: LevelFormat.BULLET,
-              text: "–",
+              text: style === "banda" ? "•" : "–",
               alignment: AlignmentType.LEFT,
-              style: { paragraph: { indent: { left: 240, hanging: 200 } }, run: { color: ctx.accent } },
+              style: { paragraph: { indent: { left: 240, hanging: 200 } }, run: { color: style === "minimal" ? MUTED : ctx.accent } },
             },
           ],
         },
@@ -348,7 +395,7 @@ export async function renderDocx(cv: ResolvedCv): Promise<Uint8Array> {
             },
           },
         },
-        children: l.columns === 2 ? twoColumns(ctx, textWidth) : oneColumn(ctx, textWidth),
+        children: l.columns === 2 && style === "legajo" ? twoColumns(ctx, textWidth) : oneColumn(ctx, textWidth),
       },
     ],
   });

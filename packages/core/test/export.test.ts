@@ -21,6 +21,32 @@ function unzip(data: Uint8Array): Record<string, Uint8Array> {
   return out;
 }
 
+/** word/document.xml of a .docx (docx deflates its parts; Node's zlib reads them back). */
+async function documentXml(data: Uint8Array): Promise<string> {
+  const { inflateRawSync } = await import("node:zlib");
+  const view = new DataView(data.buffer, data.byteOffset);
+  let at = 0;
+  while (view.getUint32(at, true) === 0x04034b50) {
+    const method = view.getUint16(at + 8, true);
+    const size = view.getUint32(at + 18, true);
+    const nameLength = view.getUint16(at + 26, true);
+    const extra = view.getUint16(at + 28, true);
+    const name = decoder.decode(data.subarray(at + 30, at + 30 + nameLength));
+    const body = data.subarray(at + 30 + nameLength + extra, at + 30 + nameLength + extra + size);
+    if (name === "word/document.xml") return decoder.decode(method === 8 ? inflateRawSync(body) : body);
+    at += 30 + nameLength + extra + size;
+  }
+  return "";
+}
+
+/** The example with the programmer profile in a given style (built-in, or "mio", one's own). */
+function inStyle(style: string): Project {
+  const p = structuredClone(example);
+  if (style === "mio") p.templates = { mio: { name: "Mío", source: '#import "/lib.typ": *\n#cv.name' } };
+  p.profiles.programador.layout = { ...p.profiles.programador.layout, template: style };
+  return p;
+}
+
 describe("resolve", () => {
   test("entries, dates and contacts", () => {
     const cv = resolveProfile(example, "programador");
@@ -71,6 +97,26 @@ describe("LaTeX", () => {
     expect(tex).toContain("\\CVSection{Skills}");
   });
 
+  test("the profile's style reaches the LaTeX export", async () => {
+    const files = async (style: string) => unzip((await exportFiles(inStyle(style), "programador", "tex"))[0].data);
+    const banda = await files("banda");
+    const bandaTex = decoder.decode(banda["cv.tex"]);
+    expect(bandaTex).toContain("Banda style");
+    expect(bandaTex).toContain("\\AddToShipoutPictureBG*");
+    expect(bandaTex).not.toContain("flowframe"); // one column, as in Typst
+    expect(bandaTex).toContain("left=16mm,right=16mm");
+    expect(bandaTex).toContain("\\usepackage[sfdefault]{noto}");
+    expect(decoder.decode(banda["README.txt"])).toContain("Banda style");
+    const minimalTex = decoder.decode((await files("minimal"))["cv.tex"]);
+    expect(minimalTex).toContain("Minimal style");
+    expect(minimalTex).toContain("\\definecolor{accent}{HTML}{141414}");
+    expect(minimalTex).not.toMatch(/flowframe|AddToShipout/);
+    // A style of one's own is Typst: LaTeX comes out as Legajo, and the README says so.
+    const own = await files("mio");
+    expect(decoder.decode(own["cv.tex"])).toContain("Legajo style");
+    expect(decoder.decode(own["README.txt"])).toContain("The Typst export keeps your style.");
+  });
+
   test("the bundle carries a JPEG photo", async () => {
     const p = structuredClone(example);
     p.assets = { "photo.jpg": { type: "image/jpeg", data: toBase64(new Uint8Array([0xff, 0xd8, 0xff, 0xd9])) } };
@@ -119,26 +165,23 @@ describe("files", () => {
   test("Word: a valid package with the text and the bullets", async () => {
     const [docx] = await exportFiles(example, "programador", "docx");
     expect(docx.data[0]).toBe(0x50); // PK
-    // docx deflates its parts; Node's zlib reads them back.
-    const { inflateRawSync } = await import("node:zlib");
-    const view = new DataView(docx.data.buffer, docx.data.byteOffset);
-    let at = 0;
-    let documentXml = "";
-    while (view.getUint32(at, true) === 0x04034b50) {
-      const method = view.getUint16(at + 8, true);
-      const size = view.getUint32(at + 18, true);
-      const nameLength = view.getUint16(at + 26, true);
-      const extra = view.getUint16(at + 28, true);
-      const name = decoder.decode(docx.data.subarray(at + 30, at + 30 + nameLength));
-      const body = docx.data.subarray(at + 30 + nameLength + extra, at + 30 + nameLength + extra + size);
-      if (name === "word/document.xml") documentXml = decoder.decode(method === 8 ? inflateRawSync(body) : body);
-      at += 30 + nameLength + extra + size;
-    }
-    expect(documentXml).toContain("Bautista Damián Fiori");
-    expect(documentXml).toContain("Datalogger ATtiny85. ");
-    expect(documentXml).toContain("<w:smallCaps/>");
-    expect(documentXml).toMatch(/w:fill="[0-9A-F]{6}"/); // the shaded sidebar
-    expect(documentXml).not.toContain('w:val="dotted"');
+    const xml = await documentXml(docx.data);
+    expect(xml).toContain("Bautista Damián Fiori");
+    expect(xml).toContain("Datalogger ATtiny85. ");
+    expect(xml).toContain("<w:smallCaps/>");
+    expect(xml).toMatch(/w:fill="[0-9A-F]{6}"/); // the shaded sidebar
+    expect(xml).not.toContain('w:val="dotted"');
+  });
+
+  test("Word follows the profile's style", async () => {
+    const banda = await documentXml((await exportFiles(inStyle("banda"), "programador", "docx"))[0].data);
+    expect(banda).toContain('w:fill="1F5F5B"'); // the band behind the name
+    expect(banda).toMatch(/<w:left [^>]*w:color="1F5F5B"/); // the bar before each title
+    expect(banda).not.toContain("<w:smallCaps/>");
+    const minimal = await documentXml((await exportFiles(inStyle("minimal"), "programador", "docx"))[0].data);
+    expect(minimal).not.toContain("<w:smallCaps/>");
+    expect(minimal).not.toMatch(/w:fill="[0-9A-F]{6}"/);
+    expect(minimal).toContain("EXPERIENCIA");
   });
 });
 

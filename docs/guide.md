@@ -67,9 +67,9 @@ navigation. Click any part of the preview to edit it.
 | :--- | :--- |
 | PDF | The CV as you see it. |
 | JPG | One image per page, at 72, 150 or 300 dpi. |
-| Word (`.docx`) | One or two columns, in the Legajo look whatever the style (Word cannot run Typst). |
-| Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. |
-| LaTeX (`.zip`) | In the Legajo look; LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
+| Word (`.docx`) | In the look of the profile's style (Legajo, Banda or Minimal), redone in Word, which cannot run Typst. A style of your own comes out as Legajo. |
+| Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. The only export that keeps a style of your own as it is. |
+| LaTeX (`.zip`) | In the look of the profile's style (Legajo, Banda or Minimal); a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |
 | JSON | The project file, to import it again or move it to another device. |
 | All formats | Every one of them in a `.zip`. |

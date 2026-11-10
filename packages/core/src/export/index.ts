@@ -10,11 +10,13 @@ import { renderDocx } from "./docx.ts";
 import { projectJson, resolvedJson } from "./json.ts";
 import { latexBundle } from "./latex.ts";
 import { renderMarkdown } from "./markdown.ts";
+import { resolveStyled } from "./style.ts";
 
 export { escapeLatex, inlineLatex, latexBundle, renderLatex } from "./latex.ts";
 export { inlineMarkdown, renderMarkdown } from "./markdown.ts";
 export { projectJson, resolvedJson } from "./json.ts";
 export { renderDocx } from "./docx.ts";
+export { exportStyleOf, resolveStyled, type ExportStyle } from "./style.ts";
 
 export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "docx"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
@@ -53,14 +55,10 @@ export async function exportFiles(
         { name: `${fileStem(project)}.foja.json`, mime: "application/json", data: encoder.encode(projectJson(project)) },
         { name: `${stem}.resolved.json`, mime: "application/json", data: encoder.encode(resolvedJson(resolveProfile(project, profileId))) },
       ];
-    case "docx":
-      return [
-        {
-          name: `${stem}.docx`,
-          mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          data: await renderDocx(resolveProfile(project, profileId)),
-        },
-      ];
+    case "docx": {
+      const { cv, style } = resolveStyled(project, profileId);
+      return [{ name: `${stem}.docx`, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", data: await renderDocx(cv, style) }];
+    }
   }
 }
 
