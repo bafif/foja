@@ -10,6 +10,9 @@ export interface StyleInfo {
   description: string;
   /** The layout options the style honours. */
   options: (keyof Layout)[];
+  /** Options written into the profile when the style is picked (one column and no photo for the
+   * ones made for applicant tracking systems), so they show and change like any other. */
+  preset?: Partial<Layout>;
 }
 
 export const BUILTIN_STYLES = styles as StyleInfo[];
@@ -27,6 +30,15 @@ export function styleOf(project: Project, profileId: string): { id: string; cust
   if (ownStyle(project, id)) return { id, custom: true, path: customStylePath(id) };
   if (isBuiltinStyle(id)) return { id, custom: false, path: builtinStylePath(id) };
   return { id: DEFAULT_STYLE, custom: false, path: builtinStylePath(DEFAULT_STYLE) };
+}
+
+/** A profile's layout once style `id` is picked: the style, with the built-in style's preset
+ * written over the options it sets. The default style is left implicit. */
+export function pickStyle(layout: Layout | undefined, id: string): Layout {
+  const preset = BUILTIN_STYLES.find((s) => s.id === id)?.preset ?? {};
+  const next: Layout = { ...layout, ...structuredClone(preset), template: id };
+  if (id === DEFAULT_STYLE) delete next.template;
+  return next;
 }
 
 /** The main file of a style by id (built-in or the user's), whichever profile uses it. */

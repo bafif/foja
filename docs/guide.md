@@ -38,16 +38,32 @@ Dates use month pickers; an entry can be *ongoing* or have a *single date*. Text
 
 ## Styles
 
-**Style and layout** shows the three Foja styles, each with a thumbnail of your CV in it:
+**Style and layout** shows the six Foja styles, each with a thumbnail of your CV in it:
 
 - **Legajo** (default): serif, the name in small caps over a rule, a sidebar card, the dates in a
   column of their own.
 - **Banda**: a band of colour with the name and the photo; one column, sans-serif.
 - **Minimal**: black on white with plenty of air; the colour only on the name.
 
-Below them, the options the chosen style honours: one or two columns, sidebar side and width,
-photo shape, typeface, size, colour, margins, spacing, paper, date format and the language of
-fixed labels (Spanish, English, Portuguese).
+Three more are made for applicant tracking systems (ATS) and the search tools that read CVs for
+recruiters, in the manner of the CVs that Harvard's career office recommends:
+
+- **Claustro**: the classic. Serif, the name centred with the contacts on one line below it,
+  section titles in capitals over a rule, the institution above the position and the dates.
+- **Recto**: modern and plain, sans-serif and flush left; titles in capitals of the accent colour
+  over a hairline, the position and the dates on one line, the institution below.
+- **Llano**: the plainest and the most compact; bold titles in the accent colour, each entry on one
+  line with the position and the institution.
+
+All three are one column of plain text, with no icons and no text in pictures, the contacts in
+the body (never in a Word header or footer), standard titles (the summary under "Profile", the
+skills under "Skills") and the text in the PDF in the order it is seen, which a test checks. Picking
+one of them sets the profile to one column and no photo; both are written into the profile, so
+they show and can be changed like any other option.
+
+Below the styles, the options the chosen style honours: one or two columns, sidebar side and
+width, photo shape, typeface, size, colour, margins, spacing, paper, date format and the language
+of fixed labels (Spanish, English, Portuguese).
 
 **Edit in Typst** copies the profile's style into a style of your own and opens its code; **New
 style from scratch** starts from a small skeleton. Errors show above the preview, which keeps the
@@ -67,9 +83,9 @@ navigation. Click any part of the preview to edit it.
 | :--- | :--- |
 | PDF | The CV as you see it. |
 | JPG | One image per page, at 72, 150 or 300 dpi. |
-| Word (`.docx`) | In the look of the profile's style (Legajo, Banda or Minimal), redone in Word, which cannot run Typst. A style of your own comes out as Legajo. |
+| Word (`.docx`) | In the look of the profile's built-in style, redone in Word, which cannot run Typst. A style of your own comes out as Legajo. Claustro, Recto and Llano are paragraphs only, without tables, the dates on a tab stop at the right margin. |
 | Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. The only export that keeps a style of your own as it is. |
-| LaTeX (`.zip`) | In the look of the profile's style (Legajo, Banda or Minimal); a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
+| LaTeX (`.zip`) | In the look of the profile's built-in style; a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |
 | JSON | The project file, to import it again or move it to another device. |
 | All formats | Every one of them in a `.zip`. |

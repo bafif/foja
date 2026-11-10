@@ -16,7 +16,7 @@ export { escapeLatex, inlineLatex, latexBundle, renderLatex } from "./latex.ts";
 export { inlineMarkdown, renderMarkdown } from "./markdown.ts";
 export { projectJson, resolvedJson } from "./json.ts";
 export { renderDocx } from "./docx.ts";
-export { exportStyleOf, resolveStyled, type ExportStyle } from "./style.ts";
+export { ATS_STYLES, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
 
 export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "docx"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];

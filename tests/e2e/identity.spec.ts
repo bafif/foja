@@ -29,6 +29,19 @@ test("a style is picked, copied into Typst and edited", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Borrar estilo" })).toBeDisabled();
 });
 
+test("an ATS style brings one column and no photo, which stay as options", async ({ page }) => {
+  await startFictional(page);
+  await page.getByRole("button", { name: "Estilo y diseño" }).click();
+  await expect(page.getByLabel("Columnas")).toHaveValue("2");
+  await page.locator('[data-style="claustro"]').click();
+  await expect(page.locator('[data-style="claustro"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Foto")).toHaveValue("none");
+  // Back in Legajo, the profile keeps the one column the preset wrote.
+  await page.locator('[data-style="legajo"]').click();
+  await expect(page.getByLabel("Columnas")).toHaveValue("1");
+  await expect(page.getByTestId("page-badge")).toBeVisible();
+});
+
 test("a style from scratch compiles and can be used by another profile", async ({ page }) => {
   await startFictional(page);
   await page.getByRole("button", { name: "Estilo y diseño" }).click();

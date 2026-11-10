@@ -1,17 +1,25 @@
 // LaTeX export: one self-contained `cv.tex` (memoir) with its photo, in a `.zip`, in the look of the
-// profile's built-in style: Legajo (two columns with flowfram, or one), Banda or Minimal. A style
-// of the user's own is Typst code that cannot be turned into LaTeX, so it comes out as Legajo. It
-// follows the layout options; the measurements are in big points (`bp`, the Typst point).
+// profile's built-in style: Legajo (two columns with flowfram, or one), Banda, Minimal, Claustro,
+// Recto or Llano. A style of the user's own is Typst code that cannot be turned into LaTeX, so it
+// comes out as Legajo. It follows the layout options; the measurements are in big points (`bp`,
+// the Typst point).
 
 import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
 import type { ZipInput } from "../zip.ts";
-import { resolveStyled, STYLE_NAMES, type ExportStyle } from "./style.ts";
+import { isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
 
 type LatexStyle = ExportStyle;
-const INK: Record<LatexStyle, string> = { legajo: "1F2A2E", banda: "1D2327", minimal: "141414" };
-const MARKER: Record<LatexStyle, string> = { legajo: "\\textcolor{accent}{--}", banda: "\\textcolor{accent}{\\textbullet}", minimal: "\\textcolor{muted}{--}" };
+const INK: Record<LatexStyle, string> = { legajo: "1F2A2E", banda: "1D2327", minimal: "141414", claustro: "1A1A1A", recto: "1B1F23", llano: "202020" };
+const MARKER: Record<LatexStyle, string> = {
+  legajo: "\\textcolor{accent}{--}",
+  banda: "\\textcolor{accent}{\\textbullet}",
+  minimal: "\\textcolor{muted}{--}",
+  claustro: "\\textbullet",
+  recto: "\\textcolor{accent}{\\textbullet}",
+  llano: "\\textcolor{muted}{--}",
+};
 
 const SPECIAL: Record<string, string> = {
   "\\": "\\textbackslash{}",
@@ -126,6 +134,21 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
   if (style === "banda") {
     // A block of the accent colour, then the title.
     lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep{\\color{accent}\\rule[-0.12em]{3.5bp}{0.95em}}\\hspace{0.5em}{\\large\\bfseries #1}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+    return lines;
+  }
+  if (style === "claustro") {
+    // Capitals in bold over a rule from margin to margin (drawn first, under the baseline).
+    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\noindent\\rlap{\\color{accent}\\rule[-0.4em]{\\linewidth}{0.7bp}}{\\bfseries\\MakeUppercase{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+    return lines;
+  }
+  if (style === "recto") {
+    // Small capitals of the accent colour over a hairline.
+    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\noindent\\rlap{\\color{ink!22}\\rule[-0.45em]{\\linewidth}{0.5bp}}{\\color{accent}\\bfseries\\Caps{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+    return lines;
+  }
+  if (style === "llano") {
+    // Bold in the accent colour, nothing else.
+    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep{\\large\\color{accent}\\bfseries #1\\par}\\nopagebreak[4]\\vspace{0.2em}\\nopagebreak[4]}");
     return lines;
   }
   if (style === "minimal") {
@@ -353,9 +376,67 @@ function minimalBody(cv: ResolvedCv, photo: string | undefined): string[] {
   return [...out, ...cv.sections.flatMap((s) => mainSection(s, lineEntry("minimal")))];
 }
 
+/** An entry of Claustro (the institution above, the position and the dates below), Recto (the
+ * position and the dates, the institution below) or Llano (all on one line). */
+function atsEntry(style: AtsStyle): EntryLatex {
+  return (e, compact) => {
+    const title = escapeLatex(e.title);
+    const place = escapeLatex(e.place);
+    const period = e.period ? `\\hfill{${style === "claustro" ? "" : "\\small\\color{muted}"}${escapeLatex(e.period)}}` : "";
+    const head =
+      style === "claustro"
+        ? e.place
+          ? `\\textbf{${place}}\\\\\\textit{${title}}${period}`
+          : `\\textbf{${title}}${period}`
+        : style === "recto"
+          ? `\\textbf{${title}}${period}${e.place ? `\\\\{\\color{muted}${place}}` : ""}`
+          : `\\textbf{${title}}${e.place ? `, ${place}` : ""}${period}`;
+    return [
+      "\\par\\SmallSep\\noindent ",
+      head,
+      "\\par",
+      e.note ? `{\\small\\color{muted}${escapeLatex(e.note)}}\\par` : "",
+      !compact && e.items.length ? items(e.items).join("\n") : "",
+    ].join("");
+  };
+}
+
+/** Claustro, Recto and Llano, made for applicant tracking systems: one column of plain text in the
+ * order it is read, the contacts on one line in the body, every part under a standard title. */
+function atsBody(cv: ResolvedCv, photo: string | undefined, style: AtsStyle): string[] {
+  const sep = style === "recto" ? "\\enspace\\textbar\\enspace " : "\\enspace\\textperiodcentered\\enspace ";
+  const contacts = cv.contacts.map(contactValue).join(sep);
+  const subtitleLook = { claustro: "\\itshape ", recto: "\\color{accent}", llano: "" }[style];
+  const head = [
+    style === "claustro" ? "{\\centering" : "{",
+    `{${size(cv, style === "llano" ? 2 : 2.2)}${style === "llano" ? "\\color{accent}" : "\\bfseries "}${escapeLatex(cv.name)}\\par}`,
+    cv.subtitle ? `\\vspace{2bp}{${size(cv, style === "llano" ? 1.1 : 1.15)}${subtitleLook}${escapeLatex(cv.subtitle)}\\par}` : "",
+    contacts ? `\\vspace{2bp}{\\small${style === "claustro" ? " " : "\\color{muted}"}${contacts}\\par}` : "",
+    "}",
+  ].filter(Boolean);
+  const photoWidth = cv.layout.fontSize * 7;
+  const top = photo
+    ? [
+        `\\noindent\\begin{minipage}[t]{\\dimexpr\\linewidth-${bp(photoWidth)}-1em\\relax}\\vspace{0pt}`,
+        ...head,
+        "\\end{minipage}\\hfill",
+        `\\begin{minipage}[t]{${bp(photoWidth)}}\\vspace{0pt}${photoCommand(cv, photo, photoWidth)}\\end{minipage}\\par`,
+      ]
+    : head;
+  // Ragged right and no hyphenation, as in Typst: a word split at a line end reaches a parser in two.
+  const out = ["\\raggedright\\hyphenpenalty=10000\\exhyphenpenalty=10000", ...top];
+  if (cv.highlight) out.push(`\\Sep{${style === "recto" ? "\\color{accent}" : ""}\\bfseries ${escapeLatex(cv.highlight.title)}}: ${escapeLatex(cv.highlight.text)}\\par`);
+  if (cv.summary) out.push(`\\CVSection{${escapeLatex(cv.labels.profile)}}`, ...summary(cv));
+  if (cv.skills.length) {
+    out.push(`\\CVSection{${escapeLatex(cv.labels.skills)}}`, ...cv.skills.flat().map((g) => `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(", ")}\\par`));
+  }
+  return [...out, ...cv.sections.flatMap((s) => mainSection(s, atsEntry(style)))];
+}
+
 export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo"): string {
   const photo = photoFile(cv);
-  const content = style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : body(cv, photo);
+  const content =
+    style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : isAtsStyle(style) ? atsBody(cv, photo, style) : body(cv, photo);
   return [...preamble(cv, style), "\\begin{document}", ...content, "\\end{document}", ""].join("\n");
 }
 

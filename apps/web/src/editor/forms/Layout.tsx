@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { pageBoxes } from "../../lib/jpg";
 import { cleanSvg } from "../../lib/svg";
 import { renderThumb } from "../preview";
-import { BUILTIN_STYLES, DEFAULT_ACCENT, DEFAULT_STYLE, resolveLayout, styleOf, styleOptions, type Layout } from "@foja/core";
+import { BUILTIN_STYLES, DEFAULT_ACCENT, pickStyle, resolveLayout, styleOf, styleOptions, type Layout } from "@foja/core";
 import { t } from "../i18n";
 import { useEditor } from "../store";
 import { addStyle } from "../styles";
@@ -75,6 +75,14 @@ export function LayoutForm() {
       if (Object.keys(next).length) profile.layout = next;
       else delete profile.layout;
     });
+  // A built-in style brings its preset (one column and no photo for the ATS ones) into the profile.
+  const pick = (id: string) =>
+    update((p) => {
+      const profile = p.profiles[profileId];
+      const next = pickStyle(profile.layout, id);
+      if (Object.keys(next).length) profile.layout = next;
+      else delete profile.layout;
+    });
   const number = (v: string, fallback: number) => (Number.isFinite(Number(v)) && v !== "" ? Number(v) : fallback);
 
   function editInTypst() {
@@ -102,7 +110,7 @@ export function LayoutForm() {
         <h3 className="text-xs font-semibold tracking-wide text-muted uppercase">{t.styles.builtin}</h3>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {BUILTIN_STYLES.map((s) => (
-            <StyleCard key={s.id} id={s.id} name={s.name} description={s.description} active={style.id === s.id} onPick={() => set("template", s.id === DEFAULT_STYLE ? undefined : s.id)} />
+            <StyleCard key={s.id} id={s.id} name={s.name} description={s.description} active={style.id === s.id} onPick={() => pick(s.id)} />
           ))}
         </div>
         {Object.keys(project.templates ?? {}).length > 0 && (

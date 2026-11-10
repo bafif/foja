@@ -45,7 +45,7 @@ export interface Section {
 }
 
 export interface Layout {
-  /** A built-in style (`legajo`, `banda`, `minimal`) or the id of one in `Project.templates`. */
+  /** A built-in style (`legajo`, `banda`, `minimal`, `claustro`, `recto`, `llano`) or the id of one in `Project.templates`. */
   template?: string;
   columns?: 1 | 2;
   sidebar?: "left" | "right";

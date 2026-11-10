@@ -339,7 +339,7 @@
         "template": {
           "$ref": "#/$defs/id",
           "default": "legajo",
-          "description": "A built-in style (legajo, banda, minimal) or the id of one in templates."
+          "description": "A built-in style (legajo, banda, minimal, claustro, recto, llano) or the id of one in templates."
         },
         "columns": {
           "enum": [

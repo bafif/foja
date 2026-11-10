@@ -5,8 +5,9 @@ that is the real Typst output, and exports to Typst, PDF, JPG, LaTeX, Markdown, 
 Everything runs in the browser; your CV never leaves your machine.
 
 - **Profiles from one bank of entries**: one CV per kind of job, the entries written once.
-- **Three styles of its own** (Legajo, Banda, Minimal) with layout options, and **styles you
-  write in Typst** ("Edit in Typst" copies any style into one of your own).
+- **Six styles of its own** (Legajo, Banda, Minimal, and Claustro, Recto and Llano, made for
+  applicant tracking systems) with layout options, and **styles you write in Typst** ("Edit in
+  Typst" copies any style into one of your own).
 - **One-page discipline**: the preview says whether the CV fits and what spills over; click a
   part of the preview to edit it.
 - **Exports**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.

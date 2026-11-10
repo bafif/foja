@@ -1,9 +1,20 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { LABELS, crc32, formatPeriod, inlineRuns, resolveLayout, typstBundle, validate, zip, type Project } from "../src/index.ts";
+import { LABELS, crc32, formatPeriod, inlineRuns, pickStyle, resolveLayout, typstBundle, validate, zip, type Project } from "../src/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
 const clone = (): Project => structuredClone(example);
+
+test("picking a style writes its preset into the profile", () => {
+  expect(pickStyle({ columns: 2, photo: "circle", fontSize: 11 }, "claustro")).toEqual({ columns: 1, photo: "none", fontSize: 11, template: "claustro" });
+  // The preset is copied: changing the profile later does not change the style's.
+  const picked = pickStyle(undefined, "recto");
+  picked.columns = 2;
+  expect(pickStyle(undefined, "recto").columns).toBe(1);
+  // Styles without a preset leave the options alone; the default style is left implicit.
+  expect(pickStyle({ columns: 2, photo: "circle" }, "banda")).toEqual({ columns: 2, photo: "circle", template: "banda" });
+  expect(pickStyle({ columns: 1, template: "llano" }, "legajo")).toEqual({ columns: 1 });
+});
 
 describe("validate", () => {
   test("the example project is valid", () => {

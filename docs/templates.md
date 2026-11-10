@@ -77,4 +77,12 @@ A style without either still compiles and previews; only those two features are 
 ## The built-in styles
 
 `packages/template/styles/legajo.typ`, `banda.typ` and `minimal.typ` are complete examples, and
-`packages/template/lib.typ` is the library itself.
+`packages/template/lib.typ` is the library itself. `claustro.typ`, `recto.typ` and `llano.typ`, the
+styles made for applicant tracking systems, show what keeps a CV readable by a parser: one column,
+nothing but text, the contacts in the body, a title over every part (`labels.profile` over the
+summary, `labels.skills` over the skills), no hyphenation, and the dates on their entry's line with
+`h(1fr)` rather than in a grid cell beside a block of several lines, so that the PDF carries the
+text in the order it is seen. `packages/cli/test/ats.test.ts` checks that order in the PDF.
+
+A built-in style can bring a `preset` in `packages/template/styles.json`: options written into the
+profile when the style is picked (the three above set one column and no photo).

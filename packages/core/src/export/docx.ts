@@ -3,8 +3,10 @@
 // cell, small-caps section titles, and every entry as a row with its dates in a column of their
 // own; one or two columns following the layout options. Banda: the name in a band of the accent
 // colour, titles marked with a bar of it. Minimal: the name in the accent colour, plain capitals
-// for the titles. Both are one column. Word has no XCharter, so the serif is Georgia (Windows and macOS; LibreOffice
-// substitutes it); the sans option uses Noto Sans, or what the system offers for it.
+// for the titles. Both are one column. Claustro, Recto and Llano, made for applicant tracking
+// systems, are paragraphs only (no tables), the contacts in the body, the dates on a right tab stop.
+// Word has no XCharter, so the serif is Georgia (Windows and macOS; LibreOffice substitutes it); the
+// sans option uses Noto Sans, or what the system offers for it.
 
 import {
   AlignmentType,
@@ -16,6 +18,8 @@ import {
   Packer,
   Paragraph,
   ShadingType,
+  Tab,
+  TabStopType,
   Table,
   TableBorders,
   TableCell,
@@ -30,7 +34,7 @@ import {
 import { DEFAULT_ACCENT, inlineRuns } from "../project.ts";
 import type { ResolvedBlock, ResolvedContact, ResolvedCv, ResolvedSection } from "../resolve.ts";
 import type { Item } from "../types.ts";
-import type { ExportStyle } from "./style.ts";
+import { isAtsStyle, type AtsStyle, type ExportStyle } from "./style.ts";
 
 const TWIP_PER_MM = 1440 / 25.4;
 const PAPER = { a4: { width: 210, height: 297 }, "us-letter": { width: 215.9, height: 279.4 } };
@@ -85,8 +89,8 @@ function bulletItems(ctx: Ctx, items: Item[]): Paragraph[] {
   );
 }
 
-function contactChild(ctx: Ctx, c: ResolvedContact, size: number): ParagraphChild {
-  const run = plain(ctx, c.value, { size });
+function contactChild(ctx: Ctx, c: ResolvedContact, size: number, color?: string): ParagraphChild {
+  const run = plain(ctx, c.value, { size, color });
   return c.href && c.kind !== "phone" ? new ExternalHyperlink({ link: c.href, children: [run] }) : run;
 }
 
@@ -112,6 +116,19 @@ function sectionTitle(ctx: Ctx, title: string): Paragraph {
     });
   if (ctx.style === "minimal")
     return para([plain(ctx, title.toUpperCase(), { bold: true, size: ctx.small })], { spacing: { before: Math.round(ctx.sep * 1.3), after: ctx.smallSep }, keepNext: true });
+  if (ctx.style === "claustro")
+    return para([plain(ctx, title.toUpperCase(), { bold: true })], {
+      spacing: { before: ctx.sep, after: ctx.smallSep },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: ctx.accent, space: 1 } },
+      keepNext: true,
+    });
+  if (ctx.style === "recto")
+    return para([plain(ctx, title.toUpperCase(), { bold: true, color: ctx.accent, size: ctx.small })], {
+      spacing: { before: ctx.sep, after: ctx.smallSep },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "C9CDD1", space: 2 } },
+      keepNext: true,
+    });
+  if (ctx.style === "llano") return para([plain(ctx, title, { bold: true, color: ctx.accent, size: Math.round(ctx.size * 1.1) })], { spacing: { before: ctx.sep, after: 60 }, keepNext: true });
   return para([plain(ctx, title.toLowerCase(), { bold: true, color: ctx.accent, smallCaps: true, size: Math.round(ctx.size * 1.1) })], {
     spacing: { before: ctx.sep, after: ctx.smallSep },
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: ctx.rule, space: 2 } },
@@ -336,6 +353,62 @@ function oneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   return [...top, ...highlight, ...summary(ctx), ...skills, ...cv.sections.flatMap((s) => mainSection(ctx, s, textWidth))];
 }
 
+/** Claustro, Recto and Llano, made for applicant tracking systems: paragraphs only (no tables),
+ * the contacts in the body on one line, the dates on a tab stop at the right margin. */
+function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
+  const { cv } = ctx;
+  const align = style === "claustro" ? { alignment: AlignmentType.CENTER } : {};
+  const tabStops = [{ type: TabStopType.RIGHT, position: textWidth }];
+  const dates = (period: string): ParagraphChild[] =>
+    period ? [new TextRun({ children: [new Tab(), xmlSafe(period)], font: ctx.font, size: style === "claustro" ? ctx.size : ctx.small, color: style === "claustro" ? INK : MUTED })] : [];
+  const out: Paragraph[] = [];
+  const photo = photoRun(cv, ctx.size * 3.5);
+  if (photo) out.push(para([photo], { alignment: style === "claustro" ? AlignmentType.CENTER : AlignmentType.RIGHT, spacing: { after: 80 } }));
+  const nameSize = Math.round(ctx.size * (style === "llano" ? 2 : 2.2));
+  out.push(para([plain(ctx, cv.name, { bold: style !== "llano", color: style === "llano" ? ctx.accent : INK, size: nameSize })], { ...align, spacing: { after: 40 } }));
+  if (cv.subtitle) {
+    const look = { claustro: { italics: true }, recto: { color: ctx.accent }, llano: {} }[style];
+    out.push(para([plain(ctx, cv.subtitle, { ...look, size: Math.round(ctx.size * 1.15) })], { ...align, spacing: { after: 40 } }));
+  }
+  if (cv.contacts.length) {
+    const color = style === "claustro" ? INK : MUTED;
+    const sep = () => plain(ctx, style === "recto" ? "  |  " : "  ·  ", { size: ctx.small, color });
+    const children = cv.contacts.flatMap((c, i) => [...(i ? [sep()] : []), contactChild(ctx, c, ctx.small, color)]);
+    out.push(para(children, { ...align, spacing: { after: ctx.smallSep } }));
+  }
+  if (cv.highlight) {
+    const title = plain(ctx, `${cv.highlight.title}: `, { bold: true, color: style === "recto" ? ctx.accent : INK });
+    out.push(para([title, plain(ctx, cv.highlight.text)], { spacing: { before: ctx.smallSep } }));
+  }
+  if (cv.summary) out.push(sectionTitle(ctx, cv.labels.profile), para(runs(ctx, cv.summary)));
+  if (cv.skills.length) {
+    out.push(sectionTitle(ctx, cv.labels.skills), ...cv.skills.flat().map((g) => para([plain(ctx, `${g.title}: `, { bold: true }), plain(ctx, g.items.join(", "))])));
+  }
+  for (const s of cv.sections) {
+    out.push(sectionTitle(ctx, s.title));
+    for (const b of s.blocks) {
+      if (b.type === "item") out.push(...bulletItems(ctx, [b]));
+      else if (b.type === "paragraph") out.push(para(runs(ctx, b.text)));
+      else {
+        const e = b.entry;
+        const first = { keepNext: true, tabStops, spacing: { before: ctx.smallSep } };
+        // Claustro: the institution above, the position and the dates below. Recto: the position
+        // and the dates, the institution below. Llano: all on one line.
+        if (style === "claustro" && e.place)
+          out.push(para([plain(ctx, e.place, { bold: true })], first), para([plain(ctx, e.title, { italics: true }), ...dates(e.period)], { keepNext: true, tabStops }));
+        else if (style === "llano") out.push(para([plain(ctx, e.title, { bold: true }), ...(e.place ? [plain(ctx, `, ${e.place}`)] : []), ...dates(e.period)], first));
+        else {
+          out.push(para([plain(ctx, e.title, { bold: true }), ...dates(e.period)], first));
+          if (e.place) out.push(para([plain(ctx, e.place, { color: MUTED })], { keepNext: true }));
+        }
+        if (e.note) out.push(para([plain(ctx, e.note, { size: ctx.small, color: MUTED })]));
+        if (!s.compact) out.push(...bulletItems(ctx, e.items));
+      }
+    }
+  }
+  return out;
+}
+
 export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"): Promise<Uint8Array> {
   const l = cv.layout;
   const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
@@ -374,9 +447,9 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"):
             {
               level: 0,
               format: LevelFormat.BULLET,
-              text: style === "banda" ? "•" : "–",
+              text: style === "banda" || style === "claustro" || style === "recto" ? "•" : "–",
               alignment: AlignmentType.LEFT,
-              style: { paragraph: { indent: { left: 240, hanging: 200 } }, run: { color: style === "minimal" ? MUTED : ctx.accent } },
+              style: { paragraph: { indent: { left: 240, hanging: 200 } }, run: { color: style === "minimal" || style === "llano" ? MUTED : style === "claustro" ? INK : ctx.accent } },
             },
           ],
         },
@@ -395,7 +468,8 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"):
             },
           },
         },
-        children: l.columns === 2 && style === "legajo" ? twoColumns(ctx, textWidth) : oneColumn(ctx, textWidth),
+        children:
+          l.columns === 2 && style === "legajo" ? twoColumns(ctx, textWidth) : isAtsStyle(style) ? atsColumn(ctx, textWidth, style) : oneColumn(ctx, textWidth),
       },
     ],
   });

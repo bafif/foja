@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
-import { bundleExports, escapeLatex, exportFiles, inlineLatex, inlineMarkdown, renderLatex, renderMarkdown } from "../src/export/index.ts";
+import { pickStyle, resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
+import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, inlineLatex, inlineMarkdown, renderLatex, renderMarkdown } from "../src/export/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
 const decoder = new TextDecoder();
@@ -21,10 +21,11 @@ function unzip(data: Uint8Array): Record<string, Uint8Array> {
   return out;
 }
 
-/** word/document.xml of a .docx (docx deflates its parts; Node's zlib reads them back). */
-async function documentXml(data: Uint8Array): Promise<string> {
+/** The parts of a .docx, as text (docx deflates them; Node's zlib reads them back). */
+async function docxParts(data: Uint8Array): Promise<Record<string, string>> {
   const { inflateRawSync } = await import("node:zlib");
   const view = new DataView(data.buffer, data.byteOffset);
+  const parts: Record<string, string> = {};
   let at = 0;
   while (view.getUint32(at, true) === 0x04034b50) {
     const method = view.getUint16(at + 8, true);
@@ -33,10 +34,20 @@ async function documentXml(data: Uint8Array): Promise<string> {
     const extra = view.getUint16(at + 28, true);
     const name = decoder.decode(data.subarray(at + 30, at + 30 + nameLength));
     const body = data.subarray(at + 30 + nameLength + extra, at + 30 + nameLength + extra + size);
-    if (name === "word/document.xml") return decoder.decode(method === 8 ? inflateRawSync(body) : body);
+    parts[name] = decoder.decode(method === 8 ? inflateRawSync(body) : body);
     at += 30 + nameLength + extra + size;
   }
-  return "";
+  return parts;
+}
+
+/** word/document.xml of a .docx. */
+const documentXml = async (data: Uint8Array) => (await docxParts(data))["word/document.xml"] ?? "";
+
+/** The example's programador profile in an ATS style, picked as the editor does (with its preset). */
+function inAtsStyle(style: string): Project {
+  const p = structuredClone(example);
+  p.profiles.programador.layout = pickStyle(p.profiles.programador.layout, style);
+  return p;
 }
 
 /** The example with the programmer profile in a given style (built-in, or "mio", one's own). */
@@ -117,6 +128,32 @@ describe("LaTeX", () => {
     expect(decoder.decode(own["README.txt"])).toContain("The Typst export keeps your style.");
   });
 
+  test.each(ATS_STYLES)("%s: one column of text, the contacts in the body before the first title", async (style) => {
+    const files = unzip((await exportFiles(inAtsStyle(style), "programador", "tex"))[0].data);
+    const tex = decoder.decode(files["cv.tex"]);
+    expect(tex).toContain(`${STYLE_NAMES[style]} style`);
+    expect(tex).not.toMatch(/flowframe|AddToShipout|includegraphics|tabular|\\FitSide/);
+    expect(tex).toContain(style === "claustro" ? "\\usepackage{XCharter}" : "\\usepackage[sfdefault]{noto}");
+    const body = tex.slice(tex.indexOf("\\begin{document}"));
+    expect(body).toContain("\\raggedright\\hyphenpenalty=10000"); // no word split at a line end
+    expect(body.indexOf("email@example.com")).toBeGreaterThan(0);
+    expect(body.indexOf("email@example.com")).toBeLessThan(body.indexOf("\\CVSection"));
+    // Every part under a title: the summary under "Perfil", the skills under "Habilidades".
+    expect(body.indexOf("\\CVSection{Perfil}")).toBeGreaterThan(0);
+    expect(body.indexOf("\\CVSection{Perfil}")).toBeLessThan(body.indexOf("\\CVSection{Habilidades}"));
+    expect(decoder.decode(files["README.txt"])).toContain(`${STYLE_NAMES[style]} style`);
+  });
+
+  test("Claustro: the name centred, the institution above the position and the dates", () => {
+    const cv = resolveProfile(inAtsStyle("claustro"), "programador");
+    const tex = renderLatex(cv, "claustro");
+    expect(tex).toContain("{\\centering");
+    const first = cv.sections[0].blocks[0];
+    if (first.type !== "entry") throw new Error("the first block is not an entry");
+    const e = first.entry;
+    expect(tex).toContain(`\\textbf{${escapeLatex(e.place)}}\\\\\\textit{${escapeLatex(e.title)}}\\hfill{${escapeLatex(e.period)}}`);
+  });
+
   test("the bundle carries a JPEG photo", async () => {
     const p = structuredClone(example);
     p.assets = { "photo.jpg": { type: "image/jpeg", data: toBase64(new Uint8Array([0xff, 0xd8, 0xff, 0xd9])) } };
@@ -182,6 +219,18 @@ describe("files", () => {
     expect(minimal).not.toContain("<w:smallCaps/>");
     expect(minimal).not.toMatch(/w:fill="[0-9A-F]{6}"/);
     expect(minimal).toContain("EXPERIENCIA");
+  });
+
+  test.each(ATS_STYLES)("Word in %s: paragraphs only, the contacts in the body, no header or footer", async (style) => {
+    const parts = await docxParts((await exportFiles(inAtsStyle(style), "programador", "docx"))[0].data);
+    const xml = parts["word/document.xml"];
+    expect(xml).not.toContain("<w:tbl>");
+    expect(xml).toMatch(/<w:tab w:val="right"/); // the dates on a tab stop at the right margin
+    expect(Object.keys(parts).filter((name) => /header|footer/.test(name))).toEqual([]);
+    const email = xml.indexOf("email@example.com");
+    expect(email).toBeGreaterThan(xml.indexOf("Bautista Damián Fiori"));
+    expect(email).toBeLessThan(xml.search(/>(PERFIL|Perfil)</));
+    expect(xml).not.toContain("<w:drawing>"); // the preset leaves the photo out
   });
 });
 
