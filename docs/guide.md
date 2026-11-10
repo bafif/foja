@@ -1,5 +1,7 @@
 # Foja user guide
 
+*English · [Español](guide.es.md)*
+
 Foja is a CV editor built on [Typst](https://typst.app). You fill in forms; the preview next to
 them is the real Typst output, updated as you type. Everything runs in your browser: your data
 stays on your device. It is at <https://bafif.github.io/foja/>.
@@ -114,11 +116,14 @@ switched from the bar at the bottom.
 
 In the style code editor, Tab indents; Escape then Tab leaves it.
 
-## Appearance
+## Appearance and language
 
-**Appearance ▾** switches the interface theme (Papel y tinta, Neutro, Vivo, or one you import),
-light or dark mode, and the interface language (Spanish or English). Making a theme:
-[`themes.md`](themes.md).
+**Appearance ▾** switches the interface theme (Papel y tinta, Neutro, Vivo, or one you import)
+and light or dark mode. Making a theme: [`themes.md`](themes.md).
+
+The interface is in Spanish and English. It starts in Spanish when your browser lists Spanish among
+its languages, and in English otherwise; the language selector in the header (and on the welcome
+screen; on a phone, under **⋯**) changes it, and Foja remembers what you pick.
 
 ## Command line
 

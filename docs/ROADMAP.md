@@ -1,5 +1,7 @@
 # Foja roadmap
 
+*English · [Español](ROADMAP.es.md)*
+
 Foja is a no-code CV editor built on [Typst](https://typst.app). You fill in forms instead of
 writing code, the preview next to them is the real Typst output, and the CV exports to PDF, JPG,
 Word, Typst, LaTeX, Markdown and JSON. Everything runs in the browser: there are no accounts and

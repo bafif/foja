@@ -1,5 +1,7 @@
 # Foja
 
+*English · [Español](README.es.md)*
+
 A no-code CV editor built on [Typst](https://typst.app): forms instead of code, a live preview
 that is the real Typst output, and exports to Typst, PDF, JPG, LaTeX, Markdown, JSON and Word.
 Everything runs in the browser; your CV never leaves your machine.

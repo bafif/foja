@@ -1,4 +1,7 @@
 # cvgen
+
+*English · [Español](README.es.md)*
+
 Foja started here, as the generator I wrote for my own CV, and I still build my CVs with it.
 I keep my CV as data, in `data/`, and build it with two generators. They work independently,
 read the same files and produce the same layout:

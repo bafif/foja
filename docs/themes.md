@@ -1,5 +1,7 @@
 # Making an interface theme
 
+*English · [Español](themes.es.md)*
+
 Themes change how the editor looks, never the CV. Foja comes with three (**Papel y tinta**,
 **Neutro**, **Vivo**); a theme of your own is a small JSON file:
 
@@ -22,8 +24,8 @@ Themes change how the editor looks, never the CV. Foja comes with three (**Papel
 }
 ```
 
-In the editor, **Tema → Importar un tema (.json)** adds it; **Descargar este tema como base**
-gives you the current one to start from. Themes are kept in this browser.
+In the editor, **Appearance ▾ → Import a theme (.json)…** adds it; **Download this theme as a starting point**
+saves the current one so you can build on it. Themes are kept in this browser.
 
 ## The colours
 
