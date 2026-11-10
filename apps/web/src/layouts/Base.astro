@@ -4,19 +4,66 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description?: string;
+  /** The page's language. Pages in one language (the landing page) set it; the editor picks its own at run time. */
+  lang?: "es" | "en";
 }
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
-const { title, description = "Editor de CV sobre Typst: formularios, vista previa en vivo y exportación a PDF, Word, LaTeX y más. Todo en tu navegador." } = Astro.props;
+const { title, lang } = Astro.props;
+const description =
+  Astro.props.description ??
+  (lang === "en"
+    ? "A CV editor on Typst: forms, a live preview and exports to PDF, Word, LaTeX and more. All in your browser."
+    : "Editor de CV sobre Typst: formularios, vista previa en vivo y exportación a PDF, Word, LaTeX y más. Todo en tu navegador.");
+const site = Astro.site ?? Astro.url;
+const alternates = lang && { es: new URL(base, site).href, en: new URL(`${base}en/`, site).href };
+const manifest = `${base}${lang === "en" ? "manifest.en.webmanifest" : "manifest.webmanifest"}`;
 ---
 
-<html lang="es">
+<html lang={lang ?? "es"}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-    <link rel="manifest" href={`${base}manifest.webmanifest`} />
+    <link rel="manifest" href={manifest} />
+    {
+      alternates && (
+        <>
+          <link rel="alternate" hreflang="es" href={alternates.es} />
+          <link rel="alternate" hreflang="en" href={alternates.en} />
+          <link rel="alternate" hreflang="x-default" href={alternates.en} />
+        </>
+      )
+    }
+    <!--
+      The language: the one picked in a selector (saved as foja.language, like the editor does), or else Spanish when
+      any of the browser's languages is Spanish and English otherwise (the rule of editor/i18n.ts). A landing page in
+      the other language sends the visitor to this one's twin; crawlers stay, so both versions get indexed. The
+      editor gets the manifest in its language.
+    -->
+    <script is:inline define:vars={{ base, page: lang ?? null }}>
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem("foja.language"));
+      } catch {}
+      if (saved !== "es" && saved !== "en") saved = null;
+      const preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
+      const chosen = saved || (preferred.some((l) => /^es(-|$)/i.test(l)) ? "es" : "en");
+      const crawler = /bot|crawl|spider|slurp|facebookexternalhit|lighthouse/i.test(navigator.userAgent);
+      if (page && chosen !== page && (saved || !crawler)) location.replace(chosen === "en" ? base + "en/" : base);
+      if (!page) {
+        document.documentElement.lang = chosen;
+        if (chosen === "en") document.querySelector('link[rel="manifest"]').href = base + "manifest.en.webmanifest";
+      }
+      document.addEventListener("click", (e) => {
+        const link = e.target instanceof Element && e.target.closest("a[data-lang]");
+        if (!link) return;
+        try {
+          localStorage.setItem("foja.language", JSON.stringify(link.dataset.lang));
+        } catch {}
+      });
+    </script>
     <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
     <meta name="apple-mobile-web-app-title" content="Foja" />
     <meta name="theme-color" content="#1f5f5b" />
