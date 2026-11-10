@@ -137,6 +137,21 @@
         }
       ]
     },
+    "simulacro": {
+      "title": "Simulacro de sesión del Concejo Municipal",
+      "place": "Rosario",
+      "start": "2026-10",
+      "items": [
+        {
+          "heading": "Conducción de un bloque",
+          "text": "Coordiné a un equipo de cuatro integrantes: reparto de temas, preparación de argumentos y estrategia de intervención."
+        },
+        {
+          "heading": "Debate reglado",
+          "text": "Redacción de proyectos y defensa oral ante el cuerpo, respetando turnos, tiempos y el reglamento de sesiones."
+        }
+      ]
+    },
     "tuia": {
       "title": "Tecnicatura Universitaria en Inteligencia Artificial",
       "place": "Universidad Nacional de Rosario",
@@ -155,6 +170,10 @@
           "text": "Microprocesadores, automatización, sistemas de control, protocolos de red y electrónica de potencia."
         }
       ]
+    },
+    "mapa-enciclopedico": {
+      "title": "Mapa interactivo enciclopédico",
+      "place": "GDScript + Python · OpenAI · interfaz de usuario"
     }
   },
   "profiles": {
@@ -258,6 +277,100 @@
           "bottom": 10
         }
       }
+    },
+    "docente-ia": {
+      "name": "Docente de IA",
+      "subtitle": "Docente de Inteligencia Artificial",
+      "contacts": [
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "programacion"
+        ],
+        [
+          "idiomas"
+        ]
+      ],
+      "summary": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios y trabajo como desarrollador de software en Obrok. Soy estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Me interesa enseñar a usar la inteligencia artificial en tareas concretas de trabajo: qué hace cada herramienta, cuándo conviene usarla y cómo revisar lo que produce.",
+      "sections": [
+        {
+          "id": "experiencia-docente",
+          "title": "Experiencia docente",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "docencia"
+            }
+          ]
+        },
+        {
+          "id": "experiencia-laboral",
+          "title": "Experiencia laboral",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "obrok"
+            },
+            {
+              "type": "entry",
+              "entry": "reparacion"
+            }
+          ]
+        },
+        {
+          "id": "fortalezas",
+          "title": "Fortalezas",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Comunicación clara",
+              "text": "Explico conceptos técnicos con precisión y sin jerga innecesaria. Años de clases particulares me enseñaron a reformular una idea hasta que se entiende."
+            },
+            {
+              "type": "item",
+              "heading": "Enfoque práctico",
+              "text": "Enseño con ejemplos y ejercicios concretos, para que lo aprendido se aplique enseguida en el trabajo."
+            },
+            {
+              "type": "item",
+              "heading": "Paciencia",
+              "text": "Resuelvo dudas sin apurar a nadie ni perder el ritmo de la clase."
+            }
+          ]
+        },
+        {
+          "id": "educacion",
+          "title": "Educación",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "tecnico"
+            }
+          ]
+        },
+        {
+          "id": "proyecto-personal",
+          "title": "Proyecto personal",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "mapa-enciclopedico"
+            },
+            {
+              "type": "item",
+              "text": "Más proyectos en **bafif.github.io**."
+            }
+          ]
+        }
+      ]
     }
   }
 }

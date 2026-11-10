@@ -137,6 +137,21 @@
         }
       ]
     },
+    "council-simulation": {
+      "title": "Simulated City Council session",
+      "place": "Rosario",
+      "start": "2026-10",
+      "items": [
+        {
+          "heading": "Leading a bloc",
+          "text": "I coordinated a team of four: dividing the topics, preparing the arguments and planning how we would take the floor."
+        },
+        {
+          "heading": "Formal debate",
+          "text": "Drafting bills and defending them orally before the council, following turns, time limits and the rules of procedure."
+        }
+      ]
+    },
     "tuia": {
       "title": "University Technical Degree in Artificial Intelligence",
       "place": "Universidad Nacional de Rosario",
@@ -155,6 +170,10 @@
           "text": "Microprocessors, automation, control systems, network protocols and power electronics."
         }
       ]
+    },
+    "encyclopedic-map": {
+      "title": "Interactive encyclopedic map",
+      "place": "GDScript + Python · OpenAI · user interface"
     }
   },
   "profiles": {
@@ -258,6 +277,100 @@
           "bottom": 10
         }
       }
+    },
+    "ai-teacher": {
+      "name": "AI teacher",
+      "subtitle": "Artificial Intelligence teacher",
+      "contacts": [
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "programming"
+        ],
+        [
+          "languages"
+        ]
+      ],
+      "summary": "I have been tutoring secondary school and university students since 2018, and I work as a software developer at Obrok. I am an advanced student of the University Technical Degree in Artificial Intelligence at UNR. I want to teach how to use artificial intelligence in concrete work tasks: what each tool does, when it is worth using and how to check what it produces.",
+      "sections": [
+        {
+          "id": "teaching-experience",
+          "title": "Teaching experience",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "teaching"
+            }
+          ]
+        },
+        {
+          "id": "work-experience",
+          "title": "Work experience",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "obrok"
+            },
+            {
+              "type": "entry",
+              "entry": "repair"
+            }
+          ]
+        },
+        {
+          "id": "strengths",
+          "title": "Strengths",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Clear communication",
+              "text": "I explain technical concepts precisely and without needless jargon. Years of private tutoring taught me to rephrase an idea until it gets across."
+            },
+            {
+              "type": "item",
+              "heading": "Practical approach",
+              "text": "I teach with concrete examples and exercises, so that what is learned can be put to use at work right away."
+            },
+            {
+              "type": "item",
+              "heading": "Patience",
+              "text": "I answer questions without rushing anyone or losing the pace of the class."
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "technician"
+            }
+          ]
+        },
+        {
+          "id": "personal-project",
+          "title": "Personal project",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "encyclopedic-map"
+            },
+            {
+              "type": "item",
+              "text": "More projects at **bafif.github.io**."
+            }
+          ]
+        }
+      ]
     }
   }
 }

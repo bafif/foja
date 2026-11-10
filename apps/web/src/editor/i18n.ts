@@ -76,6 +76,8 @@ export const es = {
   welcomeText:
     "Foja guarda todo en este navegador: tus datos no salen de este dispositivo. Empezá con el ejemplo, con un proyecto vacío o importando un archivo de Foja.",
   startExample: "Empezar con el ejemplo",
+  exampleProfiles:
+    "El ejemplo es un CV real con dos perfiles armados con los mismos datos: programador y docente de IA. Se pasa de uno a otro en «Perfil», arriba.",
   startEmpty: "Proyecto vacío",
   importJson: "Importar JSON",
   importFailed: "Ese archivo no es un proyecto de Foja válido.",
@@ -328,6 +330,8 @@ export const en: Strings = {
   welcomeTitle: "Your CV in Typst, without writing code",
   welcomeText: "Foja keeps everything in this browser: your data never leaves this device. Start with the example, an empty project, or a Foja file.",
   startExample: "Start with the example",
+  exampleProfiles:
+    "The example is a real CV with two profiles built from the same data: programmer and AI teacher. Switch between them with “Profile”, at the top.",
   startEmpty: "Empty project",
   importJson: "Import JSON",
   importFailed: "That file is not a valid Foja project.",

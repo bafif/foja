@@ -1,10 +1,17 @@
 import { readFileSync } from "node:fs";
 import { expect, previewMarkup, startExample, startFictional, test } from "./fixtures";
 
-test("the example is my CV and renders on one page", async ({ page, errors }) => {
+test("the example is my CV, with its three profiles, each on one page", async ({ page, errors }) => {
   await startExample(page);
   await expect(page.getByLabel("Subtítulo")).toHaveValue("Programador");
   await expect(page.getByTestId("page-badge")).toContainText("1 página");
+  const profile = page.getByRole("combobox", { name: "Perfil" });
+  await expect(profile.locator("option")).toHaveText(["Programador", "Docente de IA"]);
+  for (const [id, subtitle] of [["docente-ia", "Docente de Inteligencia Artificial"]]) {
+    await profile.selectOption(id);
+    await expect(page.getByLabel("Subtítulo")).toHaveValue(subtitle);
+    await expect(page.getByTestId("page-badge")).toContainText("1 página");
+  }
   expect(errors).toEqual([]);
 });
 

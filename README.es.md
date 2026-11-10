@@ -35,7 +35,7 @@ packages/core      formato de proyecto (JSON Schema + tipos), validación, utili
 packages/template  los estilos de Typst (Legajo, Banda, Minimal), su biblioteca, etiquetas y fuentes
 packages/cli       `foja` sobre Node: genera PDF/SVG/paquetes de Typst a partir de un proyecto
 apps/web           el sitio y el editor en Astro
-examples/          el ejemplo del editor, mi CV como programador (español, inglés); fixtures de prueba: un
+examples/          el ejemplo del editor, mi CV con sus tres perfiles (español, inglés); fixtures de prueba: un
                    CV ficticio y mi CV completo (teléfono falso)
 cvgen/             la primera versión: los datos de mi CV y los generadores en Python (LaTeX) y C
 ```

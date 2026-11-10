@@ -29,6 +29,9 @@ export function Welcome() {
         </button>
         <ImportButton onError={setError} />
       </div>
+      <p data-testid="example-profiles" className="text-sm text-muted">
+        {t.exampleProfiles}
+      </p>
       {error && (
         <pre role="alert" className="text-sm whitespace-pre-wrap text-red-700">
           {t.importFailed}
