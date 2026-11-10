@@ -7,7 +7,8 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const SKIP = [/^sw\.js$/, /^spike\//, /\.map$/];
+// The link preview images are for the apps that show a shared link (X, WhatsApp...), never for the site itself.
+const SKIP = [/^sw\.js$/, /^spike\//, /\.map$/, /^og(\.en)?\.jpg$/];
 
 function files(dir, root = dir) {
   return readdirSync(dir).flatMap((name) => {

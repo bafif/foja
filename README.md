@@ -60,7 +60,8 @@ offline use included. `scripts/e2e.sh` runs the end-to-end tests against the run
 headless Chromium in a container that shares the stack's network; nothing on the host is reachable from it.
 `scripts/screenshot.sh` uses the same container to retake the landing page's picture of the editor
 (`apps/web/public/screenshot.jpg`) from the example; it needs retaking whenever the example or the editor's look
-changes.
+changes. After that, `scripts/og-image.sh` renders again the link preview images that X, WhatsApp and others show
+(`apps/web/public/og.jpg` and `og.en.jpg`, from `scripts/og-image.html`), with Chrome and ImageMagick on the host.
 
 ## Licence
 

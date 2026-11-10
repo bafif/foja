@@ -61,7 +61,9 @@ incluido. `scripts/e2e.sh` corre los tests de punta a punta contra el stack de d
 un Chromium headless en un contenedor que comparte la red del stack; desde ahí no se llega a nada del host.
 `scripts/screenshot.sh` usa el mismo contenedor para volver a sacar, a partir del ejemplo, la captura del editor que
 aparece en la página de inicio (`apps/web/public/screenshot.jpg`); hay que volver a sacarla cada vez que cambian el
-ejemplo o el aspecto del editor.
+ejemplo o el aspecto del editor. Después, `scripts/og-image.sh` vuelve a generar las imágenes de vista previa que
+muestran X, WhatsApp y otras apps al compartir el link (`apps/web/public/og.jpg` y `og.en.jpg`, a partir de
+`scripts/og-image.html`), con Chrome e ImageMagick del host.
 
 ## Licencia
 
