@@ -195,6 +195,9 @@
           "license": {
             "$ref": "#/$defs/filePath",
             "description": "The path of the imported template's licence among its files."
+          },
+          "latex": {
+            "$ref": "#/$defs/latexFill"
           }
         }
       }
@@ -617,6 +620,123 @@
       "type": "string",
       "pattern": "^(?!/)(?!.*(^|/)\\.\\.?(/|$))[A-Za-z0-9._ +-]+(/[A-Za-z0-9._ +-]+)*$",
       "description": "A relative path inside an imported template: no leading slash, no . or .. segments."
+    },
+    "latexArg": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One argument of a template macro: a field of the CV, or the template's own text (raw).",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "raw": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean"
+        }
+      }
+    },
+    "latexFill": {
+      "type": "object",
+      "required": [
+        "main",
+        "entries",
+        "sections",
+        "section"
+      ],
+      "additionalProperties": false,
+      "description": "An imported LaTeX template: how its macros are filled with the CV. The style's source shows the PDF LaTeX makes.",
+      "properties": {
+        "main": {
+          "$ref": "#/$defs/filePath",
+          "description": "The main .tex file among the template's files."
+        },
+        "header": {
+          "type": "object",
+          "required": [
+            "macro",
+            "args"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "macro": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/latexArg"
+              }
+            }
+          }
+        },
+        "entries": {
+          "type": "object",
+          "description": "Entry macros: what goes in each argument.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/latexArg"
+            }
+          }
+        },
+        "sections": {
+          "type": "object",
+          "description": "The entry macro of each section, by section id.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "entry": {
+          "type": "string",
+          "description": "The entry macro of sections not in sections."
+        },
+        "section": {
+          "type": "string",
+          "description": "The command a section title is written with."
+        },
+        "summaryTitle": {
+          "type": "string"
+        },
+        "entryList": {
+          "type": "object",
+          "required": [
+            "begin",
+            "end"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "begin": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            }
+          }
+        },
+        "itemList": {
+          "type": "object",
+          "required": [
+            "begin",
+            "end",
+            "item"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "begin": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string",
+              "description": "One item; # is its text."
+            }
+          }
+        }
+      }
     }
   }
 }

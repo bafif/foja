@@ -26,7 +26,7 @@ own, and reads only files under its project root.
 
 ## Imported templates
 
-A Typst template someone else wrote is data until Typst compiles it:
+A Typst or LaTeX template someone else wrote is data until Typst or LaTeX compiles it:
 
 - Foja reads it with fixed rules (`packages/core/src/importer/`): it scans the code, never runs it,
   and calls no model or service.
@@ -38,6 +38,15 @@ A Typst template someone else wrote is data until Typst compiles it:
 - `@preview` packages are never downloaded: those that came in the upload are pointed at, and the
   editor names the ones that are missing. Fonts in the upload are left out.
 - The template's licence, when it has one, is kept with the style.
+- A LaTeX template's look is compiled in the browser by the pdfTeX engine of
+  [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX) (WebAssembly, AGPL-3.0, unchanged), in a
+  worker of its own that is loaded only when a LaTeX template is used. The engine and the TeX Live
+  files it may read come from the site itself (`apps/web/public/latex/`, made by
+  `scripts/latex-assets.sh`, the engine checked against a fixed SHA-256) and stay in Cache Storage.
+  Every file is put in the engine's memory file system before it compiles: it reaches no network
+  while compiling, and what is not there is not found. There is no shell to escape to (`\write18`
+  has nothing to run in WebAssembly), a compile that does not end is stopped, and what the engine
+  can write stays in its memory.
 
 ## The web app
 

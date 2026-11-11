@@ -50,7 +50,7 @@ async function build(args: string[]) {
   for (const id of profiles) if (!(id in project.profiles)) fail(m.noProfile(id));
 
   const { Typst, templateFiles } = await import("./typst.ts");
-  const { bundleExports, exportFiles, exportStem } = await import("@foja/core/export");
+  const { bundleExports, exportFiles, exportStem, latexStyleOf } = await import("@foja/core/export");
   const typst = new Typst(project);
   const template = templateFiles();
   mkdirSync(values.out, { recursive: true });
@@ -60,15 +60,20 @@ async function build(args: string[]) {
     console.log(file + note);
   };
   for (const id of profiles) {
-    const doc = formats.some((f) => f === "pdf" || f === "svg" || f === "all") ? typst.compile(id) : undefined;
+    // A LaTeX template needs LaTeX, which the editor has and this command does not: its profile
+    // gets the filled .tex and the formats that need no compiler.
+    const latex = !!latexStyleOf(project, id);
+    const wanted = latex ? formats.filter((f) => f !== "pdf" && f !== "svg" && f !== "typ") : formats;
+    if (latex && (wanted.length < formats.length || formats.includes("all"))) console.error(m.latexStyle(id));
+    const doc = !latex && wanted.some((f) => f === "pdf" || f === "svg" || f === "all") ? typst.compile(id) : undefined;
     const pages = doc ? m.pages(doc.numOfPages) : "";
     const stem = exportStem(project, id);
-    for (const format of formats) {
+    for (const format of wanted) {
       if (format === "pdf") write(`${stem}.pdf`, typst.pdf(doc!), pages);
       else if (format === "svg") write(`${stem}.svg`, typst.svg(doc!), pages);
       else if (format === "all") {
-        const files = [{ name: `${stem}.pdf`, mime: "application/pdf", data: new Uint8Array(typst.pdf(doc!)) }];
-        for (const f of ["typ", "tex", "md", "json", "docx"] as const) files.push(...(await exportFiles(project, id, f, template)));
+        const files = doc ? [{ name: `${stem}.pdf`, mime: "application/pdf", data: new Uint8Array(typst.pdf(doc)) }] : [];
+        for (const f of latex ? (["tex", "md", "json", "docx"] as const) : (["typ", "tex", "md", "json", "docx"] as const)) files.push(...(await exportFiles(project, id, f, template)));
         const bundle = bundleExports(project, id, files);
         write(bundle.name, bundle.data, ` (${files.map((f) => (f.name.startsWith(stem) ? f.name.slice(stem.length) : f.name)).join(", ")})`);
       } else for (const f of await exportFiles(project, id, format, template)) write(f.name, f.data);
@@ -106,7 +111,7 @@ async function main(argv: string[]) {
     const [source, out] = positionals;
     const template = core.readTemplate(await core.readUpload(source, new Uint8Array(readFileSync(source))));
     const mapping = core.proposeMapping(template);
-    const name = values.name ?? basename(source).replace(/\.(typ|zip|tar\.gz|tgz)$/i, "");
+    const name = values.name ?? basename(source).replace(/\.(typ|tex|zip|tar\.gz|tgz)$/i, "");
     const into = values.into ? loadProject(values.into) : undefined;
     const { project, profileId, entries } = core.importData(template, mapping, { name, language: into?.language ?? (m === MESSAGES.es ? "es" : "en"), into });
     let style = "";

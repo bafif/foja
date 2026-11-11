@@ -11,13 +11,14 @@ npx foja build my.foja.json                       # a PDF per profile
 npx foja build my.foja.json --profile dev --format pdf --format docx --out out
 npx foja build my.foja.json --format all          # every format in one .zip
 npx foja validate my.foja.json
-npx foja import template.zip my.foja.json         # a Typst template: its content and its look
+npx foja import template.zip my.foja.json         # a Typst or LaTeX template: its content and its look
 ```
 
-`import` reads a Typst CV template (`.typ`, `.zip` or `.tar.gz`) with fixed rules, no AI: its
+`import` reads a Typst or LaTeX CV template (`.typ`, `.tex`, `.zip` or `.tar.gz`) with fixed rules, no AI: its
 sample content becomes a profile and its look a style of your own; `--into` adds them to an
 existing project, `--no-style` leaves the look out. It takes the rules' proposal as it is; the
-editor shows it for review first.
+editor shows it for review first. This command has no LaTeX: a profile with a LaTeX template gets
+its filled `.tex` (`--format tex`) and no PDF.
 
 Formats: `pdf`, `svg`, `typ` (a `.zip` that compiles with plain `typst compile`), `tex`
 (LaTeX), `md`, `json`, `docx` (Word), `all`. Needs Node 24 or later. Messages and `--help` come

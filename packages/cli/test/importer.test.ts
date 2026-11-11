@@ -65,3 +65,22 @@ test("foja import writes a project with the template's data and look", () => {
   expect(project.profiles.single.layout).toEqual({ template: "single" });
   expect(new Typst(project).compile("single").numOfPages).toBe(1);
 });
+
+test("a LaTeX template: foja import keeps it as a style, and build hands out the filled .tex", () => {
+  const dir = mkdtempSync(join(tmpdir(), "foja-"));
+  const out = join(dir, "imported.json");
+  const main = new URL("../src/main.ts", import.meta.url).pathname;
+  const run = spawnSync(process.execPath, [main, "import", join(fixtures, "latex", "resume.tex"), out, "--lang", "en"], { encoding: "utf8" });
+  expect(run.stderr).toBe("");
+  expect(run.stdout).toContain('3 entries in profile "resume", in the style "resume"');
+  const project: Project = JSON.parse(readFileSync(out, "utf8"));
+  expect(validate(project)).toEqual([]);
+  expect(project.templates?.resume.latex?.entry).toBe("cventry");
+
+  const build = spawnSync(process.execPath, [main, "build", out, "--format", "pdf", "--format", "tex", "--out", dir, "--lang", "en"], { encoding: "utf8" });
+  expect(build.stderr).toContain('profile "resume" uses a LaTeX template');
+  expect(readdirSync(dir).filter((f) => f.endsWith(".pdf"))).toEqual([]);
+  const zipName = readdirSync(dir).find((f) => f.endsWith("-latex.zip"));
+  expect(zipName).toBeDefined();
+  expect(readFileSync(join(dir, zipName!)).includes(Buffer.from("resume.tex"))).toBe(true);
+});

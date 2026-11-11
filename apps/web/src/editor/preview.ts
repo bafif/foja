@@ -4,6 +4,7 @@
 import { create } from "zustand";
 import { styleOf, type Mark, type Project, type StyleGeometry } from "@foja/core";
 import { pageBoxes } from "../lib/jpg";
+import { compileProfileLatex, latexExtra, withStyle } from "../lib/latex";
 import type { WorkerReply, WorkerRequest } from "../lib/typst.worker";
 import { t } from "./i18n";
 import { useEditor } from "./store";
@@ -88,9 +89,15 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 /** Starts the worker and re-renders whenever the project or the profile changes. */
 export function connectPreview() {
   start();
+  let latest = 0;
   const render = () => {
     const { project, profileId } = useEditor.getState();
-    if (project && project.profiles[profileId]) post({ type: "render", id: nextId++, project, profile: profileId });
+    if (!project || !project.profiles[profileId]) return;
+    const id = (latest = nextId++);
+    // A LaTeX template compiles first; only the newest compile goes on to the preview.
+    const extra = latexExtra(project, profileId);
+    if (!extra) post({ type: "render", id, project, profile: profileId });
+    else void extra.then((files) => id === latest && post({ type: "render", id, project, profile: profileId, extra: files }));
   };
   render();
   return useEditor.subscribe((state, prev) => {
@@ -100,7 +107,14 @@ export function connectPreview() {
   });
 }
 
-export function compilePdf(project: Project, profile: string): Promise<Uint8Array> {
+export async function compilePdf(project: Project, profile: string): Promise<Uint8Array> {
+  // A LaTeX template's PDF is LaTeX's own, as the template makes it.
+  const latex = compileProfileLatex(project, profile);
+  if (latex) {
+    const r = await latex;
+    if (!r.pdf) throw new Error(r.errors.join("\n"));
+    return r.pdf;
+  }
   const id = nextId++;
   post({ type: "pdf", id, project, profile });
   return new Promise((resolve, reject) =>
@@ -120,7 +134,9 @@ export function renderThumb(project: Project, profile: string, style: string): P
   if (!promise) {
     const id = nextId++;
     promise = new Promise((resolve) => thumbWaiting.set(id, resolve));
-    post({ type: "thumb", id, project, profile, style });
+    const extra = latexExtra(withStyle(project, profile, style), profile);
+    if (!extra) post({ type: "thumb", id, project, profile, style });
+    else void extra.then((files) => post({ type: "thumb", id, project, profile, style, extra: files }));
     byKey.set(key, promise);
   }
   return promise;

@@ -8,7 +8,8 @@ import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // The link preview images are for the apps that show a shared link (X, WhatsApp...), never for the site itself.
-const SKIP = [/^sw\.js$/, /^spike\//, /\.map$/, /^og(\.en)?\.jpg$/];
+// LaTeX (public/latex/) is downloaded only when a LaTeX template is used, and cached by its own worker.
+const SKIP = [/^sw\.js$/, /^spike\//, /\.map$/, /^og(\.en)?\.jpg$/, /^latex\//];
 
 function files(dir, root = dir) {
   return readdirSync(dir).flatMap((name) => {

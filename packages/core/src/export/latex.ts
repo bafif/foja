@@ -9,6 +9,7 @@ import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
 import type { ZipInput } from "../zip.ts";
 import { isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
+import { latexStyleOf, latexTemplateBundle } from "./latex-template.ts";
 
 type LatexStyle = ExportStyle;
 const INK: Record<LatexStyle, string> = { legajo: "1F2A2E", banda: "1D2327", minimal: "141414", claustro: "1A1A1A", recto: "1B1F23", llano: "202020" };
@@ -441,6 +442,8 @@ export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo"): strin
 }
 
 export function latexBundle(project: Project, profileId: string): ZipInput {
+  // An imported LaTeX template is handed out as itself, filled with the CV.
+  if (latexStyleOf(project, profileId)) return latexTemplateBundle(project, profileId);
   const { cv, style, custom } = resolveStyled(project, profileId);
   const files: ZipInput = {
     "cv.tex": renderLatex(cv, style),

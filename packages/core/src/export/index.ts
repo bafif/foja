@@ -13,6 +13,7 @@ import { renderMarkdown } from "./markdown.ts";
 import { resolveStyled } from "./style.ts";
 
 export { escapeLatex, inlineLatex, latexBundle, renderLatex } from "./latex.ts";
+export { fillLatex, latexStyleOf, latexTemplateFiles } from "./latex-template.ts";
 export { inlineMarkdown, renderMarkdown } from "./markdown.ts";
 export { projectJson, resolvedJson } from "./json.ts";
 export { renderDocx } from "./docx.ts";

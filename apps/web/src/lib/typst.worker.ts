@@ -30,11 +30,15 @@ const fontUrls = Object.values(
 );
 const styleSources = import.meta.glob<string>("../../../../packages/template/styles/*.typ", { query: "?raw", import: "default", eager: true });
 
+/** Files made outside Typst for this request, by path (the PDF LaTeX made of an imported LaTeX
+ * template): they take the place of the style's own file at that path. */
+type Extra = { extra?: Record<string, Uint8Array> };
+
 export type WorkerRequest =
-  | { type: "render"; id: number; project: Project; profile: string }
-  | { type: "pdf"; id: number; project: Project; profile: string }
+  | ({ type: "render"; id: number; project: Project; profile: string } & Extra)
+  | ({ type: "pdf"; id: number; project: Project; profile: string } & Extra)
   /** The first page in another style, for the style picker. */
-  | { type: "thumb"; id: number; project: Project; profile: string; style: string };
+  | ({ type: "thumb"; id: number; project: Project; profile: string; style: string } & Extra);
 
 export type WorkerReply =
   | { type: "ready"; initMs: number }
@@ -85,9 +89,14 @@ const ready = init().catch((error) => {
 const mappedAssets = new Map<string, string>();
 const customSources = new Map<string, string>();
 
-function load(project: Project) {
+function load(project: Project, extra: Record<string, Uint8Array> = {}) {
   compiler.mapShadow(PROJECT_PATH, projectForTypst(project));
+  for (const [path, bytes] of Object.entries(extra)) {
+    compiler.mapShadow(path, bytes);
+    customSources.delete(path);
+  }
   for (const [path, source] of customStyleSources(project)) {
+    if (extra[path]) continue;
     if (customSources.get(path) !== source) {
       compiler.addSource(path, source);
       customSources.set(path, source);
@@ -121,8 +130,8 @@ const asStrings = (d: unknown) => (d as string[] | undefined)?.length ? (d as st
 
 // One snapshot per request: compile once, then take the vector artifact, the marks or the PDF
 // from the same world.
-function withWorld<T>(project: Project, profile: string, fn: (world: TypstWorld) => Promise<T>, mainFilePath = styleOf(project, profile).path): Promise<T> {
-  load(project);
+function withWorld<T>(project: Project, profile: string, fn: (world: TypstWorld) => Promise<T>, mainFilePath = styleOf(project, profile).path, extra?: Record<string, Uint8Array>): Promise<T> {
+  load(project, extra);
   return compiler.runWithWorld({ mainFilePath, inputs: typstInputs(profile) }, fn);
 }
 
@@ -137,6 +146,7 @@ async function thumb(req: Extract<WorkerRequest, { type: "thumb" }>): Promise<Wo
       return { type: "thumb", id: req.id, svg: result ? await renderer.renderSvg({ artifactContent: result }) : undefined };
     },
     stylePath(req.project, req.style),
+    req.extra,
   );
 }
 
@@ -164,14 +174,14 @@ async function render(req: Extract<WorkerRequest, { type: "render" }>): Promise<
       compileMs: t1 - t0,
       renderMs: performance.now() - t1,
     };
-  });
+  }, undefined, req.extra);
 }
 
 async function pdf(req: Extract<WorkerRequest, { type: "pdf" }>): Promise<WorkerReply> {
   return withWorld(req.project, req.profile, async (world) => {
     const { result, diagnostics } = await world.pdf({ diagnostics: "unix" });
     return result ? { type: "pdf", id: req.id, pdf: result } : { type: "pdf", id: req.id, errors: asStrings(diagnostics) ?? ["compile failed"] };
-  });
+  }, undefined, req.extra);
 }
 
 // Renders: only the newest request matters, anything queued behind a running one is dropped.

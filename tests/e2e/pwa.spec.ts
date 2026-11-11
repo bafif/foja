@@ -15,6 +15,28 @@ test.describe("production build", () => {
     expect(errors).toEqual([]);
   });
 
+  test("a LaTeX template compiles under the Content Security Policy, from the site alone", async ({ page, errors }) => {
+    test.setTimeout(240_000);
+    const violations: string[] = [];
+    const elsewhere: string[] = [];
+    page.on("console", (m) => /Content.Security.Policy|Refused to/i.test(m.text()) && violations.push(m.text()));
+    page.on("request", (r) => !r.url().startsWith(url!) && !r.url().startsWith("data:") && !r.url().startsWith("blob:") && elsewhere.push(r.url()));
+    await page.goto(`${url}editor/`);
+    await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
+    await page.getByRole("button", { name: "Estilo y diseño" }).click();
+    await page.getByRole("button", { name: "Importar una plantilla Typst o LaTeX" }).click();
+    await page.getByLabel("Archivo de la plantilla").setInputFiles("packages/core/test/fixtures/latex/resume.tex");
+    await page.getByRole("button", { name: "Importar", exact: true }).click();
+    await expect(page.locator(".foja-page image")).toHaveCount(1, { timeout: 180_000 });
+    await expect(page.getByTestId("page-badge")).toContainText("1 página");
+    // LaTeX is not precached: only the editor that uses it downloads it.
+    const precached = await page.evaluate(async (base) => (await (await fetch(`${base}sw.js`)).text()).includes("latex/"), url!);
+    expect(precached).toBe(false);
+    expect(violations).toEqual([]);
+    expect(elsewhere).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
   test("under the Content Security Policy the editor compiles and exports", async ({ page, errors }) => {
     const violations: string[] = [];
     page.on("console", (m) => /Content.Security.Policy|Refused to/i.test(m.text()) && violations.push(m.text()));

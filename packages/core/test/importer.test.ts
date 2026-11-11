@@ -57,7 +57,7 @@ describe("uploads", () => {
     const bomb = tarGz({ "zeros.typ": new Uint8Array(UPLOAD_LIMITS.bytes + 1024) });
     expect(bomb.length).toBeLessThan(100_000);
     await expect(readUpload("bomb.tar.gz", bomb)).rejects.toThrow(/MB unpacked/);
-    await expect(readUpload("cv.pdf", single)).rejects.toThrow(/\.typ, a \.zip or a \.tar\.gz/);
+    await expect(readUpload("cv.pdf", single)).rejects.toThrow(/\.typ, a \.tex, a \.zip or a \.tar\.gz/);
   });
 });
 

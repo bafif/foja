@@ -45,9 +45,9 @@ Debajo de los estilos, las opciones que respeta el estilo elegido: una o dos col
 
 **Editar en Typst** copia el estilo del perfil en un estilo propio y abre su código; **Nuevo estilo desde cero** arranca de un esqueleto mínimo. Los errores aparecen arriba de la vista previa, que conserva la última versión que compiló bien. Cómo escribir un estilo: [`templates.es.md`](templates.es.md).
 
-## Importar una plantilla de Typst
+## Importar una plantilla de Typst o de LaTeX
 
-**Estilo y diseño → Importar una plantilla Typst** toma una plantilla de CV escrita en Typst: un `.typ`, o un `.zip` o `.tar.gz` con sus archivos. Foja la lee con reglas fijas, sin IA: las funciones que define, las que su contenido de ejemplo llama una y otra vez (cada llamada es una entrada), sus títulos (las secciones), las viñetas debajo de cada llamada (los ítems) y su `#show: x.with(...)` (el encabezado). Después propone qué argumento de cada macro es el cargo, el lugar, las fechas, una nota o los ítems, por el nombre del argumento (`title`, `company`, `dates`, `institución`…) y por cómo es su valor (una fecha, un correo, una URL).
+**Estilo y diseño → Importar una plantilla Typst o LaTeX** toma una plantilla de CV escrita en Typst o en LaTeX: un `.typ` o un `.tex`, o un `.zip` o `.tar.gz` con sus archivos. Foja la lee con reglas fijas, sin IA: las funciones que define, las que su contenido de ejemplo llama una y otra vez (cada llamada es una entrada), sus títulos (las secciones), las viñetas debajo de cada llamada (los ítems) y su `#show: x.with(...)` (el encabezado). Después propone qué argumento de cada macro es el cargo, el lugar, las fechas, una nota o los ítems, por el nombre del argumento (`title`, `company`, `dates`, `institución`…) y por cómo es su valor (una fecha, un correo, una URL).
 
 El formulario muestra cada argumento con su valor de ejemplo y el campo al que va, que podés cambiar; debajo, lo que va a entrar. La misma correspondencia se usa dos veces:
 
@@ -55,6 +55,8 @@ El formulario muestra cada argumento con su valor de ejemplo y el campo al que v
 - **el aspecto**: un estilo propio que guarda los archivos de la plantilla y llama a sus macros con los datos del CV; el perfil nuevo lo usa.
 
 Los paquetes `@preview` no se bajan: si la plantilla usa alguno, subí un `.zip` que traiga su carpeta (con su `typst.toml`), o importá solo los datos. La licencia de la plantilla queda junto al estilo. La línea de comandos hace lo mismo con `foja import`.
+
+Una plantilla LaTeX se lee igual: las macros que define (`\newcommand`, `\def`), las que su contenido de ejemplo llama una y otra vez, sus `\section`, los `\item` debajo de cada llamada y la llamada antes de la primera sección (el encabezado). Su aspecto es la plantilla misma: Foja escribe su `.tex` con el CV en lugar del contenido de ejemplo, a través de las macros de la plantilla, y lo compila con LaTeX (pdfTeX) en el navegador. La primera vez eso baja unos 7 MB y tarda unos segundos; después un cambio se ve en menos de un segundo, igual más lento que con Typst. Solo están pdfLaTeX y un grupo de paquetes comunes (no hay XeLaTeX ni LuaLaTeX, ni fuentes del sistema), así que de algunas plantillas se importan los datos pero no el aspecto. La vista previa muestra las páginas de LaTeX sin el clic para editar ni las marcas rojas de lo que se pasa; el PDF que se exporta es el de LaTeX, y la exportación a LaTeX es el `.tex` de la plantilla, lleno, con sus archivos. La línea de comandos no tiene LaTeX: escribe ese `.tex` (`--format tex`) y no da PDF.
 
 ## Qué entra en cada perfil
 

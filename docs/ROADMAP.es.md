@@ -60,8 +60,9 @@ que no es desarrolladora, sobre todo en macOS y Windows. Un sidecar de Python co
 y que firmarlos sea un dolor de cabeza (el sidecar hay que firmarlo aparte, y el hardened runtime de macOS
 rompe PyInstaller si no le dedicás trabajo extra). El núcleo en el navegador da una app web pública con hosting
 estático y sin servidor, instaladores chicos que usan el webview del sistema y una vista previa sin ida y vuelta
-por la red. Lo único que no puede hacer es compilar LaTeX dentro de la app (las distribuciones de TeX en WebAssembly
-descargan unos 120 MB), así que LaTeX se exporta como código fuente.
+por la red. LaTeX se exporta como código fuente, porque una distribución de TeX completa en WebAssembly descarga
+unos 120 MB; solo una plantilla LaTeX importada se compila dentro de la app, con pdfTeX y un grupo chico de paquetes
+comunes (unos 7 MB, que se bajan la primera vez que se usa una).
 
 Los contenedores (Podman sin root) quedan solo para desarrollo, con recarga en caliente detrás de nginx.
 

@@ -16,14 +16,16 @@ import {
   type Project,
   type Template,
 } from "@foja/core";
+import { warmLatex } from "../../lib/latex";
 import { t } from "../i18n";
 import { useEditor } from "../store";
 import { Button, Check, Field, Panel, Select, TextInput } from "../ui";
 
 const clip = (text: string) => (text.length > 60 ? `${text.slice(0, 57)}…` : text);
 
-/** Upload a Typst template, review which argument is which field, and bring in its data, its
- * look, or both. Everything here is fixed rules (core/src/importer); nothing runs but Typst. */
+/** Upload a Typst or LaTeX template, review which argument is which field, and bring in its
+ * data, its look, or both. Everything here is fixed rules (core/src/importer); nothing runs but
+ * Typst, and LaTeX in its worker for a LaTeX template's look. */
 export function ImportTemplate() {
   const project = useEditor((s) => s.project!);
   const update = useEditor((s) => s.update);
@@ -44,8 +46,10 @@ export function ImportTemplate() {
       const next = readTemplate(await readUpload(file.name, new Uint8Array(await file.arrayBuffer())));
       setTemplate(next);
       setMapping(proposeMapping(next));
-      setName(file.name.replace(/\.(typ|zip|tar\.gz|tgz)$/i, ""));
+      setName(file.name.replace(/\.(typ|tex|zip|tar\.gz|tgz)$/i, ""));
       setLook(next.missing.length === 0);
+      // LaTeX's first start downloads the engine and makes its format: begin while the form is read.
+      if (next.engine === "latex") warmLatex();
     } catch (e) {
       setTemplate(undefined);
       setError(T.failed((e as Error).message));
@@ -88,7 +92,7 @@ export function ImportTemplate() {
     <Panel title={T.title}>
       <p className="text-sm text-muted">{T.hint}</p>
       <Field label={T.file}>
-        {(fid) => <input id={fid} type="file" accept=".typ,.zip,.tar.gz,.tgz" className="text-sm" onChange={(e) => e.target.files?.[0] && void read(e.target.files[0])} />}
+        {(fid) => <input id={fid} type="file" accept=".typ,.tex,.zip,.tar.gz,.tgz" className="text-sm" onChange={(e) => e.target.files?.[0] && void read(e.target.files[0])} />}
       </Field>
       {error && (
         <p role="alert" className="text-sm text-danger">
@@ -97,6 +101,7 @@ export function ImportTemplate() {
       )}
       {template && mapping && (
         <>
+          {template.engine === "latex" && <p className="rounded bg-surface-2 p-2 text-sm">{T.latex}</p>}
           {template.missing.length > 0 && <p className="rounded bg-surface-2 p-2 text-sm">{T.missing(template.missing.join(", "))}</p>}
           {template.fonts.length > 0 && <p className="text-xs text-muted">{T.fonts(template.fonts.join(", "))}</p>}
           <p className="text-xs text-muted">{template.license ? T.license(template.license) : T.noLicense}</p>

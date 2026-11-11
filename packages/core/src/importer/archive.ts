@@ -128,12 +128,12 @@ async function readTar(data: Uint8Array, budget: Budget): Promise<Record<string,
 export async function readUpload(name: string, data: Uint8Array): Promise<Record<string, Uint8Array>> {
   const lower = name.toLowerCase();
   const budget = new Budget();
-  if (lower.endsWith(".typ")) {
+  if (lower.endsWith(".typ") || lower.endsWith(".tex")) {
     budget.file();
     budget.take(data.length);
     return { [safePath(name.split(/[\\/]/).pop()!)]: data };
   }
   if (lower.endsWith(".zip")) return readZip(data, budget);
   if (lower.endsWith(".tar.gz") || lower.endsWith(".tgz")) return readTar(await inflate(data, "gzip", budget), new Budget());
-  throw new UploadError("upload a .typ, a .zip or a .tar.gz");
+  throw new UploadError("upload a .typ, a .tex, a .zip or a .tar.gz");
 }

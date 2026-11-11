@@ -7,7 +7,8 @@
 
 import { freshId } from "../select.ts";
 import { toBase64 } from "../typst.ts";
-import { CONTACT_KINDS, FORMAT, type Block, type ContactKind, type CustomTemplate, type Entry, type Item, type Project } from "../types.ts";
+import { CONTACT_KINDS, FORMAT, type Block, type ContactKind, type CustomTemplate, type Entry, type Item, type LatexArg, type Project } from "../types.ts";
+import { parseLatex, type ParsedLatex } from "./latex.ts";
 import { parseTypst, type Arg, type Call, type ParsedFile } from "./parse.ts";
 
 export type EntryField = "title" | "place" | "period" | "start" | "end" | "note" | "items" | "omit";
@@ -23,6 +24,8 @@ export interface Mapping {
 }
 
 export interface Template {
+  /** A Typst template, or a LaTeX one (a `.tex` with `\begin{document}`). */
+  engine: "typst" | "latex";
   /** Text files by path (Typst sources, the licence, typst.toml…). */
   texts: Record<string, string>;
   /** Other files by path (pictures), fonts aside. */
@@ -45,7 +48,7 @@ export interface Template {
   license?: string;
 }
 
-const TEXT = /\.(typ|toml|txt|md|bib|ya?ml|json|csv|xml|svg)$|(^|\/)(LICEN[CS]E|COPYING|NOTICE)[^/]*$/i;
+const TEXT = /\.(typ|toml|txt|md|bib|ya?ml|json|csv|xml|svg|tex|cls|sty|clo|cfg|fd|def|ldf|bst)$|(^|\/)(LICEN[CS]E|COPYING|NOTICE)[^/]*$/i;
 const FONT = /\.(ttf|otf|woff2?)$/i;
 const decoder = new TextDecoder();
 
@@ -59,10 +62,15 @@ export function readTemplate(files: Record<string, Uint8Array>): Template {
     else if (TEXT.test(path)) texts[path] = decoder.decode(data);
     else binaries[path] = data;
   }
+  const license = Object.keys(texts).find((p) => /(^|\/)(LICEN[CS]E|COPYING)[^/]*$/i.test(p));
+  const latexMain = Object.keys(texts)
+    .filter((p) => p.endsWith(".tex") && /\\begin\s*\{document\}/.test(texts[p]))
+    .sort((a, b) => a.split("/").length - b.split("/").length)[0];
+  if (latexMain && !Object.keys(texts).some((p) => p.endsWith(".typ"))) return readLatex(texts, binaries, fonts, latexMain, license);
   const parsed = Object.fromEntries(Object.entries(texts).filter(([p]) => p.endsWith(".typ")).map(([p, s]) => [p, parseTypst(s)]));
   const score = (p: ParsedFile) => p.sections.length * 3 + [...p.preamble, ...p.sections.flatMap((s) => s.blocks)].filter((b) => b.kind === "call").length + (p.header ? 5 : 0);
   const main = Object.keys(parsed).sort((a, b) => score(parsed[b]) - score(parsed[a]) || a.split("/").length - b.split("/").length)[0];
-  if (!main) throw new Error("no .typ file in the upload");
+  if (!main) throw new Error("no .typ or .tex file in the upload");
   const file = parsed[main];
 
   let header = file.header;
@@ -80,8 +88,18 @@ export function readTemplate(files: Record<string, Uint8Array>): Template {
   }
   const wanted = new Set(Object.values(texts).flatMap((s) => [...s.matchAll(/"@preview\/([a-z0-9-]+):([0-9.]+)"/g)].map((m) => `${m[1]}:${m[2]}`)));
   const missing = [...wanted].filter((p) => !findPackage(packages, p));
-  const license = Object.keys(texts).find((p) => /(^|\/)(LICEN[CS]E|COPYING)[^/]*$/i.test(p));
-  return { texts, binaries, main, parsed: file, header, headerShows: !!file.header, macros, packages, missing, fonts, license };
+  return { engine: "typst", texts, binaries, main, parsed: file, header, headerShows: !!file.header, macros, packages, missing, fonts, license };
+}
+
+/** A LaTeX template: its header is the first call before any section that carries a contact. */
+function readLatex(texts: Record<string, string>, binaries: Record<string, Uint8Array>, fonts: string[], main: string, license?: string): Template {
+  const parsed = parseLatex(texts[main]);
+  const header = parsed.preamble
+    .flatMap((b) => (b.kind === "call" ? [b.call] : []))
+    .find((c) => c.args.some((a) => EMAIL.test(a.text) || URL_RE.test(a.text) || /linkedin|github/i.test(a.text)));
+  const macros: Record<string, Call[]> = {};
+  for (const b of [...parsed.preamble, ...parsed.sections.flatMap((s) => s.blocks)]) if (b.kind === "call" && b.call !== header) (macros[b.call.fn] ??= []).push(b.call);
+  return { engine: "latex", texts, binaries, main, parsed, header, headerShows: false, macros, packages: {}, missing: [], fonts, license };
 }
 
 const dirname = (p: string) => (p.includes("/") ? p.slice(0, p.lastIndexOf("/")) : "");
@@ -117,6 +135,8 @@ const headerByName = (key: string) => byName(HEADER_NAMES, key);
 export const EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 export const URL_RE = /^(https?:\/\/|www\.)\S+$|^[a-z0-9-]+(\.[a-z0-9-]+)+\/\S*$/i;
 const PHONE = /^\+?[\d\s().-]{7,}$/;
+const PERSON = /^\p{Lu}[\p{L}'’.-]+(\s+\p{Lu}[\p{L}'’.-]+){1,3}$/u;
+const PLACE = /^[\p{L} .'’-]+,\s*[\p{L} .'’-]+$/u;
 
 const MONTHS: Record<string, number> = Object.fromEntries(
   [
@@ -179,6 +199,13 @@ export function proposeMapping(t: Template): Mapping {
     header[a.key] =
       headerByName(a.key) ??
       (EMAIL.test(v) ? "email" : /linkedin\.com/i.test(v) ? "linkedin" : /github\.com/i.test(v) ? "github" : URL_RE.test(v) ? "website" : PHONE.test(v) && /\d{6}/.test(v.replace(/\D/g, "")) ? "phone" : "keep");
+    // Positional arguments carry no name: a person's name first, then a place ("City, Country").
+    if (header[a.key] === "keep" && a.key.startsWith("#")) {
+      const taken = Object.values(header);
+      if (!taken.includes("name") && PERSON.test(v)) header[a.key] = "name";
+      else if (!taken.includes("location") && PLACE.test(v)) header[a.key] = "location";
+      else if (!taken.includes("website") && /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i.test(v)) header[a.key] = "website";
+    }
   }
   const macros: Record<string, Record<string, EntryField>> = {};
   for (const [fn, calls] of Object.entries(t.macros)) {
@@ -210,7 +237,7 @@ export function proposeMapping(t: Template): Mapping {
 
 // ---------------------------------------------------------------- data
 
-const SUMMARY = /^(summary|profile|about( me)?|objective|resumen|perfil|sobre m[ií]|objetivo)$/i;
+export const SUMMARY = /^(summary|profile|about( me)?|objective|resumen|perfil|sobre m[ií]|objetivo)$/i;
 
 export interface ImportedData {
   project: Project;
@@ -313,6 +340,7 @@ export const customFilePath = (id: string, path: string) => `/custom/${id}/${pat
 /** The template as a style of one's own: its files (imports of `@preview` packages that came in the
  * upload pointed at them) and a source that calls its macros with Foja's data. */
 export function importStyle(t: Template, mapping: Mapping, id: string, name: string): CustomTemplate {
+  if (t.engine === "latex") return importLatexStyle(t, mapping, id, name);
   const base = (path: string) => customFilePath(id, path);
   // `@preview` packages that came in the upload and absolute paths point into the template's
   // folder; relative paths too, for code moved out of it (`dir` is where that code was).
@@ -430,4 +458,76 @@ export function importStyle(t: Template, mapping: Mapping, id: string, name: str
 
   const binaries = Object.fromEntries(Object.entries(t.binaries).map(([p, d]) => [p, toBase64(d)]));
   return { name, source, files, ...(Object.keys(binaries).length ? { binaries } : {}), ...(t.license ? { license: t.license } : {}) };
+}
+
+/** The files Foja's LaTeX step writes next to an imported LaTeX template: the PDF LaTeX made and
+ * its pages and size. The ones kept in the style are a placeholder for compilers without LaTeX. */
+export const LATEX_PDF = "foja-latex.pdf";
+export const LATEX_INFO = "foja-latex.json";
+
+/** A LaTeX template as a style: its files, how its macros are filled with the CV (`latex`) and a
+ * Typst source that shows, page by page, the PDF LaTeX makes of that (export/latex-template.ts). */
+function importLatexStyle(t: Template, mapping: Mapping, id: string, name: string): CustomTemplate {
+  const parsed = t.parsed as ParsedLatex;
+  const args = (calls: Call[], field: (key: string, sample: Arg) => LatexArg) =>
+    macroArgs(calls).map(({ key, sample }) => ({ ...field(key, sample), ...(key.startsWith("[") ? { optional: true } : {}) }));
+  const entries: Record<string, LatexArg[]> = {};
+  for (const [macro, fields] of Object.entries(mapping.macros)) {
+    if (macro === t.header?.fn || !Object.values(fields).some((f) => f !== "omit")) continue;
+    entries[macro] = args(t.macros[macro] ?? [], (key) => (fields[key] && fields[key] !== "omit" ? { field: fields[key] } : {}));
+  }
+  const header = t.header && {
+    macro: t.header.fn,
+    args: args([t.header], (key, sample) => {
+      const f = mapping.header[key] ?? "keep";
+      return f === "keep" ? { raw: sample.raw } : f === "omit" ? {} : { field: f };
+    }),
+  };
+  // The macro each section used, by the section ids importData gives (same rule, same order).
+  const sections: Record<string, string> = {};
+  const ids = new Set<string>();
+  for (const s of parsed.sections) {
+    if (SUMMARY.test(s.title) && s.blocks.every((b) => b.kind === "text")) continue;
+    const sid = freshId(s.title, ids, "section");
+    ids.add(sid);
+    const call = s.blocks.find((b) => b.kind === "call" && entries[b.call.fn]);
+    if (call?.kind === "call") sections[sid] = call.call.fn;
+  }
+  const entry = Object.keys(entries).sort((a, b) => (t.macros[b]?.length ?? 0) - (t.macros[a]?.length ?? 0))[0];
+  const summaryTitle = parsed.sections.find((s) => SUMMARY.test(s.title))?.title;
+  const placeholder = { pages: 0, width: 595.28, height: 841.89, message: "This style is a LaTeX template: Foja's editor compiles it. Export it as LaTeX (.tex) to compile it elsewhere." };
+
+  const source = [
+    `// ${name}: a LaTeX template imported into Foja. Foja fills its macros with the CV, LaTeX makes`,
+    `// the PDF (in the browser) and this style shows its pages (docs/templates.md).`,
+    `#import "/lib.typ": *`,
+    `#let latex = json("${customFilePath(id, LATEX_INFO)}")`,
+    `#set page(width: latex.width * 1pt, height: latex.height * 1pt, margin: if latex.pages == 0 { 2cm } else { 0pt })`,
+    `#if latex.pages == 0 { text(fill: rgb("#a33"), latex.message) } else {`,
+    `  for i in range(latex.pages) {`,
+    `    if i > 0 { pagebreak() }`,
+    `    image("${customFilePath(id, LATEX_PDF)}", page: i + 1, width: 100%)`,
+    `  }`,
+    `}`,
+    "",
+  ].join("\n");
+  const binaries = Object.fromEntries(Object.entries(t.binaries).map(([p, d]) => [p, toBase64(d)]));
+  return {
+    name,
+    source,
+    files: { ...t.texts, [LATEX_INFO]: JSON.stringify(placeholder) },
+    ...(Object.keys(binaries).length ? { binaries } : {}),
+    ...(t.license ? { license: t.license } : {}),
+    latex: {
+      main: t.main,
+      ...(header ? { header } : {}),
+      entries,
+      sections,
+      ...(entry ? { entry } : {}),
+      section: parsed.sectionCommand,
+      ...(summaryTitle ? { summaryTitle } : {}),
+      ...(parsed.entryList ? { entryList: parsed.entryList } : {}),
+      ...(parsed.itemList ? { itemList: parsed.itemList } : {}),
+    },
+  };
 }

@@ -72,10 +72,10 @@ of fixed labels (Spanish, English, Portuguese).
 style from scratch** starts from a small skeleton. Errors show above the preview, which keeps the
 last good version. How to write a style: [`templates.md`](templates.md).
 
-## Importing a Typst template
+## Importing a Typst or LaTeX template
 
-**Style and layout → Import a Typst template** takes a CV template written in Typst: a `.typ`, or
-a `.zip` or `.tar.gz` with its files. Foja reads it with fixed rules, no AI: the functions it
+**Style and layout → Import a Typst or LaTeX template** takes a CV template written in Typst or
+LaTeX: a `.typ` or a `.tex`, or a `.zip` or `.tar.gz` with its files. Foja reads it with fixed rules, no AI: the functions it
 defines, the ones its sample content calls again and again (each call is an entry), its headings
 (the sections), the bullets under each call (the items) and its `#show: x.with(...)` (the
 header). It then proposes which argument of each macro is the position, the place, the dates, a
@@ -93,6 +93,18 @@ change; below, what will come in. The same correspondence is used twice:
 `@preview` packages are not downloaded: if the template uses one, upload a `.zip` that brings its
 folder (with its `typst.toml`), or import only the data. The template's licence stays with the
 style. The command line does the same with `foja import`.
+
+A LaTeX template is read the same way: the macros it defines (`\newcommand`, `\def`), the ones
+its sample content calls again and again, its `\section`s, the `\item`s under each call and the
+call before the first section (the header). Its look is the template itself: Foja writes its
+`.tex` with the CV in place of the sample content, through the template's own macros, and
+compiles it with LaTeX (pdfTeX) in the browser. The first time, that downloads about 7 MB and
+takes a few seconds; after that a change shows in under a second, still slower than with Typst.
+Only pdfLaTeX and a set of common packages are there (no XeLaTeX or LuaLaTeX, no system fonts), so
+some templates import their data but not their look. The preview shows LaTeX's pages without
+click-to-edit or the red marks of what spills over; the PDF export is LaTeX's own PDF, and the
+LaTeX export is the template's `.tex`, filled, with its files. The command line has no LaTeX: it
+writes that `.tex` (`--format tex`) and no PDF.
 
 ## What goes in each profile
 

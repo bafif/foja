@@ -23,6 +23,7 @@ options:
   badLanguage: (lang: string) => `unknown language "${lang}" (es or en)`,
   imported: (entries: number, profile: string, style: string) => `${entries} entr${entries === 1 ? "y" : "ies"} in profile "${profile}"${style ? `, in the style "${style}"` : ""}`,
   missingPackages: (list: string) => `the look is not imported: the template uses packages that are not in the file (${list})`,
+  latexStyle: (profile: string) => `profile "${profile}" uses a LaTeX template: this command has no LaTeX, so it writes no PDF, SVG or Typst for it; --format tex gives the filled .tex, to compile with pdflatex`,
 };
 
 export type Messages = typeof en;
@@ -49,6 +50,7 @@ opciones:
   badLanguage: (lang: string) => `idioma desconocido: "${lang}" (es o en)`,
   imported: (entries: number, profile: string, style: string) => `${entries} ${entries === 1 ? "entrada" : "entradas"} en el perfil "${profile}"${style ? `, con el estilo "${style}"` : ""}`,
   missingPackages: (list: string) => `el aspecto no se importa: la plantilla usa paquetes que no vinieron en el archivo (${list})`,
+  latexStyle: (profile: string) => `el perfil "${profile}" usa una plantilla LaTeX: este comando no tiene LaTeX, así que no escribe PDF, SVG ni Typst para él; --format tex da el .tex lleno, para compilarlo con pdflatex`,
 };
 
 export const MESSAGES = { en, es };

@@ -28,13 +28,14 @@ y solo lee archivos dentro de la raíz de su proyecto.
 
 ## Plantillas importadas
 
-Una plantilla de Typst que escribió otra persona es un dato hasta que Typst la compila:
+Una plantilla de Typst o de LaTeX que escribió otra persona es un dato hasta que Typst o LaTeX la compila:
 
 - Foja la lee con reglas fijas (`packages/core/src/importer/`): recorre el código, nunca lo ejecuta, y no llama a ningún modelo ni servicio.
 - Un `.zip` o un `.tar.gz` se descomprime con el descompresor propio de la plataforma, con topes: como mucho 400 archivos y 20 MB descomprimidos, contados mientras se descomprime, así que un archivo chico que se inflaría a gigas se corta enseguida. Se rechazan las rutas absolutas, las que tienen `..`, las barras invertidas y los enlaces.
 - Sus archivos van al proyecto, con el estilo, y el compilador los ve bajo `/custom/<id>/`, en el mismo encierro que cualquier estilo: no se puede leer nada fuera del proyecto (probado).
 - Los paquetes `@preview` no se bajan nunca: se usan los que vinieron en el archivo, y el editor nombra los que faltan. Las fuentes que traiga se dejan afuera.
 - La licencia de la plantilla, si la tiene, queda guardada con el estilo.
+- El aspecto de una plantilla LaTeX se compila en el navegador con el motor pdfTeX de [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX) (WebAssembly, AGPL-3.0, sin cambios), en un worker propio que se carga solo cuando se usa una plantilla LaTeX. El motor y los archivos de TeX Live que puede leer vienen del mismo sitio (`apps/web/public/latex/`, armados por `scripts/latex-assets.sh`, con el motor verificado contra un SHA-256 fijo) y quedan en Cache Storage. Cada archivo se pone en el sistema de archivos en memoria del motor antes de compilar: no usa la red mientras compila, y lo que no está no se encuentra. No hay shell al que escapar (`\write18` no tiene qué ejecutar en WebAssembly), una compilación que no termina se corta, y lo que el motor puede escribir queda en su memoria.
 
 ## La app web
 

@@ -1,0 +1,55 @@
+% The packages and fonts Foja's LaTeX brings (scripts/latex-assets.sh): what common CV templates
+% for pdfLaTeX load. Compiled with -recorder, it lists the files to pack.
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english,spanish]{babel}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{ragged2e}
+\usepackage{parskip}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{ifthen}
+\usepackage{etoolbox}
+\usepackage{xparse}
+\usepackage{calc}
+\usepackage{marvosym}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\newcommand{\sample}{Sample \textbf{bold} \textit{italic} \textsc{Small Caps} \textbf{\textit{bold italic}} 0123 áéíóú ñ.\par}
+\newcommand{\sizes}{{\tiny\sample}{\scriptsize\sample}{\footnotesize\sample}{\small\sample}{\normalsize\sample}{\large\sample}{\Large\sample}{\LARGE\sample}{\huge\sample}{\Huge\sample}}
+\sizes
+{\sffamily\sizes}
+{\ttfamily\sample}
+\fontfamily{phv}\selectfont\sample
+\fontfamily{ptm}\selectfont\sample
+\fontfamily{bch}\selectfont\sample
+\fontfamily{ppl}\selectfont\sample
+\normalfont
+\selectlanguage{english}
+$x^2 + \alpha \cdot \sum_{i=1}^{n} y_i$ \textbullet{} \textbar{} \Letter{} \Mobilefone{} \Email{}
+\url{https://example.com} \href{https://example.com}{link}
+\begin{tikzpicture}\draw[fill=gray] (0,0) circle (2pt); \node at (1,0) {x};\end{tikzpicture}
+\begin{itemize}[leftmargin=*]\item one\end{itemize}
+\begin{tabularx}{\linewidth}{lX}\toprule a & b\\\bottomrule\end{tabularx}
+\end{document}

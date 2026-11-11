@@ -127,6 +127,38 @@ export interface CustomTemplate {
   binaries?: Record<string, string>;
   /** The path, among `files`, of the imported template's licence. */
   license?: string;
+  /** An imported LaTeX template: how its macros are filled with the CV (export/latex-template.ts).
+   * Its `source` is then a Typst style that shows the PDF LaTeX makes. */
+  latex?: LatexFill;
+}
+
+/** One argument of a LaTeX template's macro: a field of the CV, or the template's own text. */
+export interface LatexArg {
+  /** An entry field (`title`, `place`, `period`, `start`, `end`, `note`, `items`) or, in the
+   * header, `name`, `subtitle` or a contact kind. */
+  field?: string;
+  raw?: string;
+  /** Written as `[...]`, and left out when empty. */
+  optional?: boolean;
+}
+
+export interface LatexFill {
+  /** The main .tex file among the template's files: its preamble is kept as it is. */
+  main: string;
+  header?: { macro: string; args: LatexArg[] };
+  /** Entry macros: what goes in each argument. */
+  entries: Record<string, LatexArg[]>;
+  /** The entry macro of each section, by section id. */
+  sections: Record<string, string>;
+  /** The entry macro of the other sections. */
+  entry?: string;
+  /** The command a section title is written with (`\section`, `\cvsection`…). */
+  section: string;
+  summaryTitle?: string;
+  /** The list around a section's entries, when the template has one. */
+  entryList?: { begin: string; end: string };
+  /** The list of an entry's items; in `item`, `#` is the text. */
+  itemList?: { begin: string; end: string; item: string };
 }
 
 export interface Project {
