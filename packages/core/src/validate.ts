@@ -141,6 +141,16 @@ export function validateReferences(p: Project): Problem[] {
       error(`/entries/${escape(id)}/end`, "ends before it starts");
     }
     if (!entry.start && "end" in entry) error(`/entries/${escape(id)}/end`, "has an end but no start");
+    duplicates(entry.items ?? [], `/entries/${escape(id)}/items`, "item");
+  }
+  for (const [id, group] of Object.entries(p.skills)) duplicates(group.items, `/skills/${escape(id)}/items`, "skill");
+  // Profiles name items and skills by id in their overrides: ids are unique where they live.
+  function duplicates(list: { id: string }[], base: string, what: string) {
+    const ids = new Set<string>();
+    list.forEach((x, i) => {
+      if (ids.has(x.id)) error(`${base}/${i}/id`, `duplicate ${what} id "${x.id}"`);
+      ids.add(x.id);
+    });
   }
   return out;
 }

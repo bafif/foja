@@ -16,7 +16,7 @@
   "additionalProperties": false,
   "properties": {
     "format": {
-      "const": "foja/2"
+      "const": "foja/3"
     },
     "language": {
       "type": "string",
@@ -96,7 +96,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/$defs/text"
+              "$ref": "#/$defs/skill"
             }
           }
         }
@@ -192,16 +192,24 @@
     "item": {
       "type": "object",
       "required": [
+        "id",
         "text"
       ],
       "additionalProperties": false,
       "properties": {
+        "id": {
+          "$ref": "#/$defs/id",
+          "description": "Unique among the entry's items; profiles name it in their overrides."
+        },
         "heading": {
           "$ref": "#/$defs/text"
         },
         "text": {
           "$ref": "#/$defs/text",
           "description": "`**bold**` spans are allowed."
+        },
+        "priority": {
+          "$ref": "#/$defs/priority"
         }
       }
     },
@@ -240,6 +248,9 @@
           "items": {
             "$ref": "#/$defs/item"
           }
+        },
+        "priority": {
+          "$ref": "#/$defs/priority"
         }
       }
     },
@@ -445,6 +456,22 @@
             "en",
             "pt"
           ]
+        },
+        "length": {
+          "enum": [
+            "short",
+            "normal",
+            "full"
+          ],
+          "default": "normal",
+          "description": "What of the bank goes in: short, the essential; normal, essential and normal; full, everything."
+        },
+        "summaryLength": {
+          "enum": [
+            "short",
+            "long"
+          ],
+          "description": "Which summary goes in; absent: the short one with the short length (when there is one), the long one otherwise."
         }
       }
     },
@@ -507,6 +534,10 @@
         "summary": {
           "type": "string"
         },
+        "summaryShort": {
+          "type": "string",
+          "description": "The summary for the short length."
+        },
         "sections": {
           "type": "array",
           "items": {
@@ -515,6 +546,46 @@
         },
         "layout": {
           "$ref": "#/$defs/layout"
+        },
+        "overrides": {
+          "type": "object",
+          "description": "Exceptions to the length rule, by path in the bank: entries/<id>, entries/<id>/items/<id> or skills/<group>/<id>; true shows it, false leaves it out.",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^(entries/[a-z0-9][a-z0-9-]*(/items/[a-z0-9][a-z0-9-]*)?|skills/[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*)$"
+          },
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "priority": {
+      "enum": [
+        "essential",
+        "normal",
+        "extra"
+      ],
+      "default": "normal",
+      "description": "essential: in every length; normal: in Normal and Complete; extra: only in Complete."
+    },
+    "skill": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id",
+          "description": "Unique in its group; profiles name it in their overrides."
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "priority": {
+          "$ref": "#/$defs/priority"
         }
       }
     }

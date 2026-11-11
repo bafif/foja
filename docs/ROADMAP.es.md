@@ -29,7 +29,7 @@ Un solo producto, tres maneras de usarlo, todas desde la misma versión:
   no tiene servidor que pagar ni nada que atacar, y los datos del CV quedan en manos de su dueño.
 - **Costo cero, siempre.** El proyecto nunca paga nada: ni certificados de firma de código, ni
   cuenta de desarrollador de Apple, ni hosting pago, ni dominio pago. Cada elección es la mejor opción gratuita.
-- **Un único documento de proyecto autocontenido.** Un solo archivo JSON (formato `foja/2`) guarda la
+- **Un único documento de proyecto autocontenido.** Un solo archivo JSON (formato `foja/3`; los anteriores se migran al cargarlos) guarda la
   persona, los contactos, los grupos de habilidades, el banco compartido de entradas, los perfiles, los estilos propios y la
   foto. Un JSON Schema es el contrato entre la plantilla, los exportadores, el editor y la CLI.
 - **Dos niveles, bien explícitos.** El banco guarda cada entrada una sola vez; un perfil elige qué entradas

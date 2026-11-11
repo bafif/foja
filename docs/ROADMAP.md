@@ -39,7 +39,7 @@ One product, three ways to run it, all from the same release:
   has no server to pay for and nothing to attack, and the CV data stays with its owner.
 - **Zero cost, always.** The project never pays for anything: no code-signing certificates, no
   Apple developer account, no paid hosting, no paid domain. Every choice is the best free one.
-- **One self-contained project document.** A single JSON file (format `foja/2`) holds the
+- **One self-contained project document.** A single JSON file (format `foja/3`; older ones are migrated on loading) holds the
   person, contacts, skill groups, the shared bank of entries, the profiles, custom styles and the
   photo. A JSON Schema is the contract for the template, the exporters, the editor and the CLI.
 - **Two levels, kept explicit.** The bank holds every entry once; a profile chooses which entries

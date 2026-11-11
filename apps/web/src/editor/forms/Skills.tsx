@@ -1,4 +1,4 @@
-import { slug, type SkillGroup } from "@foja/core";
+import { skillsFromLines, slug, type SkillGroup } from "@foja/core";
 import { t } from "../i18n";
 import { pointer, useEditor, useProblem } from "../store";
 import { Button, Field, LinesArea, Panel, TextInput } from "../ui";
@@ -47,7 +47,7 @@ function SkillGroupEditor({ id, group }: { id: string; group: SkillGroup }) {
           ✕
         </Button>
       </div>
-      <Field label={t.groupItems}>{(fid) => <LinesArea id={fid} value={group.items} onChange={(v) => update((p) => (p.skills[id].items = v))} />}</Field>
+      <Field label={t.groupItems}>{(fid) => <LinesArea id={fid} value={group.items.map((s) => s.text)} onChange={(v) => update((p) => (p.skills[id].items = skillsFromLines(v, p.skills[id].items)))} />}</Field>
     </div>
   );
 }

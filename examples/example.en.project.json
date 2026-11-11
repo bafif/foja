@@ -1,5 +1,5 @@
 {
-  "format": "foja/2",
+  "format": "foja/3",
   "language": "en",
   "person": {
     "givenNames": [
@@ -18,33 +18,69 @@
     "web": {
       "title": "Web",
       "items": [
-        "HTML",
-        "JavaScript",
-        "TypeScript"
+        {
+          "id": "html",
+          "text": "HTML"
+        },
+        {
+          "id": "javascript",
+          "text": "JavaScript"
+        },
+        {
+          "id": "typescript",
+          "text": "TypeScript"
+        }
       ]
     },
     "programming": {
       "title": "Programming",
       "items": [
-        "C",
-        "C++",
-        "Python",
-        "Racket"
+        {
+          "id": "c",
+          "text": "C"
+        },
+        {
+          "id": "c-2",
+          "text": "C++"
+        },
+        {
+          "id": "python",
+          "text": "Python"
+        },
+        {
+          "id": "racket",
+          "text": "Racket"
+        }
       ]
     },
     "microcontrollers": {
       "title": "Microcontrollers",
       "items": [
-        "Arduino (C++)",
-        "AVR Assembly"
+        {
+          "id": "arduino-c",
+          "text": "Arduino (C++)"
+        },
+        {
+          "id": "avr-assembly",
+          "text": "AVR Assembly"
+        }
       ]
     },
     "languages": {
       "title": "Languages",
       "items": [
-        "Spanish (native)",
-        "English, general (C2)",
-        "English, technical (C1)"
+        {
+          "id": "spanish-native",
+          "text": "Spanish (native)"
+        },
+        {
+          "id": "english-general-c2",
+          "text": "English, general (C2)"
+        },
+        {
+          "id": "english-technical-c1",
+          "text": "English, technical (C1)"
+        }
       ]
     }
   },
@@ -57,9 +93,11 @@
       "note": "Intern from 05/2026 to 08/2026; developer since 08/2026",
       "items": [
         {
+          "id": "full-stack-development-of",
           "text": "Full stack development of a project, including its servers, cybersecurity and DevOps."
         },
         {
+          "id": "programming-with-advanced-ai",
           "text": "Programming with advanced AI agents: prompt, context and loop engineering, and spec-driven development (SDD)."
         }
       ]
@@ -71,14 +109,17 @@
       "end": "2024-10",
       "items": [
         {
+          "id": "attiny85-datalogger",
           "heading": "ATtiny85 datalogger",
           "text": "Design of a datalogger in C++ based on the ATtiny85 microcontroller."
         },
         {
+          "id": "charging-station-upgrade",
           "heading": "Charging station upgrade",
           "text": "Took an early working version of a drone charging station in C++ to a more polished one based on the ESP32 microcontroller."
         },
         {
+          "id": "camera-system",
           "heading": "Camera system",
           "text": "An automatic camera system written in Python for a Raspberry Pi, with a Telegram bot that can send it commands."
         }
@@ -92,22 +133,27 @@
       "note": "Freelance since 12/2018; at Kernel Computación since 02/2026",
       "items": [
         {
+          "id": "customer-service",
           "heading": "Customer service",
           "text": "Talking with customers, diagnosis and quotes."
         },
         {
+          "id": "services-for-windows-users",
           "heading": "Services for Windows users",
           "text": "Remote support via TeamViewer. Windows licensing with PowerShell scripts, malware removal and tuning each computer to what its user needs."
         },
         {
+          "id": "custom-environments",
           "heading": "Custom environments",
           "text": "Executable programs in Bash, Batch and Python that automate recurring tasks on Windows and Linux."
         },
         {
+          "id": "prevention",
           "heading": "Prevention",
           "text": "Automated backups and synchronisation of folders and servers."
         },
         {
+          "id": "services-for-linux-users",
           "heading": "Services for Linux users",
           "text": "Installation, setup and customisation of Linux environments."
         }
@@ -120,18 +166,22 @@
       "end": null,
       "items": [
         {
+          "id": "format",
           "heading": "Format",
           "text": "In-person and online classes."
         },
         {
+          "id": "students",
           "heading": "Students",
           "text": "Secondary school and university students."
         },
         {
+          "id": "main-subjects",
           "heading": "Main subjects",
           "text": "Electronics, algebra, calculus, physics, programming (C, C++, Python, pseudocode, Racket), chemistry and epistemology."
         },
         {
+          "id": "ai-for-learning",
           "heading": "AI for learning",
           "text": "I teach how to study with AI without letting it do all the work: telling AI for working (“solve this”) apart from AI for learning (“teach me”)."
         }
@@ -143,10 +193,12 @@
       "start": "2026-10",
       "items": [
         {
+          "id": "leading-a-bloc",
           "heading": "Leading a bloc",
           "text": "I coordinated a team of four: dividing the topics, preparing the arguments and planning how we would take the floor."
         },
         {
+          "id": "formal-debate",
           "heading": "Formal debate",
           "text": "Drafting bills and defending them orally before the council, following turns, time limits and the rules of procedure."
         }
@@ -167,6 +219,7 @@
       "place": "Instituto Politécnico Superior",
       "items": [
         {
+          "id": "microprocessors-automation-contr",
           "text": "Microprocessors, automation, control systems, network protocols and power electronics."
         }
       ]

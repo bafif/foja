@@ -276,7 +276,7 @@ describe("hostile or unusual input", () => {
   test("a skill starting with [ or * keeps LaTeX line breaks sound", () => {
     const p = structuredClone(example);
     const first = Object.keys(p.skills)[0];
-    p.skills[first].items = ["[C++]", "*nix", "Go"];
+    p.skills[first].items = ["[C++]", "*nix", "Go"].map((text, i) => ({ id: `s${i}`, text }));
     const tex = renderLatex(resolveProfile(p, "programador"));
     expect(tex).toContain("[C++]\\\\{}*nix\\\\{}Go");
     expect(tex).not.toMatch(/\\\\\s*\[C/);

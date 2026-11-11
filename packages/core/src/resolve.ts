@@ -2,8 +2,9 @@
 // defaults applied. Every exporter but Typst (which resolves by itself in cv.typ) starts here.
 
 import { formatPeriod, fullName, labelsFor, resolveLayout, type Labels } from "./project.ts";
+import { entryKey, itemKey, shown, skillKey, summaryOf } from "./select.ts";
 import { fromBase64 } from "./typst.ts";
-import type { Asset, ContactKind, Item, Project } from "./types.ts";
+import type { Asset, Block, ContactKind, Item, Project } from "./types.ts";
 
 export interface ResolvedEntry {
   id: string;
@@ -96,6 +97,7 @@ export function resolveProfile(project: Project, profileId: string): ResolvedCv 
   const labels = labelsFor(project, profile);
   const twoColumns = layout.columns === 2;
 
+  // What of the bank goes in: by the profile's length and its overrides (select.ts).
   const entry = (id: string): ResolvedEntry => {
     const e = project.entries[id];
     return {
@@ -104,9 +106,10 @@ export function resolveProfile(project: Project, profileId: string): ResolvedCv 
       place: e.place ?? "",
       period: formatPeriod(e, layout, labels),
       note: e.note,
-      items: e.items ?? [],
+      items: (e.items ?? []).filter((it) => shown(profile, itemKey(id, it.id), it.priority)),
     };
   };
+  const entryShown = (b: Block) => b.type !== "entry" || shown(profile, entryKey(b.entry), project.entries[b.entry]?.priority);
 
   let photo: ResolvedPhoto | undefined;
   const photoName = project.person.photo;
@@ -131,14 +134,32 @@ export function resolveProfile(project: Project, profileId: string): ResolvedCv 
         const value = project.contacts[kind]!;
         return { kind, label: labels.contacts[kind], value, href: contactHref(kind, value) };
       }),
-    skills: profile.skills.map((row) => row.filter((id) => project.skills[id]).map((id) => project.skills[id])),
-    summary: profile.summary,
-    sections: profile.sections.map((s) => ({
-      id: s.id,
-      title: s.title,
-      side: twoColumns && s.column === "side",
-      compact: s.compact ?? false,
-      blocks: s.blocks.map((b): ResolvedBlock => (b.type === "entry" ? { type: "entry", entry: entry(b.entry) } : b)),
-    })),
+    skills: profile.skills
+      .map((row) =>
+        row
+          .filter((id) => Object.hasOwn(project.skills, id))
+          .map((id) => ({
+            title: project.skills[id].title,
+            items: project.skills[id].items.filter((s) => shown(profile, skillKey(id, s.id), s.priority)).map((s) => s.text),
+            emptied: project.skills[id].items.length > 0,
+          }))
+          // A group the selection emptied goes away; one that was empty stays, as before.
+          .filter((g) => g.items.length > 0 || !g.emptied)
+          .map(({ emptied: _, ...g }) => g),
+      )
+      .filter((row) => row.length > 0),
+    summary: summaryOf(profile),
+    sections: profile.sections
+      .map((s) => ({
+        id: s.id,
+        title: s.title,
+        side: twoColumns && s.column === "side",
+        compact: s.compact ?? false,
+        blocks: s.blocks.filter(entryShown).map((b): ResolvedBlock => (b.type === "entry" ? { type: "entry", entry: entry(b.entry) } : b)),
+        // A section the selection emptied goes away; one that was empty stays, as before.
+        emptied: s.blocks.length > 0 && !s.blocks.some(entryShown),
+      }))
+      .filter((s) => !s.emptied)
+      .map(({ emptied: _, ...s }) => s),
   };
 }

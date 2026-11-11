@@ -1,5 +1,5 @@
 {
-  "format": "foja/2",
+  "format": "foja/3",
   "language": "es",
   "person": {
     "givenNames": [
@@ -18,33 +18,69 @@
     "web": {
       "title": "Web",
       "items": [
-        "HTML",
-        "JavaScript",
-        "TypeScript"
+        {
+          "id": "html",
+          "text": "HTML"
+        },
+        {
+          "id": "javascript",
+          "text": "JavaScript"
+        },
+        {
+          "id": "typescript",
+          "text": "TypeScript"
+        }
       ]
     },
     "programacion": {
       "title": "Programación",
       "items": [
-        "C",
-        "C++",
-        "Python",
-        "Racket"
+        {
+          "id": "c",
+          "text": "C"
+        },
+        {
+          "id": "c-2",
+          "text": "C++"
+        },
+        {
+          "id": "python",
+          "text": "Python"
+        },
+        {
+          "id": "racket",
+          "text": "Racket"
+        }
       ]
     },
     "microcontroladores": {
       "title": "Microcontroladores",
       "items": [
-        "Arduino (C++)",
-        "AVR Assembly"
+        {
+          "id": "arduino-c",
+          "text": "Arduino (C++)"
+        },
+        {
+          "id": "avr-assembly",
+          "text": "AVR Assembly"
+        }
       ]
     },
     "idiomas": {
       "title": "Idiomas",
       "items": [
-        "Español (nativo)",
-        "Inglés general (C2)",
-        "Inglés técnico (C1)"
+        {
+          "id": "espanol-nativo",
+          "text": "Español (nativo)"
+        },
+        {
+          "id": "ingles-general-c2",
+          "text": "Inglés general (C2)"
+        },
+        {
+          "id": "ingles-tecnico-c1",
+          "text": "Inglés técnico (C1)"
+        }
       ]
     }
   },
@@ -57,9 +93,11 @@
       "note": "Pasante de 05/2026 a 08/2026; desarrollador desde 08/2026",
       "items": [
         {
+          "id": "desarrollo-full-stack-de",
           "text": "Desarrollo full stack de un proyecto, con sus servidores, ciberseguridad y DevOps."
         },
         {
+          "id": "programacion-con-agentes-de",
           "text": "Programación con agentes de inteligencia artificial avanzados: ingeniería de prompts, de contexto y de loops, y desarrollo guiado por especificaciones (SDD)."
         }
       ]
@@ -71,14 +109,17 @@
       "end": "2024-10",
       "items": [
         {
+          "id": "datalogger-attiny85",
           "heading": "Datalogger ATtiny85",
           "text": "Diseño de un datalogger en C++ basado en el controlador ATtiny85."
         },
         {
+          "id": "actualizacion-de-la-estacion",
           "heading": "Actualización de la estación de carga",
           "text": "Actualización de una versión primitiva funcional de estación de carga para drones en C++ hacia una versión más pulida basado en el controlador ESP32."
         },
         {
+          "id": "sistema-de-camaras",
           "heading": "Sistema de cámaras",
           "text": "Programación de un sistema automático de cámaras escrito en Python para una Raspberry Pi, más su comunicación con un bot de Telegram capaz de darle comandos."
         }
@@ -92,22 +133,27 @@
       "note": "Independiente desde 12/2018; en Kernel Computación desde 02/2026",
       "items": [
         {
+          "id": "atencion-al-cliente",
           "heading": "Atención al cliente",
           "text": "Comunicación con clientes, diagnóstico y presupuesto."
         },
         {
+          "id": "servicios-a-usuarios-de",
           "heading": "Servicios a usuarios de Windows",
           "text": "Servicio remoto de auxilio via TeamViewer. Licenciación de Windows mediante scripts de Powershell, limpieza de malware y optimización del equipo en función de las necesidades del usuario."
         },
         {
+          "id": "personalizacion-del-entorno",
           "heading": "Personalización del entorno",
           "text": "Preparación de programas ejecutables en Bash, Batch y Python que automaticen tareas recurrentes en Windows/Linux."
         },
         {
+          "id": "medidas-preventivas",
           "heading": "Medidas preventivas",
           "text": "Automatización de respaldos de seguridad (backups) o sincronización de carpetas y servidores."
         },
         {
+          "id": "servicios-a-usuarios-de-2",
           "heading": "Servicios a usuarios de Linux",
           "text": "Instalación, acondicionamiento y personalización de entornos Linux."
         }
@@ -120,18 +166,22 @@
       "end": null,
       "items": [
         {
+          "id": "modalidades",
           "heading": "Modalidades",
           "text": "Clases presenciales y virtuales."
         },
         {
+          "id": "rango",
           "heading": "Rango",
           "text": "Alumnos secundarios o universitarios."
         },
         {
+          "id": "materias-destacadas",
           "heading": "Materias destacadas",
           "text": "Electrónica, álgebra, cálculo, física, programación (C, C++, Python, Pseudocódigo, Racket), química y epistemología."
         },
         {
+          "id": "ia-para-aprender",
           "heading": "IA para aprender",
           "text": "Enseño a estudiar con IA sin que resuelva todo: a separar la IA para trabajar («resolvé») de la IA para aprender («enseñame»)."
         }
@@ -143,10 +193,12 @@
       "start": "2026-10",
       "items": [
         {
+          "id": "conduccion-de-un-bloque",
           "heading": "Conducción de un bloque",
           "text": "Coordiné a un equipo de cuatro integrantes: reparto de temas, preparación de argumentos y estrategia de intervención."
         },
         {
+          "id": "debate-reglado",
           "heading": "Debate reglado",
           "text": "Redacción de proyectos y defensa oral ante el cuerpo, respetando turnos, tiempos y el reglamento de sesiones."
         }
@@ -167,6 +219,7 @@
       "place": "Instituto Politécnico Superior",
       "items": [
         {
+          "id": "microprocesadores-automatizacion",
           "text": "Microprocesadores, automatización, sistemas de control, protocolos de red y electrónica de potencia."
         }
       ]

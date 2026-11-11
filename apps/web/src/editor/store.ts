@@ -3,7 +3,7 @@
 
 import { create } from "zustand";
 import { temporal } from "zundo";
-import { validate, type Problem, type Project } from "@foja/core";
+import { migrate, validate, type Problem, type Project } from "@foja/core";
 import { savePrevious } from "./storage";
 
 export type Selection =
@@ -57,7 +57,9 @@ export const useEditor = create<EditorState>()(
       setPane(pane) {
         set({ pane });
       },
-      load(project, profileId) {
+      load(loaded, profileId) {
+        // A project saved or exported by an older Foja comes up to the current format.
+        const project = migrate(loaded) as Project;
         // Keep what this replaces, so a misclick on "new project" can be undone from the menu.
         const replaced = get().project;
         if (replaced && replaced !== project) void savePrevious({ project: replaced, profileId: get().profileId }).catch(() => undefined);

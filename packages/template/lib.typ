@@ -105,6 +105,31 @@
   [#metadata((main: pt(main), side: pt(side)))<foja-geometry>]
 }
 
+// ---------------------------------------------------------------- what of the bank goes in
+
+// The same rules as packages/core/src/select.ts, which the other exports use: keep both in step.
+// Each entry, item and skill has a priority (`essential`, `normal`, `extra`); the profile's length
+// says which go in, and its overrides make the exceptions.
+
+#let length = opt("length", "normal")
+#let shown-priorities = (short: ("essential",), normal: ("essential", "normal"), full: ("essential", "normal", "extra")).at(
+  length,
+  default: ("essential", "normal"),
+)
+#let overrides = profile.at("overrides", default: (:))
+
+/// Whether the thing of the bank at `key` (`entries/<id>`, `entries/<id>/items/<id>` or
+/// `skills/<group>/<id>`) goes in the profile: its override, or the length rule.
+#let shown(key, thing) = {
+  let override = overrides.at(key, default: none)
+  if type(override) == bool { override } else { thing.at("priority", default: "normal") in shown-priorities }
+}
+#let block-shown(b) = b.type != "entry" or shown("entries/" + b.entry, project.entries.at(b.entry))
+#let summary-short = profile.at("summaryShort", default: "")
+#let uses-short-summary = (
+  opt("summaryLength", if length == "short" { "short" } else { "long" }) == "short" and summary-short.trim() != ""
+)
+
 // ---------------------------------------------------------------- the CV, resolved
 
 #let link-for(kind, value) = {
@@ -130,7 +155,7 @@
     given: person.givenNames.join(" "),
     family: person.familyNames.join(" "),
     subtitle: profile.subtitle,
-    summary: profile.summary,
+    summary: if uses-short-summary { summary-short } else { profile.summary },
     highlight: profile.at("highlight", default: none),
     photo: if photo-name == none or opt("photo", "square") == "none" { none } else { "/assets/" + photo-name },
     photo-shape: opt("photo", "square"),
@@ -138,10 +163,24 @@
       .contacts
       .filter(k => k in project.contacts)
       .map(k => (kind: k, label: labels.contacts.at(k), value: project.contacts.at(k), link: link-for(k, project.contacts.at(k)))),
-    skills: profile.skills.map(row => row.filter(id => id in project.skills).map(id => project.skills.at(id))).filter(row => row.len() > 0),
+    skills: profile
+      .skills
+      .map(row => row
+        .filter(id => id in project.skills)
+        .map(id => (id: id, group: project.skills.at(id)))
+        // A group the selection emptied goes away; one that was empty stays.
+        .filter(((id, group)) => group.items.len() == 0 or group.items.any(s => shown("skills/" + id + "/" + s.id, s)))
+        .map(((id, group)) => (
+          title: group.title,
+          items: group.items.filter(s => shown("skills/" + id + "/" + s.id, s)).map(s => s.text),
+        )))
+      .filter(row => row.len() > 0),
     sections: profile
       .sections
       .enumerate()
+      // A section the selection emptied goes away; one that was empty stays. `index` and `path`
+      // keep the section's place in the profile, as the blocks' paths keep theirs.
+      .filter(((i, s)) => s.blocks.len() == 0 or s.blocks.any(block-shown))
       .map(((i, s)) => (
         index: i,
         path: "sections." + str(i),
@@ -152,6 +191,7 @@
         blocks: s
           .blocks
           .enumerate()
+          .filter(((j, b)) => block-shown(b))
           .map(((j, b)) => {
             let path = "sections." + str(i) + ".blocks." + str(j)
             if b.type == "entry" {
@@ -164,7 +204,7 @@
                 place: e.at("place", default: ""),
                 period: period(e),
                 note: e.at("note", default: none),
-                items: e.at("items", default: ()),
+                items: e.at("items", default: ()).filter(it => shown("entries/" + b.entry + "/items/" + it.at("id", default: ""), it)),
               )
             } else {
               (type: b.type, path: path, heading: b.at("heading", default: none), text: b.text)

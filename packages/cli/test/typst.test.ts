@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
-import { BUILTIN_STYLES, STYLE_SKELETON, markBoxes, overflowLines, partAt, slug, typstBundle, validate, type Layout, type Project } from "@foja/core";
+import { BUILTIN_STYLES, STYLE_SKELETON, markBoxes, overflowLines, partAt, resolveProfile, slug, typstBundle, validate, type Layout, type Project } from "@foja/core";
 import { Typst, templateFiles } from "../src/typst.ts";
 import { parseMarkdown } from "../src/convert.ts";
 
@@ -163,5 +163,58 @@ describe("curriculum converter", () => {
       { heading: "Uno", text: "linea a linea b" },
       { heading: "Dos", text: "c" },
     ]);
+  });
+});
+
+describe("Typst picks what the other exports pick", () => {
+  // A style that lays out nothing and hands back what lib.typ resolved.
+  const DUMP = `#import "/lib.typ": *
+#metadata((
+  summary: cv.summary,
+  skills: cv.skills,
+  sections: cv.sections.map(s => (id: s.id, path: s.path, blocks: s.blocks.map(b => if b.type == "entry" { (entry: b.id, path: b.path, items: b.items.map(it => it.text)) } else { (text: b.text, path: b.path) }))),
+))<cv-dump>`;
+
+  /** The same shape from resolve.ts (paths aside, which only Typst has). */
+  function fromResolve(p: Project, id: string) {
+    const cv = resolveProfile(p, id);
+    return {
+      summary: cv.summary,
+      skills: cv.skills,
+      sections: cv.sections.map((s) => ({ id: s.id, blocks: s.blocks.map((b) => (b.type === "entry" ? { entry: b.entry.id, items: b.entry.items.map((it) => it.text) } : { text: b.text })) })),
+    };
+  }
+  const withoutPaths = (dump: any) => ({ ...dump, sections: dump.sections.map(({ path: _, ...s }: any) => ({ ...s, blocks: s.blocks.map(({ path: __, ...b }: any) => b) })) });
+
+  /** Entries, items and skills marked essential, normal or extra in turn, and a short summary. */
+  function marked(project: Project): Project {
+    const p = structuredClone(project);
+    const cycle = ["essential", undefined, "extra"] as const;
+    Object.values(p.entries).forEach((e, i) => {
+      e.priority = cycle[i % 3];
+      e.items?.forEach((it, j) => (it.priority = cycle[(i + j) % 3]));
+    });
+    Object.values(p.skills).forEach((g, i) => g.items.forEach((s, j) => (s.priority = cycle[(i + j + 1) % 3])));
+    for (const profile of Object.values(p.profiles)) profile.summaryShort = "Corto.";
+    return p;
+  }
+
+  test.each(["short", "normal", "full"] as const)("length %s, with overrides", (length) => {
+    for (const project of [marked(curriculum), marked(fictional)]) {
+      const p = structuredClone(project);
+      for (const profile of Object.values(p.profiles)) {
+        profile.layout = { ...profile.layout, template: "dump", length };
+        const firstEntry = profile.sections.flatMap((s) => s.blocks).find((b) => b.type === "entry");
+        if (firstEntry?.type === "entry") profile.overrides = { [`entries/${firstEntry.entry}`]: length !== "full" };
+      }
+      p.templates = { dump: { name: "Dump", source: DUMP } };
+      const typst = new Typst(p);
+      for (const id of Object.keys(p.profiles)) {
+        const [dump] = typst.query<any>(typst.compile(id), "cv-dump");
+        expect(withoutPaths(dump), id).toEqual(fromResolve(p, id));
+        // Paths keep each part's place in the profile, so a click still finds it.
+        for (const s of dump.sections) for (const b of s.blocks) expect(b.path.startsWith(s.path + ".blocks.")).toBe(true);
+      }
+    }
   });
 });

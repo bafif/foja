@@ -1,4 +1,4 @@
-import type { Item } from "@foja/core";
+import { freshId, type Item } from "@foja/core";
 import { t } from "../i18n";
 import { useProblem } from "../store";
 import { Button, ListControls, TextArea, TextInput, move } from "../ui";
@@ -18,7 +18,7 @@ export function ItemsEditor({ items, onChange, base }: { items: Item[]; onChange
         </ItemRow>
       ))}
       <div>
-        <Button onClick={() => edit((l) => l.push({ text: "" }))}>{t.addItem}</Button>
+        <Button onClick={() => edit((l) => l.push({ id: freshId("item", l.map((x) => x.id)), text: "" }))}>{t.addItem}</Button>
       </div>
     </div>
   );

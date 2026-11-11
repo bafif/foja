@@ -1,5 +1,5 @@
 {
-  "format": "foja/2",
+  "format": "foja/3",
   "language": "es",
   "person": { "givenNames": ["Inés"], "familyNames": ["Ejemplo"], "photo": null },
   "contacts": {
@@ -9,9 +9,32 @@
     "location": "Córdoba, Argentina"
   },
   "skills": {
-    "lenguajes": { "title": "Lenguajes", "items": ["TypeScript", "Python", "SQL", "Go"] },
-    "herramientas": { "title": "Herramientas", "items": ["React", "PostgreSQL", "Docker", "Git"] },
-    "idiomas": { "title": "Idiomas", "items": ["Español (nativo)", "Inglés (C1)", "Portugués (B1)"] }
+    "lenguajes": {
+      "title": "Lenguajes",
+      "items": [
+        { "id": "typescript", "text": "TypeScript" },
+        { "id": "python", "text": "Python" },
+        { "id": "sql", "text": "SQL" },
+        { "id": "go", "text": "Go" }
+      ]
+    },
+    "herramientas": {
+      "title": "Herramientas",
+      "items": [
+        { "id": "react", "text": "React" },
+        { "id": "postgresql", "text": "PostgreSQL" },
+        { "id": "docker", "text": "Docker" },
+        { "id": "git", "text": "Git" }
+      ]
+    },
+    "idiomas": {
+      "title": "Idiomas",
+      "items": [
+        { "id": "espanol-nativo", "text": "Español (nativo)" },
+        { "id": "ingles-c1", "text": "Inglés (C1)" },
+        { "id": "portugues-b1", "text": "Portugués (B1)" }
+      ]
+    }
   },
   "entries": {
     "nube-sur": {
@@ -20,9 +43,9 @@
       "start": "2023-03",
       "end": null,
       "items": [
-        { "heading": "Facturación", "text": "Rediseño del módulo de facturación en TypeScript y PostgreSQL; los tiempos de respuesta bajaron a la mitad." },
-        { "heading": "Calidad", "text": "Introduje pruebas de integración y revisión de código en un equipo de seis personas." },
-        { "text": "Acompañamiento de dos desarrolladores junior en su primer año." }
+        { "id": "facturacion", "heading": "Facturación", "text": "Rediseño del módulo de facturación en TypeScript y PostgreSQL; los tiempos de respuesta bajaron a la mitad." },
+        { "id": "calidad", "heading": "Calidad", "text": "Introduje pruebas de integración y revisión de código en un equipo de seis personas." },
+        { "id": "acompanamiento-de-dos-desarrolla", "text": "Acompañamiento de dos desarrolladores junior en su primer año." }
       ]
     },
     "datos-abiertos": {
@@ -31,8 +54,8 @@
       "start": "2022-02",
       "end": "2022-12",
       "items": [
-        { "text": "Limpieza y publicación de conjuntos de datos con **Python** y pandas." },
-        { "text": "Tablero de indicadores con React para el sitio institucional." }
+        { "id": "limpieza-y-publicacion-de", "text": "Limpieza y publicación de conjuntos de datos con **Python** y pandas." },
+        { "id": "tablero-de-indicadores-con", "text": "Tablero de indicadores con React para el sitio institucional." }
       ]
     },
     "ayudantia": {
@@ -41,8 +64,8 @@
       "start": "2021-03",
       "end": "2023-12",
       "items": [
-        { "text": "Clases prácticas de estructuras de datos para grupos de 40 estudiantes." },
-        { "text": "Corrección de parciales y armado de guías de ejercicios." }
+        { "id": "clases-practicas-de-estructuras", "text": "Clases prácticas de estructuras de datos para grupos de 40 estudiantes." },
+        { "id": "correccion-de-parciales-y", "text": "Corrección de parciales y armado de guías de ejercicios." }
       ]
     },
     "licenciatura": {

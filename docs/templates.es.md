@@ -34,6 +34,8 @@ Cada bloque de una sección es o bien una entrada,
 `(type: "item" | "paragraph", path, heading, text)`. `period` ya viene formateado
 (`05/2026 – actualidad`). `items` son pares `(heading, text)`. `side` es verdadero para las secciones que el usuario puso en la barra lateral. Un estilo de una sola columna puede ignorarlo.
 
+`cv` tiene solo lo que el perfil deja entrar: las entradas, los ítems y las habilidades que toma su largo según su prioridad, con sus excepciones, y el resumen corto cuando lo usa. Una sección o un grupo de habilidades que eso deja vacío no está en `cv`; `index` y `path` siguen dando el lugar de cada parte en el perfil.
+
 ## Funciones auxiliares
 
 | | |

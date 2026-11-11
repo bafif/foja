@@ -1,15 +1,24 @@
-// The Foja project format, version 2. `schema/project.schema.json` is the contract; these types
+// The Foja project format, version 3. `schema/project.schema.json` is the contract; these types
 // mirror it for TypeScript code. Keep both in sync (test/schema.test.ts checks the example).
+// `migrate` (migrate.ts) brings version 2 up to it.
 
-export const FORMAT = "foja/2";
+export const FORMAT = "foja/3";
 
 export type ContactKind = "phone" | "email" | "website" | "github" | "linkedin" | "location";
 export const CONTACT_KINDS: ContactKind[] = ["phone", "email", "website", "github", "linkedin", "location"];
 
+/** How much a thing of the bank matters, marked once: `essential` goes in every length, `normal`
+ * (the default) in Normal and Complete, `extra` only in Complete. */
+export type Priority = "essential" | "normal" | "extra";
+export const PRIORITIES: Priority[] = ["essential", "normal", "extra"];
+
 /** A line of text; `**bold**` spans are allowed. */
 export interface Item {
+  /** Unique among the entry's items; profiles name it in their overrides. */
+  id: string;
   heading?: string;
   text: string;
+  priority?: Priority;
 }
 
 /** Something done over time: a job, a degree, a project. Shared by every profile. */
@@ -22,12 +31,23 @@ export interface Entry {
   end?: string | null;
   note?: string;
   items?: Item[];
+  priority?: Priority;
+}
+
+export interface Skill {
+  /** Unique in its group; profiles name it in their overrides. */
+  id: string;
+  text: string;
+  priority?: Priority;
 }
 
 export interface SkillGroup {
   title: string;
-  items: string[];
+  items: Skill[];
 }
+
+export type Length = "short" | "normal" | "full";
+export const LENGTHS: Length[] = ["short", "normal", "full"];
 
 export type Block =
   | { type: "entry"; entry: string }
@@ -64,6 +84,11 @@ export interface Layout {
   dateFormat?: "MM/YYYY" | "MMM YYYY" | "YYYY";
   /** Language of the fixed labels; defaults to the project language. */
   labels?: "es" | "en" | "pt";
+  /** What of the bank goes in, by priority: `short` the essential, `normal` (the default) the
+   * essential and the normal, `full` everything. */
+  length?: Length;
+  /** Which summary goes in; absent, the short one with the short length (when there is one). */
+  summaryLength?: "short" | "long";
 }
 
 export interface Profile {
@@ -76,6 +101,11 @@ export interface Profile {
   /** Rows of skill group ids; a row with several groups is laid out side by side. */
   skills: string[][];
   summary: string;
+  /** The summary for the short length. */
+  summaryShort?: string;
+  /** Exceptions to the length rule, by path in the bank (`entries/<id>`,
+   * `entries/<id>/items/<id>`, `skills/<group>/<id>`): true shows it, false leaves it out. */
+  overrides?: Record<string, boolean>;
   sections: Section[];
   layout?: Layout;
 }

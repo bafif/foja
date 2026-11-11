@@ -5,7 +5,10 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { FORMAT, slug, toBase64, type Asset, type Block, type ContactKind, type Item, type Profile, type Project } from "@foja/core";
+import { FORMAT, freshId, skillsFromLines, slug, toBase64, type Asset, type Block, type ContactKind, type Item, type Profile, type Project } from "@foja/core";
+
+/** An item before it gets its id in an entry (section items have none). */
+type ItemText = Omit<Item, "id">;
 
 const FAKE_PHONE = "+54 9 341 000-0000";
 // A grey 403×371 box, the proportions of the real photo, so the fixture keeps the layout.
@@ -25,7 +28,7 @@ const readText = (dir: string, path: string) => readFileSync(join(dir, path), "u
 
 // Same subset as cvgen's parse_markdown: `# Heading` lines; every other non-empty line is joined
 // into the paragraph of the heading above it.
-export function parseMarkdown(text: string): Item[] {
+export function parseMarkdown(text: string): ItemText[] {
   const items: { heading?: string; lines: string[] }[] = [];
   for (const raw of text.split("\n")) {
     const line = raw.trim();
@@ -38,7 +41,7 @@ export function parseMarkdown(text: string): Item[] {
   return items.map(({ heading, lines }) => (heading === undefined ? { text: lines.join(" ") } : { heading, text: lines.join(" ") }));
 }
 
-function convertItems(dir: string, value: string | string[] | undefined): Item[] | undefined {
+function convertItems(dir: string, value: string | string[] | undefined): ItemText[] | undefined {
   if (value === undefined) return undefined;
   if (Array.isArray(value)) return value.map((text) => ({ text }));
   return parseMarkdown(readText(dir, value));
@@ -63,7 +66,7 @@ export function convertCurriculum(dir: string, { publicFixture = false, warn = c
 
   const skills: Project["skills"] = {};
   for (const [name, items] of Object.entries(base.habilidades as Record<string, string[]>)) {
-    skills[skillId(name)] = { title: name, items };
+    skills[skillId(name)] = { title: name, items: skillsFromLines(items, []) };
   }
 
   const entries: Project["entries"] = {};
@@ -74,7 +77,14 @@ export function convertCurriculum(dir: string, { publicFixture = false, warn = c
     if ("hasta" in raw) entry.end = raw.hasta;
     if (raw.nota) entry.note = raw.nota;
     const items = convertItems(dir, raw.tareas);
-    if (items) entry.items = items;
+    if (items) {
+      const taken: string[] = [];
+      entry.items = items.map((it) => {
+        const id = freshId(it.heading ?? it.text, taken);
+        taken.push(id);
+        return { id, ...it };
+      });
+    }
     entries[id] = entry;
   }
 

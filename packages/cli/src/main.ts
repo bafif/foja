@@ -4,7 +4,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { validate, type Project } from "@foja/core";
+import { migrate, validate, type Project } from "@foja/core";
 import { detectLanguage, MESSAGES, systemLanguages, takeLanguage, type Language } from "./messages.ts";
 
 const { lang, rest: argv } = takeLanguage(process.argv.slice(2));
@@ -19,7 +19,7 @@ function fail(message: string, code = 1): never {
 function loadProject(path: string): Project {
   let value: unknown;
   try {
-    value = JSON.parse(readFileSync(path, "utf8"));
+    value = migrate(JSON.parse(readFileSync(path, "utf8")));
   } catch (e) {
     fail(`${path}: ${(e as Error).message}`);
   }

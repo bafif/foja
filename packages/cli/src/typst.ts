@@ -96,7 +96,12 @@ export class Typst {
   }
 
   marks(doc: Doc): Mark[] {
-    return this.compiler.query(doc, { selector: "<foja>", field: "value" });
+    return this.query(doc, "foja");
+  }
+
+  /** The values of the `metadata` labelled `label` in the document. */
+  query<T>(doc: Doc, label: string): T[] {
+    return this.compiler.query(doc, { selector: `<${label}>`, field: "value" });
   }
 
   geometry(doc: Doc): StyleGeometry | undefined {

@@ -1,4 +1,4 @@
-import { CONTACT_KINDS, validate, type Profile, type Project } from "@foja/core";
+import { CONTACT_KINDS, FORMAT, migrate, validate, type Profile, type Project } from "@foja/core";
 import exampleEs from "../../../../examples/example.project.json";
 import exampleEn from "../../../../examples/example.en.project.json";
 import { t, useLanguage } from "./i18n";
@@ -9,7 +9,7 @@ export const exampleProject = (): Project => structuredClone(useLanguage.getStat
 
 export function emptyProject(): Project {
   return {
-    format: "foja/2",
+    format: FORMAT,
     language: useLanguage.getState().lang,
     person: { givenNames: [t.defaults.givenName], familyNames: [t.defaults.familyName], photo: null },
     contacts: { email: t.defaults.email },
@@ -44,7 +44,7 @@ export function newProfile(project: Project): [string, Profile] {
 
 /** Parses an imported file; throws with the problems when it is not a Foja project. */
 export function parseProject(text: string): Project {
-  const value = JSON.parse(text);
+  const value = migrate(JSON.parse(text));
   const problems = validate(value).filter((p) => p.severity === "error");
   if (problems.length) throw new Error(problems.slice(0, 5).map((p) => `${p.path}: ${p.message}`).join("\n"));
   return value as Project;

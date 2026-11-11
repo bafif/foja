@@ -38,6 +38,10 @@ Every block of a section is either an entry,
 (`05/2026 – actualidad`); `items` are `(heading, text)` pairs. `side` is true for sections the
 user put in the sidebar; a one-column style can ignore it.
 
+`cv` holds only what the profile lets in: the entries, items and skills its length takes by their
+priority, with its overrides, and the short summary when it uses it. A section or a skill group
+left empty by that is not in `cv`; `index` and `path` still give each part's place in the profile.
+
 ## Helpers
 
 | | |
