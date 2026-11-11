@@ -56,8 +56,13 @@ Una plantilla de Typst o de LaTeX que escribió otra persona es un dato hasta qu
 ## La app web
 
 Las páginas de producción llevan una Content Security Policy: scripts solo del propio sitio (y
-WebAssembly para el compilador), **conexiones solo al propio sitio**, sin plugins ni formularios.
-Si algo se llegara a colar, no podría cargar nada de otro lado ni mandar tus datos afuera.
+WebAssembly para el compilador), **conexiones solo al propio sitio**, sin plugins, y formularios solo
+hacia Overleaf. Si algo se llegara a colar, no podría cargar nada de otro lado ni mandar tus datos a
+ningún sitio que no sea overleaf.com.
+
+«Abrir en Overleaf» es lo único que manda el CV fuera de tu dispositivo, y solo cuando lo tocás: la
+exportación a LaTeX va directo a overleaf.com, en una pestaña nueva, sin pasar por ningún servidor
+de Foja. La app de escritorio no tiene ese botón y no deja mandar formularios.
 
 ## Temas
 

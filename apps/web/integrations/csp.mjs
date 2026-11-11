@@ -1,7 +1,8 @@
 // A Content Security Policy for every page of the build, as a <meta> (GitHub Pages cannot send
 // headers). Scripts only from the site itself (plus the inline ones Astro emits, by hash, and
 // WebAssembly for the compiler); connections only to the site itself, so nothing that slips in
-// (a style's output, an imported project) can load from or send to anywhere else.
+// (a style's output, an imported project) can load from or send to anywhere else. The one form
+// goes to Overleaf, and only when someone presses "Open in Overleaf".
 
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -29,7 +30,8 @@ export function policy(scriptHashes, { desktop = false } = {}) {
     "manifest-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'none'",
+    // "Open in Overleaf" posts the LaTeX export to Overleaf; the desktop app has no such button.
+    desktop ? "form-action 'none'" : "form-action https://www.overleaf.com",
   ].join("; ");
 }
 

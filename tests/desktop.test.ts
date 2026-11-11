@@ -19,4 +19,7 @@ test("the CSP lets only the desktop build call the app", () => {
   const connect = (desktop: boolean) => (policy([], { desktop }) as string).split("; ").find((d) => d.startsWith("connect-src"));
   expect(connect(false)).toBe("connect-src 'self' data:");
   expect(connect(true)).toBe("connect-src 'self' data: ipc: http://ipc.localhost");
+  const form = (desktop: boolean) => (policy([], { desktop }) as string).split("; ").find((d) => d.startsWith("form-action"));
+  expect(form(false)).toBe("form-action https://www.overleaf.com");
+  expect(form(true)).toBe("form-action 'none'");
 });

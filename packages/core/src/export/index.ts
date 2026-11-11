@@ -10,6 +10,7 @@ import { zip } from "../zip.ts";
 import { renderDocx } from "./docx.ts";
 import { projectJson, resolvedJson } from "./json.ts";
 import { latexBundle } from "./latex.ts";
+import { latexStyleOf } from "./latex-template.ts";
 import { renderMarkdown } from "./markdown.ts";
 import { resolveStyled } from "./style.ts";
 
@@ -78,4 +79,11 @@ export function bundleExports(project: Project, profileId: string, files: Export
     mime: "application/zip",
     data: zip(Object.fromEntries(files.map((f) => [f.name, f.data]))),
   };
+}
+
+/** "Open in Overleaf": the LaTeX export, with the file Overleaf has to compile and the engine. */
+export function overleafProject(project: Project, profileId: string): { zip: Uint8Array; main: string; engine: "pdflatex" | "xelatex" } {
+  const template = latexStyleOf(project, profileId);
+  const main = template ? template.fill.main.slice(template.fill.main.lastIndexOf("/") + 1) : "cv.tex";
+  return { zip: zip(latexBundle(project, profileId)), main, engine: template?.fill.engine === "xetex" ? "xelatex" : "pdflatex" };
 }

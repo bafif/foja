@@ -53,8 +53,13 @@ A Typst or LaTeX template someone else wrote is data until Typst or LaTeX compil
 ## The web app
 
 Production pages carry a Content Security Policy: scripts only from the site itself (and
-WebAssembly for the compiler), **connections only to the site itself**, no plugins, no forms.
-Whatever slipped in could not load anything from elsewhere or send your data out.
+WebAssembly for the compiler), **connections only to the site itself**, no plugins, and forms
+only to Overleaf. Whatever slipped in could not load anything from elsewhere or send your data to
+any site but overleaf.com.
+
+"Open in Overleaf" is the only thing that sends the CV off your device, and only when you press
+it: the LaTeX export goes straight to overleaf.com, in a new tab, through no server of Foja's. The
+desktop app has no such button and sends no forms.
 
 ## Themes
 

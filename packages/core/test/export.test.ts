@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { pickStyle, resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
-import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
+import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, overleafProject, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
 const decoder = new TextDecoder();
@@ -181,6 +181,14 @@ describe("LaTeX", () => {
     const [file] = await exportFiles(p, "programador", "tex");
     expect(Object.keys(unzip(file.data)).sort()).toEqual(["README.txt", "cv.tex", "photo.jpg"]);
   });
+});
+
+test("Open in Overleaf sends the LaTeX export, compiled from cv.tex with pdfLaTeX", () => {
+  const { zip, main, engine } = overleafProject(example, "programador");
+  expect([main, engine]).toEqual(["cv.tex", "pdflatex"]);
+  const text = new TextDecoder("latin1").decode(zip);
+  expect(zip.subarray(0, 4)).toEqual(new Uint8Array([0x50, 0x4b, 0x03, 0x04]));
+  expect(text).toContain("cv.tex");
 });
 
 describe("Markdown", () => {

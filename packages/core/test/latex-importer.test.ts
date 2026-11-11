@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { fontListRecord, importData, importStyle, latexEngine, latexText, parseLatex, proposeMapping, readFont, readTemplate, validate, type Project } from "../src/index.ts";
-import { fillLatex, latexBundle } from "../src/export/index.ts";
+import { fillLatex, latexBundle, overleafProject } from "../src/export/index.ts";
 
 const resume = readFileSync(new URL("./fixtures/latex/resume.tex", import.meta.url));
 const files = { "resume.tex": new Uint8Array(resume) };
@@ -93,6 +93,11 @@ describe("LaTeX templates", () => {
     const bundle = latexBundle(p, profileId);
     expect(Object.keys(bundle).sort()).toEqual(["README-foja.txt", "resume.tex"]);
     expect(bundle["resume.tex"]).toBe(tex);
+
+    // Overleaf compiles the template's own main file, with the engine the template needs.
+    expect(overleafProject(p, profileId)).toMatchObject({ main: "resume.tex", engine: "pdflatex" });
+    p.templates!.resume.latex!.engine = "xetex";
+    expect(overleafProject(p, profileId).engine).toBe("xelatex");
   });
 
   test("a template that picks its fonts by name needs XeLaTeX", () => {

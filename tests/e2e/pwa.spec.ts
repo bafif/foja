@@ -37,6 +37,26 @@ test.describe("production build", () => {
     expect(errors).toEqual([]);
   });
 
+  test("Open in Overleaf gets through the Content Security Policy, to Overleaf alone", async ({ page, context, errors }) => {
+    const violations: string[] = [];
+    page.on("console", (m) => /Content.Security.Policy|Refused to/i.test(m.text()) && violations.push(m.text()));
+    // Overleaf itself is not reached: the post is caught and answered here.
+    let sent = false;
+    await context.route("https://www.overleaf.com/docs", (route) => {
+      sent = true;
+      return route.fulfill({ contentType: "text/html", body: "<p>Overleaf</p>" });
+    });
+    await page.goto(`${url}editor/`);
+    await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
+    await expect(page.getByTestId("page-badge")).toContainText("1 página");
+    await page.getByRole("button", { name: "Exportar", exact: true }).click();
+    await page.getByLabel("LaTeX (.zip)").check();
+    await Promise.all([page.waitForEvent("popup"), page.getByRole("button", { name: "Abrir en Overleaf" }).click()]);
+    await expect.poll(() => sent).toBe(true);
+    expect(violations).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
   test("under the Content Security Policy the editor compiles and exports", async ({ page, errors }) => {
     const violations: string[] = [];
     page.on("console", (m) => /Content.Security.Policy|Refused to/i.test(m.text()) && violations.push(m.text()));

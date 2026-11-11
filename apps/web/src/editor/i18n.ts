@@ -303,6 +303,9 @@ export const es = {
   prepareButton: "Preparar el archivo",
   shareButton: "Compartir o guardar…",
   exportReady: "Listo:",
+  overleafButton: "Abrir en Overleaf",
+  overleafNote:
+    "«Abrir en Overleaf» manda este CV a overleaf.com, un servicio de otra empresa, para editarlo y compilarlo ahí. Necesitás una cuenta de Overleaf.",
   jsonResumeLeft: (sections: string) => `JSON Resume no tiene lugar para: ${sections}. Siguen en el proyecto (JSON).`,
   exportFailed: "No se pudo exportar:",
   close: "Cerrar",
@@ -626,6 +629,8 @@ export const en: Strings = {
   prepareButton: "Prepare the file",
   shareButton: "Share or save…",
   exportReady: "Ready:",
+  overleafButton: "Open in Overleaf",
+  overleafNote: "“Open in Overleaf” sends this CV to overleaf.com, another company's service, to edit and compile it there. You need an Overleaf account.",
   jsonResumeLeft: (sections: string) => `JSON Resume has no place for: ${sections}. They stay in the project (JSON).`,
   exportFailed: "Could not export:",
   close: "Close",

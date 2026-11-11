@@ -4,6 +4,7 @@ import { svgToJpegs } from "../lib/jpg";
 import { canShareFiles, shareable } from "./device";
 import { desktop } from "./desktop";
 import { download } from "./download";
+import { openInOverleaf } from "./overleaf";
 import { t } from "./i18n";
 import { styleOf } from "@foja/core";
 import { compilePdf, renderThumb } from "./preview";
@@ -62,10 +63,26 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   // What the format had no place for (JSON Resume): the dialog stays open to say it.
   const [left, setLeft] = useState<string>();
   const sharing = canShareFiles();
+  // Loaded up front: "Open in Overleaf" builds the zip inside the click, where a new tab is allowed.
+  const [exporters, setExporters] = useState<typeof import("@foja/core/export")>();
+  // A webview cannot post a form to a new tab: Overleaf is a browser action.
+  const overleaf = choice.format === "tex" && !desktop();
 
   useEffect(() => {
     dialog.current?.showModal();
+    void import("@foja/core/export").then(setExporters);
   }, []);
+
+  function toOverleaf() {
+    if (!exporters) return;
+    setError(undefined);
+    try {
+      const { project, profileId } = useEditor.getState();
+      openInOverleaf(exporters.overleafProject(project!, profileId));
+    } catch (e) {
+      setError(`${t.exportFailed} ${(e as Error).message}`);
+    }
+  }
 
   function choose(next: typeof choice) {
     setChoice(next);
@@ -143,6 +160,11 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
             </select>
           </label>
         )}
+        {overleaf && (
+          <p data-testid="overleaf-note" className="text-sm text-muted">
+            {t.overleafNote}
+          </p>
+        )}
         {error && (
           <p role="alert" className="text-sm whitespace-pre-wrap text-red-700">
             {error}
@@ -176,9 +198,16 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
               </button>
             </>
           ) : (
-            <button type="submit" disabled={busy} className="rounded bg-accent px-3 py-1 text-sm text-on-accent disabled:opacity-50">
-              {busy ? t.exporting : sharing ? t.prepareButton : desktop() ? t.saveAsButton : t.downloadButton}
-            </button>
+            <>
+              {overleaf && (
+                <button type="button" disabled={!exporters} className="rounded border border-line px-3 py-1 text-sm disabled:opacity-50" onClick={toOverleaf}>
+                  {t.overleafButton}
+                </button>
+              )}
+              <button type="submit" disabled={busy} className="rounded bg-accent px-3 py-1 text-sm text-on-accent disabled:opacity-50">
+                {busy ? t.exporting : sharing ? t.prepareButton : desktop() ? t.saveAsButton : t.downloadButton}
+              </button>
+            </>
           )}
         </div>
       </form>
