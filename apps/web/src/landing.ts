@@ -37,6 +37,7 @@ const es = {
     ["LaTeX", "para Overleaf o tu instalación de TeX"],
     ["Markdown", "para un README o un perfil de GitHub"],
     ["JSON", "tu proyecto, para guardarlo o pasarlo a otro dispositivo"],
+    ["JSON Resume", "el formato abierto de otras herramientas, que también se importa"],
   ],
   footer:
     'Foja es software libre (GPL-3.0): <a class="underline" href="https://github.com/bafif/foja">github.com/bafif/foja</a>. Fuentes: XCharter (licencia libre de Bitstream Charter) y Latin Modern Mono (GUST Font License).',
@@ -76,6 +77,7 @@ const en: typeof es = {
     ["LaTeX", "for Overleaf or your own TeX installation"],
     ["Markdown", "for a README or a GitHub profile"],
     ["JSON", "your project, to keep it or move it to another device"],
+    ["JSON Resume", "the open format of other tools, which it imports too"],
   ],
   footer:
     'Foja is free software (GPL-3.0): <a class="underline" href="https://github.com/bafif/foja">github.com/bafif/foja</a>. Fonts: XCharter (under Bitstream Charter\'s free licence) and Latin Modern Mono (GUST Font License).',

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+  "basics": {
+    "name": "Mara Elena Prueba",
+    "label": "Data engineer",
+    "image": "https://example.com/mara.jpg",
+    "email": "mara@example.com",
+    "phone": "+1 555 0100",
+    "url": "https://mara.example.com/",
+    "summary": "Data engineer who likes **small** pipelines.",
+    "location": { "city": "Springfield", "region": "Oregon", "countryCode": "US" },
+    "profiles": [
+      { "network": "LinkedIn", "username": "mara-prueba" },
+      { "network": "GitHub", "url": "https://github.com/maraprueba" },
+      { "network": "Mastodon", "url": "https://example.social/@mara" }
+    ]
+  },
+  "work": [
+    {
+      "name": "Fictional Data Co.",
+      "position": "Data engineer",
+      "startDate": "2022-03-01",
+      "summary": "Batch and streaming pipelines.",
+      "highlights": ["Cut the nightly load from four hours to forty minutes", "Moved the warehouse to Postgres"]
+    },
+    { "name": "Example Labs", "position": "Intern", "startDate": "2021-01", "endDate": "2021-06" }
+  ],
+  "volunteer": [{ "organization": "Code Club", "position": "Mentor", "startDate": "2020-09", "endDate": "2022-12" }],
+  "education": [
+    { "institution": "State University", "area": "Computer Science", "studyType": "Bachelor", "startDate": "2017", "endDate": "2021", "score": "3.8", "courses": ["Databases", "Distributed systems"] }
+  ],
+  "awards": [{ "title": "Best thesis", "date": "2021-07-15", "awarder": "State University" }],
+  "certificates": [{ "name": "Cloud Practitioner", "date": "2022-05", "issuer": "A cloud", "url": "https://example.com/cert" }],
+  "publications": [{ "name": "Pipelines that fit", "publisher": "A blog", "releaseDate": "2023-02" }],
+  "skills": [
+    { "name": "Data", "level": "Advanced", "keywords": ["SQL", "Spark", "dbt"] },
+    { "name": "Leadership" },
+    { "name": "Writing", "level": "Fluent" }
+  ],
+  "languages": [{ "language": "English", "fluency": "Native" }, { "language": "Spanish", "fluency": "B2" }],
+  "interests": [{ "name": "Cycling", "keywords": ["gravel", "touring"] }, { "name": "Chess" }],
+  "references": [{ "name": "A. Manager", "reference": "Mara made our data boring, in the best way." }],
+  "projects": [{ "name": "tinyetl", "description": "A tiny ETL library", "startDate": "2023-01", "url": "https://github.com/maraprueba/tinyetl", "highlights": ["200 stars"] }]
+}

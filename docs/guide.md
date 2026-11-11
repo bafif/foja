@@ -12,7 +12,7 @@ Open the editor and pick one of:
 
 - **Start with the example**: my own CV, with three profiles (programmer, mathematics, physics and electronics teacher, and electronics technician) built from the same data, to see how a real one is put together. Switch between them with **Profile**, at the top.
 - **Empty project**: a blank CV.
-- **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared).
+- **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared), or a CV in [JSON Resume](https://jsonresume.org), the open format other tools use: its jobs, studies, projects, awards, certificates and publications go to the bank of entries, with a profile that has a section for each; its skills and languages become skill groups. A photo on the web is not downloaded (Foja connects to nothing): add it by hand.
 
 Your work is saved in the browser as you go ("Saved" in the header). **Ctrl+S** saves at once.
 Replacing the project (new, example, import) keeps the previous one: **Project ▾ → Restore the
@@ -127,7 +127,7 @@ profile, marked as such, and clicking it back returns it to the rule. The profil
 **short summary**, used with the Short length (or always, or never, as **Summary used** says).
 
 Each profile keeps its own length, exceptions and short summary, and **Duplicate** copies them.
-LaTeX, Word, Markdown and JSON pick exactly what the PDF shows. The example comes with three
+LaTeX, Word, Markdown, JSON and JSON Resume pick exactly what the PDF shows. The example comes with three
 profiles, each with its own style and length: programmer (Legajo, Normal), mathematics, physics
 and electronics teacher (Claustro, Short) and electronics technician (Banda, Full).
 
@@ -156,6 +156,7 @@ navigation. Click any part of the preview to edit it.
 | LaTeX (`.zip`) | In the look of the profile's built-in style; a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |
 | JSON | The project file, to import it again or move it to another device. |
+| JSON Resume | The profile in [JSON Resume](https://jsonresume.org), for other tools and their themes. Its sections are fixed: each section of the profile goes to the one its name says (experience, education, projects, awards, languages…), and a section of entries that matches none goes to work. What has no place there, like a section of strengths, Foja names when exporting; it stays in the project's JSON. |
 | All formats | Every one of them in a `.zip`. |
 
 Names in non-Latin scripts: the bundled fonts cover Latin alphabets only, so other scripts show

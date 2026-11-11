@@ -84,3 +84,30 @@ test("a LaTeX template: foja import keeps it as a style, and build hands out the
   expect(zipName).toBeDefined();
   expect(readFileSync(join(dir, zipName!)).includes(Buffer.from("resume.tex"))).toBe(true);
 });
+
+test("a JSON Resume: foja import makes a project that compiles, and build writes one back", () => {
+  const dir = mkdtempSync(join(tmpdir(), "foja-"));
+  const out = join(dir, "imported.json");
+  const main = new URL("../src/main.ts", import.meta.url).pathname;
+  const run = spawnSync(process.execPath, [main, "import", join(fixtures, "resume.json"), out, "--lang", "en"], { encoding: "utf8" });
+  expect(run.stderr).toBe("");
+  expect(run.stdout).toContain('8 entries in profile "resume"');
+  const project: Project = JSON.parse(readFileSync(out, "utf8"));
+  expect(validate(project)).toEqual([]);
+  const typst = new Typst(project);
+  // Runs can split words: compare without spaces.
+  const text = pdfText(new Uint8Array(typst.pdf(typst.compile("resume"))))
+    .map((r) => r.text)
+    .join("")
+    .replace(/\s+/g, "");
+  expect(text).toContain("FictionalDataCo.");
+
+  const notOne = spawnSync(process.execPath, [main, "import", new URL("../package.json", import.meta.url).pathname, out, "--lang", "en"], { encoding: "utf8" });
+  expect(notOne.status).toBe(1);
+  expect(notOne.stderr).toContain("not a JSON Resume");
+
+  const example = new URL("../../../examples/fictional.project.json", import.meta.url).pathname;
+  const build = spawnSync(process.execPath, [main, "build", example, "--profile", "desarrolladora", "--format", "jsonresume", "--out", dir, "--lang", "en"], { encoding: "utf8" });
+  expect(build.stderr).toContain("JSON Resume has no place for: Fortalezas");
+  expect(JSON.parse(readFileSync(join(dir, "ines-ejemplo-desarrolladora.resume.json"), "utf8")).basics.name).toBe("Inés Ejemplo");
+});

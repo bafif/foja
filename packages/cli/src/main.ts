@@ -29,7 +29,7 @@ function loadProject(path: string): Project {
   return value as Project;
 }
 
-const FORMATS = ["pdf", "svg", "typ", "tex", "md", "json", "docx", "all"] as const;
+const FORMATS = ["pdf", "svg", "typ", "tex", "md", "json", "jsonresume", "docx", "all"] as const;
 type Format = (typeof FORMATS)[number];
 
 async function build(args: string[]) {
@@ -73,10 +73,14 @@ async function build(args: string[]) {
       else if (format === "svg") write(`${stem}.svg`, typst.svg(doc!), pages);
       else if (format === "all") {
         const files = doc ? [{ name: `${stem}.pdf`, mime: "application/pdf", data: new Uint8Array(typst.pdf(doc)) }] : [];
-        for (const f of latex ? (["tex", "md", "json", "docx"] as const) : (["typ", "tex", "md", "json", "docx"] as const)) files.push(...(await exportFiles(project, id, f, template)));
+        for (const f of latex ? (["tex", "md", "json", "jsonresume", "docx"] as const) : (["typ", "tex", "md", "json", "jsonresume", "docx"] as const)) files.push(...(await exportFiles(project, id, f, template)));
         const bundle = bundleExports(project, id, files);
         write(bundle.name, bundle.data, ` (${files.map((f) => (f.name.startsWith(stem) ? f.name.slice(stem.length) : f.name)).join(", ")})`);
-      } else for (const f of await exportFiles(project, id, format, template)) write(f.name, f.data);
+      } else
+        for (const f of await exportFiles(project, id, format, template)) {
+          write(f.name, f.data);
+          if (f.left) console.error(m.jsonResumeLeft(f.name, f.left.join(", ")));
+        }
     }
   }
 }
@@ -109,6 +113,22 @@ async function main(argv: string[]) {
     if (positionals.length !== 2) fail(USAGE, 2);
     const core = await import("@foja/core");
     const [source, out] = positionals;
+    if (/\.json$/i.test(source)) {
+      // A JSON Resume: its content, as is; it brings no look.
+      let resume: unknown;
+      try {
+        resume = JSON.parse(readFileSync(source, "utf8"));
+      } catch (e) {
+        fail(`${source}: ${(e as Error).message}`);
+      }
+      if (!core.isJsonResume(resume)) fail(`${source}: ${m.notJsonResume}`);
+      const into = values.into ? loadProject(values.into) : undefined;
+      const name = values.name ?? (basename(source).replace(/\.json$/i, "").replace(/\.resume$/i, "") || "CV");
+      const { project, profileId, entries } = core.fromJsonResume(resume, { name, language: into?.language ?? (m === MESSAGES.es ? "es" : "en"), into });
+      writeFileSync(out, JSON.stringify(project, null, 2) + "\n");
+      console.log(`${out}: ${m.imported(entries, profileId, "")}`);
+      return;
+    }
     const template = core.readTemplate(await core.readUpload(source, new Uint8Array(readFileSync(source))));
     const mapping = core.proposeMapping(template);
     const name = values.name ?? basename(source).replace(/\.(typ|tex|zip|tar\.gz|tgz)$/i, "");

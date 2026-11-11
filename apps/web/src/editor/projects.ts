@@ -1,4 +1,4 @@
-import { CONTACT_KINDS, FORMAT, migrate, validate, type Profile, type Project } from "@foja/core";
+import { CONTACT_KINDS, FORMAT, fromJsonResume, isJsonResume, migrate, validate, type Profile, type Project } from "@foja/core";
 import exampleEs from "../../../../examples/example.project.json";
 import exampleEn from "../../../../examples/example.en.project.json";
 import { t, useLanguage } from "./i18n";
@@ -42,9 +42,11 @@ export function newProfile(project: Project): [string, Profile] {
   ];
 }
 
-/** Parses an imported file; throws with the problems when it is not a Foja project. */
+/** Parses an imported file, a Foja project or a JSON Resume; throws with the problems when it is neither. */
 export function parseProject(text: string): Project {
-  const value = migrate(JSON.parse(text));
+  const parsed = JSON.parse(text);
+  if (isJsonResume(parsed)) return fromJsonResume(parsed, { name: "CV", language: useLanguage.getState().lang }).project;
+  const value = migrate(parsed);
   const problems = validate(value).filter((p) => p.severity === "error");
   if (problems.length) throw new Error(problems.slice(0, 5).map((p) => `${p.path}: ${p.message}`).join("\n"));
   return value as Project;

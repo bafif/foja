@@ -18,7 +18,8 @@ Todo corre en el navegador; tu CV nunca sale de tu máquina.
   completo), excepciones, y un botón que ajusta el CV a una página.
 - **Disciplina de una página**: la vista previa te dice si el CV entra y qué se pasa; hacé clic en una parte de la
   vista previa para editarla.
-- **Exportación**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.
+- **Exportación**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON y [JSON Resume](https://jsonresume.org), que también
+  se importa.
 - **Privado y sin conexión**: sin cuentas, sin servidor; se instala como app en computadoras y en Android y iPhone;
   en español y en inglés.
 

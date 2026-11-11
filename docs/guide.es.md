@@ -10,7 +10,7 @@ Abrí el editor y elegí una de estas opciones:
 
 - **Empezar con el ejemplo**: mi propio CV, con tres perfiles (programador, docente de matemática, física y electrónica, y técnico electrónico) armados con los mismos datos, para ver cómo está armado uno real. Se pasa de uno a otro en **Perfil**, arriba.
 - **Proyecto vacío**: un CV en blanco.
-- **Importar JSON**: un archivo `.foja.json` exportado desde Foja (tuyo, o una plantilla que alguien compartió).
+- **Importar JSON**: un archivo `.foja.json` exportado desde Foja (tuyo, o una plantilla que alguien compartió), o un CV en [JSON Resume](https://jsonresume.org), el formato abierto que usan otras herramientas: sus trabajos, estudios, proyectos, premios, certificaciones y publicaciones pasan al banco de entradas, y queda un perfil con una sección para cada cosa; sus habilidades y sus idiomas, como grupos de habilidades. Una foto que esté en la web no se baja (Foja no se conecta a nada): se agrega a mano.
 
 Tu trabajo se guarda en el navegador a medida que avanzás («Guardado» en el encabezado). **Ctrl+S** guarda en el momento. Reemplazar el proyecto (nuevo, ejemplo, importar) no pierde el anterior: **Proyecto ▾ → Recuperar el proyecto anterior** lo trae de vuelta. Cada tanto exportá el proyecto como JSON para tener una copia fuera del navegador.
 
@@ -68,7 +68,7 @@ Cada entrada, ítem y habilidad del banco tiene una prioridad, que se marca una 
 
 Debajo del largo, las **casillas** listan las entradas del perfil con sus ítems, y sus habilidades: tildado, lo que entra. Lo que manda el largo va sin marca; una casilla que cambiás es una excepción de este perfil, marcada como tal, y si la volvés a cambiar vuelve a la regla. El perfil puede tener además un **resumen corto**, que se usa con el largo Corto (o siempre, o nunca, según **Resumen que usa**).
 
-Cada perfil guarda su largo, sus excepciones y su resumen corto, y **Duplicar** los copia. LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que muestra el PDF. El ejemplo trae tres perfiles, cada uno con su estilo y su largo: programador (Legajo, Normal), docente de matemática, física y electrónica (Claustro, Corto) y técnico electrónico (Banda, Completo).
+Cada perfil guarda su largo, sus excepciones y su resumen corto, y **Duplicar** los copia. LaTeX, Word, Markdown, JSON y JSON Resume eligen exactamente lo mismo que muestra el PDF. El ejemplo trae tres perfiles, cada uno con su estilo y su largo: programador (Legajo, Normal), docente de matemática, física y electrónica (Claustro, Corto) y técnico electrónico (Banda, Completo).
 
 **Ajustar a una página** compila el perfil y, mientras ocupe más de una página, lo achica de a un paso y en un orden fijo: el largo un paso más abajo, después el resumen corto, después lo extra que las excepciones todavía muestran, empezando por lo último. Nunca baja a Corto si eso deja el perfil sin entradas (primero marcá en el banco qué es imprescindible). El resultado queda escrito en el perfil, y **Deshacer el ajuste** (o Ctrl+Z) lo vuelve atrás de una vez.
 
@@ -89,6 +89,7 @@ La insignia arriba de la vista previa te dice si el CV entra en una página y, s
 | LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. |
 | Markdown | Un CV en texto plano para un README o un formulario que acepta texto. |
 | JSON | El archivo del proyecto, para volver a importarlo o pasarlo a otro dispositivo. |
+| JSON Resume | El perfil en [JSON Resume](https://jsonresume.org), para otras herramientas y sus temas. Sus secciones son fijas: cada sección del perfil va a la que dice su nombre (experiencia, formación, proyectos, premios, idiomas…), y una de entradas que no coincide con ninguna, a la experiencia. Lo que no tiene lugar ahí, como una sección de fortalezas, Foja lo nombra al exportar; sigue en el JSON del proyecto. |
 | Todos los formatos | Todos juntos en un `.zip`. |
 
 Nombres en alfabetos no latinos: las fuentes incluidas cubren solo alfabetos latinos, así que por ahora los demás alfabetos se ven como glifos faltantes.
@@ -127,4 +128,4 @@ La interfaz está en español y en inglés. Arranca en español si tu navegador 
 
 ## Línea de comandos
 
-`npx foja build my.foja.json` genera todos los perfiles en PDF; `--format` suma svg, typ, tex, md, json, docx o all. Mirá [`packages/cli/README.es.md`](../packages/cli/README.es.md).
+`npx foja build my.foja.json` genera todos los perfiles en PDF; `--format` suma svg, typ, tex, md, json, jsonresume, docx o all. Mirá [`packages/cli/README.es.md`](../packages/cli/README.es.md).

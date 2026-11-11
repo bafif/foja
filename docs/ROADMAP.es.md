@@ -2,7 +2,7 @@
 
 *[English](ROADMAP.md) · Español*
 
-Foja es un editor de CV sin código construido sobre [Typst](https://typst.app). En vez de escribir código completás formularios, la vista previa que tenés al lado es la salida real de Typst, y el CV se exporta a PDF, JPG, Word, Typst, LaTeX, Markdown y JSON. Todo corre en el navegador: no hay cuentas ni servidor, y el CV nunca sale de tu máquina.
+Foja es un editor de CV sin código construido sobre [Typst](https://typst.app). En vez de escribir código completás formularios, la vista previa que tenés al lado es la salida real de Typst, y el CV se exporta a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON y JSON Resume. Todo corre en el navegador: no hay cuentas ni servidor, y el CV nunca sale de tu máquina.
 
 En este documento dejo qué pretende ser Foja, qué ya está hecho, qué viene después y por qué tomé las decisiones principales. Cómo se usa el editor está en la
 [guía de uso](guide.es.md).
@@ -203,6 +203,10 @@ El trabajo hasta ahora, en el orden en que se dio:
   abajo, al alcance del pulgar, cambia de panel y exporta, y marca con un punto la vista previa si el CV se pasa
   de una página; el menú es una hoja que sube desde abajo, con botones del tamaño de un dedo; los estilos se
   eligen de a dos por fila. Un test recorre todos los paneles en una pantalla de 320 px y falla si algo se sale.
+- **JSON Resume** (11 de noviembre de 2026), el formato abierto de currículums que usan otras herramientas. Un
+  archivo de JSON Resume se importa con el mismo botón que un proyecto, y en la línea de comandos con `foja import`:
+  sus entradas pasan al banco y queda un perfil con sus secciones. Un perfil se exporta en JSON Resume tal como sale
+  en el PDF; como sus secciones son fijas, lo que no tiene lugar ahí se avisa en vez de perderse sin decirlo.
 
 ## Qué viene después
 
@@ -229,7 +233,6 @@ Cosas más chicas que pueden entrar en cualquier momento:
   válidos, porque no tengo ninguno de los dos programas instalados en mi máquina.
 - Un botón «Abrir en Overleaf». Overleaf recibe los archivos en un POST a `overleaf.com/docs`, lo que
   manda el CV a un tercero, así que tiene que ser una acción explícita y probada contra el servicio real.
-- Importación y exportación de [JSON Resume](https://jsonresume.org), el esquema abierto para currículums.
 - **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con
   vista previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no
   un enlace a ningún sistema de control de versiones.

@@ -4,7 +4,7 @@
 
 Foja is a no-code CV editor built on [Typst](https://typst.app). You fill in forms instead of
 writing code, the preview next to them is the real Typst output, and the CV exports to PDF, JPG,
-Word, Typst, LaTeX, Markdown and JSON. Everything runs in the browser: there are no accounts and
+Word, Typst, LaTeX, Markdown, JSON and JSON Resume. Everything runs in the browser: there are no accounts and
 no server, and the CV never leaves your machine.
 
 This document is where I keep what Foja is meant to be, what is already built, what comes next
@@ -216,6 +216,10 @@ The work so far, in the order it happened:
   switches panes and exports, and puts a dot on the preview when the CV runs past one page; the menu is a sheet
   that comes up from the bottom, with buttons the size of a finger; styles are picked two to a row. A test goes
   through every pane on a 320 px screen and fails if anything sticks out.
+- **JSON Resume** (November 11, 2026), the open résumé format other tools use. A JSON Resume file comes in
+  through the same button as a project, and on the command line with `foja import`: its entries go to the bank,
+  with a profile that has its sections. A profile exports to JSON Resume as its PDF shows it; since the format's
+  sections are fixed, what has no place there is named instead of lost without a word.
 
 ## What comes next
 
@@ -243,7 +247,6 @@ Smaller things that can go in at any point:
 - An "Open in Overleaf" button. Overleaf takes the files in a POST to `overleaf.com/docs`, which
   sends the CV to a third party, so it has to be an explicit action and tested against the live
   service.
-- Import and export of [JSON Resume](https://jsonresume.org), the open schema for résumés.
 - **Versions**, off by default: snapshots on save and named versions ("sent to Acme") with a
   preview, a diff of fields and restore, stored with the project. A history inside the app, not
   a link to any version control system.

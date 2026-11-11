@@ -4,17 +4,20 @@
 const en = {
   usage: `usage:
   foja build <project.json> [--profile <id>]... [--format <format>]... [--out <dir>]
-      formats: pdf (default), svg, typ, tex, md, json, docx, all (every one in a .zip);
+      formats: pdf (default), svg, typ, tex, md, json, jsonresume, docx, all (every one in a .zip);
       every profile unless --profile is given
   foja validate <project.json>
   foja convert-curriculum <cvgen/data> <out.json> [--public]
-  foja import <template.typ|.tex|.zip|.tar.gz> <out.json> [--into <project.json>] [--name <name>] [--no-style]
-      reads a Typst or LaTeX template with fixed rules: its sample content as a profile, its look as a style
+  foja import <template.typ|.tex|.zip|.tar.gz|resume.json> <out.json> [--into <project.json>] [--name <name>] [--no-style]
+      reads a Typst or LaTeX template with fixed rules: its sample content as a profile, its look as a style;
+      or a JSON Resume (jsonresume.org): its entries to the bank, a profile with its sections
 
 options:
   --lang <es|en>   the language of these messages (by default, the system's)
   -h, --help       this help`,
   invalidProject: "not a valid Foja project",
+  notJsonResume: "not a JSON Resume (jsonresume.org)",
+  jsonResumeLeft: (file: string, sections: string) => `${file}: JSON Resume has no place for: ${sections}`,
   unknownFormat: (format: string) => `unknown format "${format}"`,
   noProfile: (id: string) => `no profile "${id}"`,
   pages: (n: number) => ` (${n} page${n === 1 ? "" : "s"})`,
@@ -31,17 +34,20 @@ export type Messages = typeof en;
 const es: Messages = {
   usage: `uso:
   foja build <proyecto.json> [--profile <id>]... [--format <formato>]... [--out <carpeta>]
-      formatos: pdf (el predeterminado), svg, typ, tex, md, json, docx, all (todos en un .zip);
+      formatos: pdf (el predeterminado), svg, typ, tex, md, json, jsonresume, docx, all (todos en un .zip);
       todos los perfiles, salvo que se indique --profile
   foja validate <proyecto.json>
   foja convert-curriculum <cvgen/data> <salida.json> [--public]
-  foja import <plantilla.typ|.tex|.zip|.tar.gz> <salida.json> [--into <proyecto.json>] [--name <nombre>] [--no-style]
-      lee una plantilla de Typst o de LaTeX con reglas fijas: su contenido de ejemplo como perfil, su aspecto como estilo
+  foja import <plantilla.typ|.tex|.zip|.tar.gz|cv.json> <salida.json> [--into <proyecto.json>] [--name <nombre>] [--no-style]
+      lee una plantilla de Typst o de LaTeX con reglas fijas: su contenido de ejemplo como perfil, su aspecto como estilo;
+      o un JSON Resume (jsonresume.org): sus entradas al banco, un perfil con sus secciones
 
 opciones:
   --lang <es|en>   el idioma de estos mensajes (por defecto, el del sistema)
   -h, --help       esta ayuda`,
   invalidProject: "no es un proyecto de Foja válido",
+  notJsonResume: "no es un JSON Resume (jsonresume.org)",
+  jsonResumeLeft: (file: string, sections: string) => `${file}: JSON Resume no tiene lugar para: ${sections}`,
   unknownFormat: (format: string) => `formato desconocido: "${format}"`,
   noProfile: (id: string) => `no hay un perfil "${id}"`,
   pages: (n: number) => ` (${n} ${n === 1 ? "página" : "páginas"})`,

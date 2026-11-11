@@ -17,7 +17,8 @@ Everything runs in the browser; your CV never leaves your machine.
   (short, normal, full), exceptions, and a button that fits the CV on one page.
 - **One-page discipline**: the preview says whether the CV fits and what spills over; click a
   part of the preview to edit it.
-- **Exports**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.
+- **Exports**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON and [JSON Resume](https://jsonresume.org), which it
+  imports too.
 - **Private and offline**: no accounts, no server; installable as an app on computers and on
   Android and iPhone; Spanish and English.
 

@@ -83,6 +83,29 @@ for (const [label, ext, magic] of [
   });
 }
 
+test("a JSON Resume comes in through the same button as a project", async ({ page, errors }) => {
+  await page.goto("/editor");
+  const resume = readFileSync("packages/core/test/fixtures/resume.json");
+  await page.getByText("Importar JSON").locator("input").setInputFiles({ name: "resume.json", mimeType: "application/json", buffer: resume });
+  await expect(page.locator(".foja-page svg")).toBeAttached();
+  await page.getByRole("button", { name: "Banco de entradas" }).click();
+  await expect(page.getByRole("button", { name: /Fictional Data Co\./ })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("export as JSON Resume, saying what it has no place for", async ({ page, errors }) => {
+  // The fictional fixture has a section JSON Resume has no place for: the dialog says so and stays open.
+  await startFictional(page);
+  await page.getByRole("button", { name: "Exportar" }).click();
+  await page.getByLabel(/^JSON Resume/).check();
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar" }).click()]);
+  expect(download.suggestedFilename()).toBe("ines-ejemplo-desarrolladora.resume.json");
+  expect(JSON.parse(readFileSync((await download.path())!, "utf8")).basics.name).toBe("Inés Ejemplo");
+  await expect(page.getByTestId("export-left")).toContainText("Fortalezas");
+  await expect(page.getByRole("dialog")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("importing something that is not a project explains why", async ({ page }) => {
   await page.goto("/editor");
   await page.getByText("Importar JSON").locator("input").setInputFiles({ name: "x.json", mimeType: "application/json", buffer: Buffer.from('{"format":"foja/2"}') });

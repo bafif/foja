@@ -1,6 +1,7 @@
 // Every export of a profile, by format. PDF and JPG come from the Typst compiler, which lives in
 // the caller (a web worker, the Node addon); everything else is built here.
 
+import { toJsonResume } from "../jsonresume.ts";
 import { fileStem } from "../project.ts";
 import { resolveProfile } from "../resolve.ts";
 import type { Project } from "../types.ts";
@@ -19,13 +20,15 @@ export { projectJson, resolvedJson } from "./json.ts";
 export { renderDocx } from "./docx.ts";
 export { ATS_STYLES, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
 
-export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "docx"] as const;
+export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "jsonresume", "docx"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 
 export interface ExportedFile {
   name: string;
   mime: string;
   data: Uint8Array;
+  /** JSON Resume: the titles of what the profile has and the format has no place for. */
+  left?: string[];
 }
 
 const encoder = new TextEncoder();
@@ -56,6 +59,11 @@ export async function exportFiles(
         { name: `${fileStem(project)}.foja.json`, mime: "application/json", data: encoder.encode(projectJson(project)) },
         { name: `${stem}.resolved.json`, mime: "application/json", data: encoder.encode(resolvedJson(resolveProfile(project, profileId))) },
       ];
+    case "jsonresume": {
+      const { resume, left } = toJsonResume(project, profileId);
+      const file: ExportedFile = { name: `${stem}.resume.json`, mime: "application/json", data: encoder.encode(JSON.stringify(resume, null, 2) + "\n") };
+      return [left.length ? { ...file, left } : file];
+    }
     case "docx": {
       const { cv, style } = resolveStyled(project, profileId);
       return [{ name: `${stem}.docx`, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", data: await renderDocx(cv, style) }];

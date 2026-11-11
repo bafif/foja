@@ -10,7 +10,7 @@ import { useEditor } from "./store";
 import { templateFiles } from "./template";
 
 type Choice = ExportFormat | "all";
-const CHOICES: Choice[] = ["pdf", "jpg", "docx", "typ", "tex", "md", "json", "all"];
+const CHOICES: Choice[] = ["pdf", "jpg", "docx", "typ", "tex", "md", "json", "jsonresume", "all"];
 const MEMORY = "foja.export";
 
 function remembered(): { format: Choice; dpi: number } {
@@ -42,7 +42,7 @@ async function build(format: Choice, dpi: number): Promise<ExportedFile> {
   if (format === "all") {
     const template = await templateFiles();
     const files = [await pdf(), ...(await jpgs())];
-    for (const f of ["docx", "typ", "tex", "md", "json"] as const) files.push(...(await exportFiles(project!, profileId, f, template)));
+    for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(project!, profileId, f, template)));
     return bundleExports(project!, profileId, files);
   }
   const files = await exportFiles(project!, profileId, format, format === "typ" ? await templateFiles() : undefined);
@@ -58,6 +58,8 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   // On a phone the file is built first and then shared: the share sheet needs a fresh tap, and
   // building a PDF can take longer than the browser keeps the first one valid.
   const [ready, setReady] = useState<{ built: ExportedFile; file: File }>();
+  // What the format had no place for (JSON Resume): the dialog stays open to say it.
+  const [left, setLeft] = useState<string>();
   const sharing = canShareFiles();
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   function choose(next: typeof choice) {
     setChoice(next);
     setReady(undefined);
+    setLeft(undefined);
   }
 
   async function share() {
@@ -91,13 +94,15 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
     }
     try {
       const built = await build(choice.format, choice.dpi);
+      const note = built.left?.length ? t.jsonResumeLeft(built.left.join(", ")) : undefined;
+      setLeft(note);
       const file = shareable(built.name, built.data, built.mime);
       if (file) {
         setReady({ built, file });
         return;
       }
       download(built.name, built.data, built.mime);
-      onClose();
+      if (!note) onClose();
     } catch (e) {
       setError(`${t.exportFailed} ${(e as Error).message}`);
     } finally {
@@ -140,6 +145,11 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
         {error && (
           <p role="alert" className="text-sm whitespace-pre-wrap text-red-700">
             {error}
+          </p>
+        )}
+        {left && (
+          <p data-testid="export-left" className="text-sm text-muted">
+            {left}
           </p>
         )}
         {ready && (

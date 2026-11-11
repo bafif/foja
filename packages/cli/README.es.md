@@ -12,12 +12,13 @@ npx foja build my.foja.json --profile dev --format pdf --format docx --out out
 npx foja build my.foja.json --format all          # todos los formatos en un solo .zip
 npx foja validate my.foja.json
 npx foja import plantilla.zip my.foja.json        # una plantilla de Typst o LaTeX: su contenido y su aspecto
+npx foja import cv.json my.foja.json              # un CV en JSON Resume
 ```
 
-`import` lee una plantilla de CV de Typst o de LaTeX (`.typ`, `.tex`, `.zip` o `.tar.gz`) con reglas fijas, sin IA: su contenido de ejemplo pasa a ser un perfil y su aspecto un estilo propio; `--into` los suma a un proyecto que ya existe y `--no-style` deja afuera el aspecto. Toma la propuesta de las reglas tal como sale; el editor la muestra antes para revisarla. Este comando no tiene LaTeX: un perfil con una plantilla LaTeX da su `.tex` lleno (`--format tex`) y no PDF.
+`import` lee una plantilla de CV de Typst o de LaTeX (`.typ`, `.tex`, `.zip` o `.tar.gz`) con reglas fijas, sin IA: su contenido de ejemplo pasa a ser un perfil y su aspecto un estilo propio; `--into` los suma a un proyecto que ya existe y `--no-style` deja afuera el aspecto. Toma la propuesta de las reglas tal como sale; el editor la muestra antes para revisarla. Este comando no tiene LaTeX: un perfil con una plantilla LaTeX da su `.tex` lleno (`--format tex`) y no PDF. Un `.json` es un CV en [JSON Resume](https://jsonresume.org): sus entradas pasan al banco y queda un perfil con sus secciones.
 
 Formatos: `pdf`, `svg`, `typ` (un `.zip` que compila con `typst compile` a secas), `tex`
-(LaTeX), `md`, `json`, `docx` (Word), `all`. Necesita Node 24 o posterior. Los mensajes y `--help`
+(LaTeX), `md`, `json`, `jsonresume` (el perfil en JSON Resume; avisa lo que no tiene lugar ahí), `docx` (Word), `all`. Necesita Node 24 o posterior. Los mensajes y `--help`
 salen en español si el sistema está en español, y en inglés si no; `--lang es` o `--lang en` elige uno.
 
 El formato del proyecto está descrito en su JSON Schema
