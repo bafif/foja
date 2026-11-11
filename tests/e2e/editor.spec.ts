@@ -106,6 +106,26 @@ test("export as JSON Resume, saying what it has no place for", async ({ page, er
   expect(errors).toEqual([]);
 });
 
+test("Open in Overleaf posts the LaTeX export to overleaf.com in a new tab", async ({ page, context, errors }) => {
+  // Overleaf itself is not reached: the post is caught and answered here.
+  let sent: URLSearchParams | undefined;
+  await context.route("https://www.overleaf.com/docs", async (route) => {
+    sent = new URLSearchParams(route.request().postData() ?? "");
+    await route.fulfill({ contentType: "text/html", body: "<p>Overleaf</p>" });
+  });
+  await startFictional(page);
+  await page.getByRole("button", { name: "Exportar" }).click();
+  await expect(page.getByRole("button", { name: "Abrir en Overleaf" })).toHaveCount(0);
+  await page.getByLabel("LaTeX (.zip)").check();
+  await expect(page.getByTestId("overleaf-note")).toContainText("overleaf.com");
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.getByRole("button", { name: "Abrir en Overleaf" }).click()]);
+  await popup.waitForLoadState();
+  expect(sent?.get("engine")).toBe("pdflatex");
+  expect(sent?.get("main_document")).toBe("cv.tex");
+  expect(sent?.get("snip_uri")).toMatch(/^data:application\/zip;base64,UEsDB/);
+  expect(errors).toEqual([]);
+});
+
 test("importing something that is not a project explains why", async ({ page }) => {
   await page.goto("/editor");
   await page.getByText("Importar JSON").locator("input").setInputFiles({ name: "x.json", mimeType: "application/json", buffer: Buffer.from('{"format":"foja/2"}') });

@@ -190,7 +190,8 @@ proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo a
 - **Nueve estilos**, una biblioteca de Typst compartida, «Editar en Typst» y un editor de estilos; temas de interfaz,
   ampliables con un archivo JSON chico y validado o desde un script. Cada par de texto y fondo cumple el contraste
   WCAG AA en todos los temas.
-- **Exportaciones** a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume y un `.zip` con todo.
+- **Exportaciones** a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume y un `.zip` con todo, y «Abrir en
+  Overleaf», que manda la de LaTeX a overleaf.com solo cuando se toca.
 - **Plantillas importadas**, de Typst y de LaTeX, y archivos de JSON Resume.
 - **La app web** en línea en [`bafif.github.io/foja/`](https://bafif.github.io/foja/), sin conexión e instalable, con
   su interfaz para el teléfono. El deploy se corre a mano.
@@ -220,8 +221,6 @@ En este orden:
 Cosas más chicas que pueden entrar en cualquier momento:
 
 - Comprobar la exportación de Word en Microsoft Word: hasta ahora solo se comprobó en LibreOffice.
-- Un botón «Abrir en Overleaf». Overleaf recibe los archivos en un POST a `overleaf.com/docs`, lo que manda el CV a un
-  tercero, así que tiene que ser una acción explícita y probada contra el servicio real.
 - **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con vista
   previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no un enlace
   a ningún sistema de control de versiones.

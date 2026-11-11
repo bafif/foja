@@ -180,7 +180,8 @@ None is signed, to keep the project at zero cost; the release notes and the user
 - **What goes in each profile**: priorities, lengths, exceptions, a short summary and “Fit to one page”.
 - **Nine styles**, a shared Typst library, “Edit in Typst” and a style editor; interface themes, extendable with a
   small, validated JSON file or from a script. Every text and background pair meets WCAG AA contrast in every theme.
-- **Exports** to PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume and a `.zip` with all of them.
+- **Exports** to PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume and a `.zip` with all of them, and “Open in
+  Overleaf”, which sends the LaTeX one to overleaf.com only when pressed.
 - **Imported templates**, Typst and LaTeX, and JSON Resume files.
 - **The web app** online at [`bafif.github.io/foja/`](https://bafif.github.io/foja/), offline and installable, with
   its phone interface. The deploy runs by hand.
@@ -209,8 +210,6 @@ In this order:
 Smaller things that can go in at any point:
 
 - Check the Word export in Microsoft Word: so far it has been checked only in LibreOffice.
-- An “Open in Overleaf” button. Overleaf takes the files in a POST to `overleaf.com/docs`, which sends the CV to a
-  third party, so it has to be an explicit action and tested against the live service.
 - **Versions**, off by default: snapshots on save and named versions (“sent to Acme”) with a preview, a diff of fields
   and restore, stored with the project. A history inside the app, not a link to any version control system.
 

@@ -165,7 +165,7 @@ cualquier parte de la vista previa para editarla.
 | JPG | Una imagen por página, a 72, 150 o 300 dpi. |
 | Word (`.docx`) | Con el aspecto del estilo incluido del perfil, rehecho en Word, que no puede correr Typst. Un estilo propio sale como Legajo; Arco y Rótulo, con la disposición de Legajo, y Portada, con la de Minimal, cada uno con su color. Claustro, Recto y Llano van solo con párrafos, sin tablas, y las fechas en una tabulación en el margen derecho. Word no trae XCharter y usa Georgia, que es más ancha: un CV que entra justo en el PDF puede pasarse a una segunda página. |
 | Typst (`.zip`) | El estilo, el proyecto y las fuentes: compila con `typst compile` y se abre en typst.app. Es la única exportación que conserva tal cual un estilo propio. |
-| LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo, y Arco, Rótulo y Portada, como en Word. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. |
+| LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo, y Arco, Rótulo y Portada, como en Word. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. Con LaTeX elegido, **Abrir en Overleaf** lo abre en overleaf.com para editarlo y compilarlo ahí (necesitás una cuenta de Overleaf; en la app de escritorio no está). |
 | Markdown | Un CV en texto plano para un README o un formulario que acepta texto. |
 | JSON | El archivo del proyecto, para volver a importarlo o pasarlo a otro dispositivo. |
 | JSON Resume | El perfil en [JSON Resume](https://jsonresume.org), para otras herramientas y sus temas. Sus secciones son fijas: cada sección del perfil va a la que dice su nombre (experiencia, formación, proyectos, premios, idiomas…), y una de entradas que no coincide con ninguna, a la experiencia. Lo que no tiene lugar ahí, como una sección de fortalezas, Foja lo nombra al exportar; sigue en el JSON del proyecto. |
@@ -182,9 +182,10 @@ página, **Vista previa** lo marca con un punto. Arriba quedan solo el perfil, d
 abajo el resto: crear, duplicar o borrar un perfil, el proyecto, el idioma, la apariencia y la paleta de comandos.
 
 - **Instalala como app.** En Android, en Chrome: **⋯ → Instalar como app** en el menú de Foja (o en el menú de Chrome →
-  *Agregar a la pantalla principal*). En iPhone y iPad, en Safari o Chrome: **Compartir → Agregar a inicio** (en Chrome,
-  Compartir está en la barra de direcciones). Se abre en pantalla completa, sin las barras del navegador, y funciona sin
-  conexión.
+  *Agregar a la pantalla principal*). En iPhone y iPad, en Safari o Chrome: **Compartir → Más → Agregar a inicio**, con
+  «Abrir como app web» activado (en Chrome, Compartir está en la barra de direcciones; en Safari desde iOS 26, adentro
+  de «•••»). **⋯ → Instalar como app** muestra los pasos para el navegador que estés usando. Se abre en pantalla
+  completa, sin las barras del navegador, y funciona sin conexión.
 - **En el iPhone, instalala si tu CV vive ahí.** iOS borra lo que un sitio guardó cuando pasa una semana sin abrirse,
   salvo que esté en la pantalla de inicio. La app de la pantalla de inicio tiene su propio almacenamiento, separado del
   del navegador: para llevarte un proyecto que empezaste en el navegador, exportalo como JSON e importalo en la app.

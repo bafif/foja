@@ -43,7 +43,7 @@ su ícono y sin conexión:
 
 - **En la computadora**, instalalo con el botón de instalar de Chrome o de Edge.
 - **En Android**, en Chrome: «⋯ → Instalar como app» en el menú de Foja.
-- **En iPhone y iPad**, en Safari o Chrome: «Compartir → Agregar a inicio». Si tu CV vive en un iPhone, instalalo:
+- **En iPhone y iPad**, en Safari o Chrome: «Compartir → Más → Agregar a inicio». Si tu CV vive en un iPhone, instalalo:
   iOS borra lo que guardó un sitio cuando pasa una semana sin abrirse, salvo que esté en la pantalla de inicio.
 
 También hay una app de escritorio y una línea de comandos, todavía sin publicar (ver [Estado](#estado)): las

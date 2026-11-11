@@ -230,11 +230,27 @@ test.describe("on a phone", () => {
 
     test("the welcome screen and the menu say how to add it to the Home Screen", async ({ page }) => {
       await page.goto("/editor");
-      await expect(page.getByTestId("ios-install")).toContainText("Agregar a inicio");
+      await expect(page.getByTestId("install-steps")).toBeHidden();
+      await page.getByText("Cómo instalarla").click();
+      await expect(page.getByTestId("install-steps")).toContainText("«Más»");
       await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
       await page.getByRole("button", { name: "Más acciones" }).click();
       await page.getByRole("button", { name: "Instalar como app" }).click();
-      await expect(page.getByText("En Safari o en Chrome, tocá Compartir")).toBeVisible();
+      await expect(page.getByText("Tocá Compartir. En iOS 26 o más nuevo")).toBeVisible();
+      await expect(page.getByText("tocá «Editar acciones…»")).toBeVisible();
+    });
+  });
+
+  test.describe("in Chrome on an iPhone", () => {
+    test.use({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 26_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/142.0.7444.46 Mobile/15E148 Safari/604.1" });
+
+    test("the menu points at Chrome's share icon, and at Safari if the option is missing", async ({ page }) => {
+      await page.goto("/editor");
+      await page.getByRole("button", { name: "Empezar con el ejemplo" }).click();
+      await page.getByRole("button", { name: "Más acciones" }).click();
+      await page.getByRole("button", { name: "Instalar como app" }).click();
+      await expect(page.getByText("Tocá el ícono de compartir")).toBeVisible();
+      await expect(page.getByText("abrí Foja en Safari")).toBeVisible();
     });
   });
 });
