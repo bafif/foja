@@ -207,6 +207,13 @@ El trabajo hasta ahora, en el orden en que se dio:
   archivo de JSON Resume se importa con el mismo botón que un proyecto, y en la línea de comandos con `foja import`:
   sus entradas pasan al banco y queda un perfil con sus secciones. Un perfil se exporta en JSON Resume tal como sale
   en el PDF; como sus secciones son fijas, lo que no tiene lugar ahí se avisa en vez de perderse sin decirlo.
+- **Word, abierto en LibreOffice** (11 de noviembre de 2026). Hasta entonces los `.docx` solo se verificaban como
+  paquetes válidos. Abiertos en LibreOffice (en un contenedor, con Gelasio, que mide igual que Georgia) mostraron
+  que el CV de dos columnas empezaba en la segunda página, porque Word y LibreOffice mantienen una fila de tabla con
+  lo que sigue cuando su primer párrafo lo está; que cada espacio entre bloques sumaba un renglón en blanco; que
+  Banda y Minimal ponían las fechas en una columna, cuando en Typst van a la derecha; que los grupos de habilidades
+  lado a lado cortaban palabras; y que el interlineado no era el de Typst. Todo eso se arregló, el texto
+  justificado ahora corta palabras en el idioma del CV, y los tests fijan cada cosa.
 
 ## Qué viene después
 
@@ -229,8 +236,7 @@ En este orden:
 
 Cosas más chicas que pueden entrar en cualquier momento:
 
-- Abrir la exportación de Word en Word y en LibreOffice. Por ahora los archivos solo se verifican como paquetes
-  válidos, porque no tengo ninguno de los dos programas instalados en mi máquina.
+- Abrir la exportación de Word en Word. En LibreOffice ya se abrió (ver *Qué está hecho*); Word no lo tengo.
 - Un botón «Abrir en Overleaf». Overleaf recibe los archivos en un POST a `overleaf.com/docs`, lo que
   manda el CV a un tercero, así que tiene que ser una acción explícita y probada contra el servicio real.
 - **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con
@@ -238,7 +244,8 @@ Cosas más chicas que pueden entrar en cualquier momento:
   un enlace a ningún sistema de control de versiones.
 
 Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse
-unas líneas de una página cuando el PDF entra (la guía de uso lo aclara). Una plantilla LaTeX importada se ve en la
+unas líneas de una página cuando el PDF entra (la guía de uso lo aclara); la de Word también, y más, porque Georgia
+es más ancha que XCharter (mi CV de programador se pasa unos veinte renglones en LibreOffice). Una plantilla LaTeX importada se ve en la
 vista previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se
 importan solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
 

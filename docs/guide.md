@@ -151,7 +151,7 @@ navigation. Click any part of the preview to edit it.
 | :--- | :--- |
 | PDF | The CV as you see it. |
 | JPG | One image per page, at 72, 150 or 300 dpi. |
-| Word (`.docx`) | In the look of the profile's built-in style, redone in Word, which cannot run Typst. A style of your own comes out as Legajo. Claustro, Recto and Llano are paragraphs only, without tables, the dates on a tab stop at the right margin. |
+| Word (`.docx`) | In the look of the profile's built-in style, redone in Word, which cannot run Typst. A style of your own comes out as Legajo. Claustro, Recto and Llano are paragraphs only, without tables, the dates on a tab stop at the right margin. Word has no XCharter and uses Georgia, which is wider: a CV that just fits in the PDF can run onto a second page. |
 | Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. The only export that keeps a style of your own as it is. |
 | LaTeX (`.zip`) | In the look of the profile's built-in style; a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |

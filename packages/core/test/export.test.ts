@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { pickStyle, resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
-import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, inlineLatex, inlineMarkdown, renderLatex, renderMarkdown } from "../src/export/index.ts";
+import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
 const decoder = new TextDecoder();
@@ -219,6 +219,43 @@ describe("files", () => {
     expect(minimal).not.toContain("<w:smallCaps/>");
     expect(minimal).not.toMatch(/w:fill="[0-9A-F]{6}"/);
     expect(minimal).toContain("EXPERIENCIA");
+  });
+
+  // What LibreOffice showed when it opened the exports (11/11/2026); Word follows the same rules.
+  test("Word, two columns: the row of the whole CV can start on the first page", async () => {
+    const xml = await documentXml((await exportFiles(example, "programador", "docx"))[0].data);
+    // A row is kept with what follows when the first paragraph of a cell is: then a row as tall as the page
+    // starts on the second one. The outer table is the first; its cells are the first ones.
+    const outer = xml.slice(xml.indexOf("<w:tbl>"));
+    const cells = outer.split("<w:tc>").slice(1, 4);
+    for (const cell of cells) expect(cell.slice(cell.indexOf("<w:p>"), cell.indexOf("</w:p>"))).not.toContain("<w:keepNext/>");
+  });
+
+  test("Word: gaps are exact, not blank lines; entries are not cut between pages", async () => {
+    const xml = await documentXml((await exportFiles(example, "programador", "docx"))[0].data);
+    // An empty paragraph spaced only after would add a whole line before the space.
+    expect(xml).not.toMatch(/<w:p><w:pPr><w:spacing w:after="\d+"\/><\/w:pPr><\/w:p>/);
+    expect(xml).toMatch(/<w:spacing w:after="0" w:before="0" w:line="\d+" w:lineRule="exact"\/>/);
+    expect(xml).toContain("<w:cantSplit/>");
+  });
+
+  test("Word: hyphenation in the CV's language, and Typst's line spacing", async () => {
+    const parts = await docxParts((await exportFiles(example, "programador", "docx"))[0].data);
+    expect(parts["word/settings.xml"]).toContain("<w:autoHyphenation/>");
+    expect(parts["word/styles.xml"]).toContain('w:lang w:val="es-ES"');
+    expect(wordLanguage("en")).toBe("en-US");
+    expect(wordLanguage("pt-BR")).toBe("pt-BR");
+    // Baseline to baseline as in Typst: 10 pt XCharter with a leading of 0.55 em is 12.2 pt; Georgia's single
+    // line is 11.4 pt. Noto Sans has a much taller single line, so it gets less than single.
+    expect(lineSpacing("legajo", false)).toBe(259);
+    expect(lineSpacing("banda", true)).toBe(232);
+  });
+
+  test.each(["banda", "minimal"] as const)("Word in %s: the dates at the right margin, as in Typst", async (style) => {
+    const xml = await documentXml((await exportFiles(inStyle(style), "programador", "docx"))[0].data);
+    expect(xml).toMatch(/<w:tab w:val="right"/);
+    // No column of dates: the only tables left are Banda's band.
+    expect(xml.split("<w:tbl>").length - 1).toBe(style === "banda" ? 1 : 0);
   });
 
   test.each(ATS_STYLES)("Word in %s: paragraphs only, the contacts in the body, no header or footer", async (style) => {

@@ -15,6 +15,7 @@ import {
   ExternalHyperlink,
   ImageRun,
   LevelFormat,
+  LineRuleType,
   Packer,
   Paragraph,
   ShadingType,
@@ -32,7 +33,7 @@ import {
   type ParagraphChild,
 } from "docx";
 import { DEFAULT_ACCENT, inlineRuns } from "../project.ts";
-import type { ResolvedBlock, ResolvedContact, ResolvedCv, ResolvedSection } from "../resolve.ts";
+import type { ResolvedBlock, ResolvedContact, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import type { Item } from "../types.ts";
 import { isAtsStyle, type AtsStyle, type ExportStyle } from "./style.ts";
 
@@ -78,6 +79,18 @@ function runs(ctx: Ctx, text: string, o: RunOptions = {}): TextRun[] {
 
 function para(children: ParagraphChild[], options: Omit<IParagraphOptions, "children"> = {}): Paragraph {
   return new Paragraph({ children, ...options });
+}
+
+/** The language of the text for Word, which wants a region: `es` → `es-ES`. */
+export function wordLanguage(tag: string): string {
+  if (tag.includes("-")) return tag;
+  return { es: "es-ES", en: "en-US", pt: "pt-BR", fr: "fr-FR", de: "de-DE", it: "it-IT" }[tag] ?? tag;
+}
+
+/** A gap of exactly `twips`: an empty paragraph whose one line is that tall. An empty paragraph with spacing
+ * after would add a whole blank line before it. */
+function spacer(twips: number): Paragraph {
+  return new Paragraph({ children: [], spacing: { before: 0, after: 0, line: Math.max(1, Math.round(twips)), lineRule: LineRuleType.EXACT } });
 }
 
 function bulletItems(ctx: Ctx, items: Item[]): Paragraph[] {
@@ -136,6 +149,24 @@ function sectionTitle(ctx: Ctx, title: string): Paragraph {
   });
 }
 
+/** An entry of Banda or Minimal: the title with the dates at the right margin, as their Typst styles have it
+ * (only Legajo gives the dates a column of their own). */
+function datedEntry(ctx: Ctx, e: ResolvedEntry, compact: boolean, widthTwip: number, first: boolean): Paragraph[] {
+  const banda = ctx.style === "banda";
+  const date = e.period ? [new TextRun({ children: [new Tab(), xmlSafe(e.period)], font: ctx.font, size: ctx.small, color: MUTED })] : [];
+  const out = [
+    para([plain(ctx, e.title, { bold: banda }), ...date], {
+      keepNext: true,
+      tabStops: [{ type: TabStopType.RIGHT, position: widthTwip }],
+      spacing: { before: first ? 0 : ctx.smallSep },
+    }),
+  ];
+  if (e.place) out.push(para([plain(ctx, e.place, banda ? { color: ctx.accent } : { size: ctx.small, color: MUTED })], { keepNext: !!(e.note || e.items.length) }));
+  if (e.note) out.push(para([plain(ctx, e.note, { size: ctx.small, color: MUTED })]));
+  if (!compact) out.push(...bulletItems(ctx, e.items));
+  return out;
+}
+
 function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragraph | Table)[] {
   const dateWidth = Math.round(2 * 10 * TWIP_PER_MM * (ctx.cv.layout.fontSize / 10));
   const rows: TableRow[] = [];
@@ -152,10 +183,14 @@ function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragrap
       }),
     );
   };
-  for (const b of s.blocks) {
+  for (const [i, b] of s.blocks.entries()) {
     if (b.type !== "entry") {
       flushRows();
       out.push(...(b.type === "item" ? bulletItems(ctx, [b]) : [para(runs(ctx, b.text), { alignment: AlignmentType.JUSTIFIED })]));
+      continue;
+    }
+    if (ctx.style !== "legajo") {
+      out.push(...datedEntry(ctx, b.entry, s.compact, widthTwip, i === 0));
       continue;
     }
     const e = b.entry;
@@ -164,10 +199,12 @@ function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragrap
       ...(e.place ? [para([plain(ctx, e.place, { italics: true, color: MUTED })])] : []),
       ...(e.note ? [para([plain(ctx, e.note, { size: ctx.small, color: MUTED })])] : []),
       ...(s.compact ? [] : bulletItems(ctx, e.items)),
-      para([], { spacing: { after: ctx.smallSep } }),
+      spacer(ctx.smallSep),
     ];
     rows.push(
       new TableRow({
+        // An entry is never cut between two pages: it moves whole to the next one.
+        cantSplit: true,
         children: [
           new TableCell({ borders: NO_BORDERS, children: [para([plain(ctx, e.period, { size: ctx.small, color: MUTED })])] }),
           new TableCell({ borders: NO_BORDERS, margins: { left: 160 }, children: content }),
@@ -211,6 +248,15 @@ function sideBlock(ctx: Ctx, b: ResolvedBlock): Paragraph[] {
   return [para([...heading, ...runs(ctx, b.text, { size: ctx.small })], { alignment: AlignmentType.JUSTIFIED })];
 }
 
+/** Room between two skill groups side by side, in twips. */
+const CELL_GAP = 120;
+
+/** A generous guess of how wide `text` is in twips, at `size` half-points, in Georgia or Noto Sans (both about
+ * 0.58 em a letter; small capitals about 0.72 em). */
+function textWidth(text: string, size: number, caps = false): number {
+  return Math.ceil(text.length * (caps ? 0.72 : 0.58) * size * 10);
+}
+
 function sidebar(ctx: Ctx, widthPt: number): (Paragraph | Table)[] {
   const { cv } = ctx;
   const out: (Paragraph | Table)[] = [];
@@ -219,38 +265,48 @@ function sidebar(ctx: Ctx, widthPt: number): (Paragraph | Table)[] {
   const heading = (title: string) =>
     para([plain(ctx, title.toLowerCase(), { bold: true, color: ctx.accent, smallCaps: true, size: ctx.small })], { keepNext: true, spacing: { after: 40 } });
   const block = (title: string, values: ParagraphChild[][]) => {
-    out.push(heading(title), ...values.map((v) => para(v)), para([], { spacing: { after: ctx.sep } }));
+    out.push(heading(title), ...values.map((v) => para(v)), spacer(ctx.sep));
   };
   if (cv.highlight) block(cv.highlight.title, [[plain(ctx, cv.highlight.text, { size: ctx.small })]]);
   if (cv.contacts.length) block(cv.labels.contact, cv.contacts.map((c) => [contactChild(ctx, c, ctx.small)]));
+  const inner = Math.round(widthPt * 20);
   for (const row of cv.skills) {
-    if (row.length === 1) {
-      block(row[0].title, row[0].items.map((v) => [plain(ctx, v, { size: ctx.small })]));
+    // Side by side only when the groups fit: Word's fonts are wider than Typst's, and a column too narrow
+    // cuts its words in two. Each column as wide as its longest line, and what is left shared.
+    const needs = row.map((g) => Math.max(textWidth(g.title, ctx.small, true), ...g.items.map((v) => textWidth(v, ctx.small))) + CELL_GAP);
+    const room = inner - needs.reduce((a, b) => a + b, 0);
+    if (row.length === 1 || room < 0) {
+      for (const g of row) block(g.title, g.items.map((v) => [plain(ctx, v, { size: ctx.small })]));
       continue;
     }
+    const widths = needs.map((n) => Math.floor(n + room / row.length));
     out.push(
       new Table({
+        layout: TableLayoutType.FIXED,
+        width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+        columnWidths: widths,
         borders: TableBorders.NONE,
         rows: [
           new TableRow({
             children: row.map(
-              (g) =>
+              (g, i) =>
                 new TableCell({
+                  width: { size: widths[i], type: WidthType.DXA },
                   borders: NO_BORDERS,
-                  margins: { right: 120 },
+                  margins: { right: CELL_GAP },
                   children: [heading(g.title), ...g.items.map((v) => para([plain(ctx, v, { size: ctx.small })]))],
                 }),
             ),
           }),
         ],
       }),
-      para([], { spacing: { after: ctx.sep } }),
+      spacer(ctx.sep),
     );
   }
   for (const s of cv.sections.filter((s) => s.side)) {
     out.push(heading(s.title));
-    for (const b of s.blocks) out.push(...sideBlock(ctx, b), para([], { spacing: { after: ctx.smallSep } }));
-    out.push(para([], { spacing: { after: ctx.sep } }));
+    for (const b of s.blocks) out.push(...sideBlock(ctx, b), spacer(ctx.smallSep));
+    out.push(spacer(ctx.sep));
   }
   return out;
 }
@@ -262,20 +318,23 @@ function twoColumns(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const main = textWidth - side - gutter;
   const pad = 200;
   const left = layout.sidebar === "left";
+  // The whole CV is one row. Word, and LibreOffice after it, keep a row with what follows when the first
+  // paragraph of a cell is kept with the next one (a title is): the row would not start on the first page.
+  // Each cell starts with a paragraph that is not.
   const sideCell = new TableCell({
     width: { size: side, type: WidthType.DXA },
     borders: NO_BORDERS,
     shading: { type: ShadingType.CLEAR, color: "auto", fill: ctx.tint },
     margins: { top: pad, bottom: pad, left: pad, right: pad },
-    children: sidebar(ctx, (side - 2 * pad) / 20),
+    children: [spacer(1), ...sidebar(ctx, (side - 2 * pad) / 20)],
   });
-  const gap = new TableCell({ width: { size: gutter, type: WidthType.DXA }, borders: NO_BORDERS, children: [para([])] });
+  const gap = new TableCell({ width: { size: gutter, type: WidthType.DXA }, borders: NO_BORDERS, children: [spacer(1)] });
   const mainCell = new TableCell({
     width: { size: main, type: WidthType.DXA },
     borders: NO_BORDERS,
     verticalAlign: VerticalAlign.TOP,
     margins: { left: 0, right: 0 },
-    children: [...summary(ctx), ...ctx.cv.sections.filter((s) => !s.side).flatMap((s) => mainSection(ctx, s, main))],
+    children: [spacer(1), ...summary(ctx), ...ctx.cv.sections.filter((s) => !s.side).flatMap((s) => mainSection(ctx, s, main))],
   });
   return [
     ...header(ctx),
@@ -338,19 +397,18 @@ function oneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const highlight = cv.highlight
     ? [para([plain(ctx, `${cv.highlight.title}  `, { bold: true, color: ctx.accent }), plain(ctx, cv.highlight.text)], { spacing: { after: ctx.smallSep } })]
     : [];
-  const skills = cv.skills.length
-    ? [
-        sectionTitle(ctx, cv.labels.skills),
-        ...cv.skills.flat().map((g) => {
-          const title =
-            ctx.style === "legajo"
-              ? plain(ctx, `${g.title.toLowerCase()}: `, { smallCaps: true, color: MUTED })
-              : plain(ctx, `${g.title}: `, ctx.style === "banda" ? { bold: true } : { color: MUTED });
-          return para([title, plain(ctx, g.items.join(", "))]);
-        }),
-      ]
-    : [];
-  return [...top, ...highlight, ...summary(ctx), ...skills, ...cv.sections.flatMap((s) => mainSection(ctx, s, textWidth))];
+  const banda = ctx.style === "banda";
+  const lines = cv.skills.flat().map((g) => {
+    const title =
+      ctx.style === "legajo"
+        ? plain(ctx, `${g.title.toLowerCase()}: `, { smallCaps: true, color: MUTED })
+        : plain(ctx, `${g.title}: `, banda ? { bold: true, size: ctx.small } : { color: MUTED });
+    return para([title, plain(ctx, g.items.join(banda ? " · " : ", "), banda ? { size: ctx.small } : {})]);
+  });
+  // Banda has its skills under the contacts, without a title, as its Typst style does.
+  const skills = lines.length && !banda ? [sectionTitle(ctx, cv.labels.skills), ...lines] : [];
+  const above = banda && lines.length ? [...lines, spacer(ctx.smallSep)] : [];
+  return [...top, ...highlight, ...above, ...summary(ctx), ...skills, ...cv.sections.flatMap((s) => mainSection(ctx, s, textWidth))];
 }
 
 /** Claustro, Recto and Llano, made for applicant tracking systems: paragraphs only (no tables),
@@ -409,6 +467,16 @@ function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
   return out;
 }
 
+/** The `leading` of each Typst style (styles/*.typ). */
+const LEADING: Record<ExportStyle, number> = { legajo: 0.55, banda: 0.6, minimal: 0.65, claustro: 0.55, recto: 0.6, llano: 0.55 };
+
+/** Word's line spacing for the distance between baselines that Typst has: the cap height of Typst's font
+ * (XCharter 0.674 em, Noto Sans 0.714 em) plus the style's leading, as a share of the single line of the font
+ * Word uses (Georgia 1.136 em, Noto Sans 1.362 em). In 240ths, as Word counts it. */
+export function lineSpacing(style: ExportStyle, sans: boolean): number {
+  return Math.round((240 * ((sans ? 0.714 : 0.674) + LEADING[style])) / (sans ? 1.362 : 1.136));
+}
+
 export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"): Promise<Uint8Array> {
   const l = cv.layout;
   const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
@@ -431,11 +499,13 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"):
   const doc = new Document({
     creator: "Foja",
     title: `${cv.name} — ${cv.subtitle}`,
+    // Justified text breaks words as Typst does, by the rules of the CV's language.
+    hyphenation: { autoHyphenation: true },
     styles: {
       default: {
         document: {
-          run: { font: ctx.font, size: ctx.size, color: INK },
-          paragraph: { spacing: { before: 0, after: 0, line: 264 } },
+          run: { font: ctx.font, size: ctx.size, color: INK, language: { value: wordLanguage(cv.language) } },
+          paragraph: { spacing: { before: 0, after: 0, line: lineSpacing(style, l.font === "Noto Sans") } },
         },
       },
     },

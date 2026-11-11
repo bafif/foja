@@ -220,6 +220,13 @@ The work so far, in the order it happened:
   through the same button as a project, and on the command line with `foja import`: its entries go to the bank,
   with a profile that has its sections. A profile exports to JSON Resume as its PDF shows it; since the format's
   sections are fixed, what has no place there is named instead of lost without a word.
+- **Word, opened in LibreOffice** (November 11, 2026). Until then the `.docx` files were only checked as valid
+  packages. Opened in LibreOffice (in a container, with Gelasio, which has Georgia's metrics) they showed that the
+  two-column CV started on the second page, because Word and LibreOffice keep a table row with what follows when
+  its first paragraph is; that every gap between blocks added a blank line; that Banda and Minimal put the dates
+  in a column, where Typst has them on the right; that skill groups side by side cut words in two; and that the
+  line spacing was not Typst's. All of that is fixed, justified text now breaks words in the CV's language, and
+  the tests hold each one in place.
 
 ## What comes next
 
@@ -242,8 +249,7 @@ In this order:
 
 Smaller things that can go in at any point:
 
-- Open the Word export in Word and LibreOffice. So far the files are only checked as valid
-  packages, because neither program is installed on my machine.
+- Open the Word export in Word. It has been opened in LibreOffice (see *What is done*); Word I do not have.
 - An "Open in Overleaf" button. Overleaf takes the files in a POST to `overleaf.com/docs`, which
   sends the CV to a third party, so it has to be an explicit action and tested against the live
   service.
@@ -252,7 +258,8 @@ Smaller things that can go in at any point:
   a link to any version control system.
 
 Known limitations: the LaTeX export breaks lines a little differently from Typst and can run a
-few lines past one page where the PDF fits (the user guide says so). An imported LaTeX template
+few lines past one page where the PDF fits (the user guide says so); so can the Word export, by more, since
+Georgia is wider than XCharter (my programmer CV runs about twenty lines over in LibreOffice). An imported LaTeX template
 shows in the preview without click-to-edit or the marks of what spills over; only the data of
 templates that need LuaLaTeX is imported, and the command line does not compile LaTeX: it writes
 the filled `.tex`.

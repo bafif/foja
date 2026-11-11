@@ -84,7 +84,7 @@ La insignia arriba de la vista previa te dice si el CV entra en una página y, s
 | :--- | :--- |
 | PDF | El CV tal como lo ves. |
 | JPG | Una imagen por página, a 72, 150 o 300 dpi. |
-| Word (`.docx`) | Con el aspecto del estilo incluido del perfil, rehecho en Word, que no puede correr Typst. Un estilo propio sale como Legajo. Claustro, Recto y Llano van solo con párrafos, sin tablas, y las fechas en una tabulación en el margen derecho. |
+| Word (`.docx`) | Con el aspecto del estilo incluido del perfil, rehecho en Word, que no puede correr Typst. Un estilo propio sale como Legajo. Claustro, Recto y Llano van solo con párrafos, sin tablas, y las fechas en una tabulación en el margen derecho. Word no trae XCharter y usa Georgia, que es más ancha: un CV que entra justo en el PDF puede pasarse a una segunda página. |
 | Typst (`.zip`) | El estilo, el proyecto y las fuentes: compila con `typst compile` y se abre en typst.app. Es la única exportación que conserva tal cual un estilo propio. |
 | LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. |
 | Markdown | Un CV en texto plano para un README o un formulario que acepta texto. |
