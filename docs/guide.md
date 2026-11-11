@@ -10,7 +10,7 @@ stays on your device. It is at <https://bafif.github.io/foja/>.
 
 Open the editor and pick one of:
 
-- **Start with the example**: my own CV, with two profiles (programmer and AI teacher) built from the same data, to see how a real one is put together. Switch between them with **Profile**, at the top.
+- **Start with the example**: my own CV, with three profiles (programmer, mathematics, physics and electronics teacher, and electronics technician) built from the same data, to see how a real one is put together. Switch between them with **Profile**, at the top.
 - **Empty project**: a blank CV.
 - **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared).
 

@@ -54,7 +54,7 @@ def test_every_profile_builds_and_renders(profile):
 def test_programmer_profile_contents():
     cv = build_cv(DATA, "programador", PRIVATE)
     assert cv.application == ""
-    assert cv.sections[0].entries[0].title == "Docente particular"
+    assert cv.sections[0].entries[0].title == "Desarrollador de software"
     assert cv.contacts == [
         ("Teléfono", "+54 9 341 000-0000"),
         ("Correo", "correo@ejemplo.com"),
@@ -63,19 +63,23 @@ def test_programmer_profile_contents():
 
 
 @pytest.mark.parametrize("profile", sorted(p.stem for p in (DATA / "perfiles").glob("*.json")))
-def test_address_only_where_the_profile_asks(profile):
+def test_no_profile_shows_the_address(profile):
     cv = build_cv(DATA, profile, PRIVATE)
-    if profile == "programador":
-        assert cv.address[0] == "Calle Falsa 123"
-        assert r"\SideHeading{Domicilio}" in render(cv)
-    else:
-        assert cv.address == []
-        assert "Domicilio" not in render(cv)
+    assert cv.address == []
+    assert "Domicilio" not in render(cv)
+
+
+def test_address_only_where_the_profile_asks(tmp_path):
+    write_profile(tmp_path, '"domicilio": true, "secciones": []')
+    cv = build_cv(tmp_path, "x", PRIVATE)
+    assert cv.address[0] == "Calle Falsa 123"
+    assert r"\SideHeading{Domicilio}" in render(cv)
 
 
 def test_missing_private_file_is_reported(tmp_path):
+    write_profile(tmp_path, '"domicilio": true, "secciones": []')
     with pytest.raises(DataError, match="address"):
-        build_cv(DATA, "programador", tmp_path / "privado.json")
+        build_cv(tmp_path, "x", tmp_path / "privado.json")
     with pytest.raises(DataError, match="telefono"):
         build_cv(DATA, "programador", tmp_path / "privado.json")
 

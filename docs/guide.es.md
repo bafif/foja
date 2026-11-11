@@ -8,7 +8,7 @@ Foja es un editor de CV hecho sobre [Typst](https://typst.app). Vos completás f
 
 Abrí el editor y elegí una de estas opciones:
 
-- **Empezar con el ejemplo**: mi propio CV, con dos perfiles (programador y docente de IA) armados con los mismos datos, para ver cómo está armado uno real. Se pasa de uno a otro en **Perfil**, arriba.
+- **Empezar con el ejemplo**: mi propio CV, con tres perfiles (programador, docente de matemática, física y electrónica, y técnico electrónico) armados con los mismos datos, para ver cómo está armado uno real. Se pasa de uno a otro en **Perfil**, arriba.
 - **Proyecto vacío**: un CV en blanco.
 - **Importar JSON**: un archivo `.foja.json` exportado desde Foja (tuyo, o una plantilla que alguien compartió).
 

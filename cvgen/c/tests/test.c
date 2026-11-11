@@ -101,24 +101,13 @@ static void test_profiles(Arena *arena, const char *data) {
         CHECK(bytes != NULL && memcmp(bytes + len - 6, "%%EOF\n", 6) == 0);
         pdf_free(&pdf);
 
-        /* Only one CV opts in to the address. */
+        /* No profile shows the address. */
         bool has_address = false;
         for (size_t b = 0; b < cv.nside; b++)
             has_address = has_address || strcmp(cv.side[b].title, "Domicilio") == 0;
-        CHECK(has_address == (p == 0));
+        CHECK(!has_address);
 
-        if (p == 0) {
-            CHECK(strcmp(cv.subtitle, "Programador") == 0);
-            CHECK(strcmp(cv.side[0].title, "Curso") == 0);
-            CHECK(strcmp(cv.side[1].title, "Domicilio") == 0);
-            CHECK(strcmp(cv.side[1].lines[0], "Calle Falsa 123") == 0);
-            CHECK(strcmp(cv.side[2].title, "Contacto") == 0);
-            CHECK(strcmp(cv.side[2].lines[0], "+54 9 341 000-0000") == 0);
-            CHECK(strcmp(cv.side[2].lines[1], "correo@ejemplo.com") == 0);
-            CHECK(strcmp(cv.sections[0].entries[0].title, "Docente particular") == 0);
-            CHECK(cv.sections[0].entries[0].ntasks == 4);
-        }
-        if (p == 2) {
+        if (p == 1) {
             CHECK(strcmp(cv.side[1].title, "Web") == 0 && cv.side[1].paired);
             CHECK(strcmp(cv.side[2].title, "Programación") == 0 && !cv.side[2].paired);
 
@@ -137,8 +126,6 @@ static void test_profiles(Arena *arena, const char *data) {
     CHECK(!cv_build(arena, data, private, "does-not-exist", &cv, err, sizeof err));
     CHECK(strstr(err, "does-not-exist") != NULL);
     const char *missing = arena_printf(arena, "%s/no-such-private.json", data);
-    CHECK(!cv_build(arena, data, missing, "programador", &cv, err, sizeof err));
-    CHECK(strstr(err, "address") != NULL);
     CHECK(!cv_build(arena, data, missing, "programador", &cv, err, sizeof err));
     CHECK(strstr(err, "telefono") != NULL);
 }
