@@ -44,6 +44,13 @@ self.XMLHttpRequest = class {
   }
 };
 
+// A compile that fails (a missing font, a LaTeX error) is answered with its log; the engine's own
+// note of it in the console says nothing more.
+const consoleError = console.error;
+console.error = (...args) => {
+  if (!/^Compilation (format )?failed/.test(String(args[0]))) consoleError(...args);
+};
+
 const engine = (routine) => new Promise((resolve) => {
   answer = resolve;
   self[routine]();
@@ -101,6 +108,9 @@ async function version() {
   throw new Error("LaTeX has to be downloaded once, online");
 }
 
+// XeTeX's font list: Foja's fonts, then the template's own for each compile.
+let fontlist = "";
+
 let ready;
 function prepare() {
   ready ??= (async () => {
@@ -117,6 +127,7 @@ function prepare() {
       if (file.includes("/")) continue;
       FS.writeFile("/tex/" + file, data);
       register(file);
+      if (file === "xetexfontlist.txt") fontlist = new TextDecoder().decode(data).replace(/\n*$/, "\n");
     }
     if (!SETUP.format) return;
     const key = BASE + SETUP.format + ".gz";
@@ -135,9 +146,10 @@ function prepare() {
   return ready;
 }
 
-async function compile({ files, main }) {
+async function compile({ files, main, fontlist: own }) {
   await prepare();
   cleanDir(WORKROOT);
+  if (ENGINE === "xetex") FS.writeFile("/tex/xetexfontlist.txt", fontlist + (own ? own + "\n" : ""));
   for (const [path, content] of Object.entries(files)) {
     let dir = WORKROOT;
     for (const part of path.split("/").slice(0, -1)) {

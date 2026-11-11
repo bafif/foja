@@ -62,7 +62,8 @@ rompe PyInstaller si no le dedicás trabajo extra). El núcleo en el navegador d
 estático y sin servidor, instaladores chicos que usan el webview del sistema y una vista previa sin ida y vuelta
 por la red. LaTeX se exporta como código fuente, porque una distribución de TeX completa en WebAssembly descarga
 unos 120 MB; solo una plantilla LaTeX importada se compila dentro de la app, con pdfTeX o XeTeX y un grupo chico de
-paquetes comunes y fuentes libres (unos 9 o 12 MB, que se bajan la primera vez que se usa una).
+paquetes comunes (unos 9 o 6 MB, que se bajan la primera vez que se usa una; las fuentes que nombra una plantilla
+XeLaTeX las sube el usuario).
 
 Los contenedores (Podman sin root) quedan solo para desarrollo, con recarga en caliente detrás de nginx.
 

@@ -72,8 +72,8 @@ breaks PyInstaller without extra work). The in-browser core gives a public web a
 hosting and no server, small installers that use the system webview, and a preview with no
 network round trip. LaTeX is exported as source, since a full TeX distribution in WebAssembly
 downloads about 120 MB; only an imported LaTeX template is compiled in the app, by pdfTeX or XeTeX
-with a small set of common packages and free fonts (about 9 or 12 MB, downloaded the first time
-one is used).
+with a small set of common packages (about 9 or 6 MB, downloaded the first time one is used; the
+fonts a XeLaTeX template names, the user uploads).
 
 Containers (rootless Podman) stay for development only, with hot reload behind nginx.
 

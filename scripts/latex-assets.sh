@@ -5,7 +5,7 @@
 #  - texlive.tar.gz and xetex.tar.gz: the TeX Live 2022 files (Debian bookworm) that LaTeX's formats
 #    and a set of common CV packages need under pdfLaTeX and under XeLaTeX, found by compiling
 #    scripts/latex/common*.tex and the test templates with -recorder, FontAwesome 5, and for
-#    XeLaTeX free OpenType fonts and their list (scripts/latex/collect.sh, in a container);
+#    XeLaTeX Latin Modern in OpenType and the font list (scripts/latex/collect.sh, in a container);
 #  - version.txt: a hash of all of them. The worker keeps what it downloads under that name, so new
 #    files replace the old ones by themselves. None of this is in the repository: the Pages deploy runs
 # this script, and the end-to-end tests of LaTeX need it run once. Needs podman and the network.
@@ -23,6 +23,7 @@ python3 -I -c 'import sys, zipfile; z = zipfile.ZipFile(sys.argv[1]); [open(f"{s
 
 podman volume rm -f foja_latex_assets >/dev/null 2>&1 || true
 podman run --rm -v foja_latex_assets:/out -v "$PWD/scripts/latex":/in:ro -v "$PWD/packages/core/test/fixtures/latex":/fx:ro \
+    -v "$PWD/packages/template/fonts":/repo-fonts:ro \
     docker.io/library/debian:bookworm-slim sh /in/collect.sh
 for f in texlive.tar.gz xetex.tar.gz; do podman volume export foja_latex_assets | tar -xO "$f" > "$out/$f"; done
 podman volume export foja_latex_assets | tar -xO files.txt > "$out/texlive-files.txt"

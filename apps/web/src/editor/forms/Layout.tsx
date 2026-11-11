@@ -6,6 +6,7 @@ import { BUILTIN_STYLES, DEFAULT_ACCENT, pickStyle, resolveLayout, shortKeepsEnt
 import { t } from "../i18n";
 import { useEditor } from "../store";
 import { addStyle } from "../styles";
+import { LatexFonts } from "./LatexFonts";
 import { Button, Field, Panel, Select, TextInput } from "../ui";
 
 const L = t.layoutOptions;
@@ -137,6 +138,8 @@ export function LayoutForm() {
           <span className="text-xs text-muted">{t.styles.editInTypstHint}</span>
         </div>
       </section>
+
+      <LatexFonts />
 
       <h3 className="text-xs font-semibold tracking-wide text-muted uppercase">{t.styles.options}</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

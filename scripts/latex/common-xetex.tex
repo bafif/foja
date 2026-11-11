@@ -1,5 +1,5 @@
 % The packages Foja's XeLaTeX brings (scripts/latex-assets.sh): what common CV templates for
-% XeLaTeX load. Compiled with -recorder, it lists the files to pack; the fonts are added by family.
+% XeLaTeX load. Compiled with -recorder, it lists the files to pack; the fonts are added apart.
 \documentclass[11pt,a4paper]{article}
 \usepackage{fontspec}
 \usepackage{polyglossia}
@@ -33,10 +33,8 @@
 \usepackage[hidelinks]{hyperref}
 
 \begin{document}
-\setmainfont{Roboto}
 Muestra \textbf{negrita} \textit{itálica} \textsc{Versalitas} 0123 áéíóú ñ.
-{\fontspec{Lato}Lato \textbf{bold}} {\fontspec{Open Sans}Open Sans} {\fontspec{TeX Gyre Heros}Heros}
-{\fontspec{Latin Modern Roman}Latin Modern \textit{italic}} \texttt{mono}
+{\fontspec{Latin Modern Sans}Latin Modern Sans \textit{italic}} \texttt{mono}
 \faEnvelope{} \faGithub{} \faLinkedin{} \faPhone{}
 $x^2 + \alpha$
 \begin{tikzpicture}\draw (0,0) circle (2pt);\end{tikzpicture}

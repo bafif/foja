@@ -100,10 +100,13 @@ call before the first section (the header). Its look is the template itself: Foj
 `.tex` with the CV in place of the sample content, through the template's own macros, and
 compiles it with LaTeX in the browser: pdfLaTeX, or XeLaTeX for a template that picks its fonts
 by name (`fontspec`, `polyglossia`, or `% !TEX program = xelatex`). The first time, that downloads
-about 9 MB (12 MB for XeLaTeX) and takes a few seconds; after that a change shows in a second or
+about 9 MB (6 MB for XeLaTeX) and takes a few seconds; after that a change shows in a second or
 two, still slower than with Typst. There is a set of common packages (FontAwesome 5's icons among
-them) and, for XeLaTeX, free fonts (Latin Modern, TeX Gyre, Roboto, Lato and Open Sans); LuaLaTeX and other fonts are not
-there, so some templates import their data but not their look. The preview shows LaTeX's pages without
+them); LuaLaTeX is not there, so some templates import their data but not their look. For XeLaTeX,
+Foja brings Latin Modern: a font the template asks for by name and Foja lacks is named in **Style
+and layout → The template's fonts**, where you upload its `.otf` or `.ttf` files (downloaded from
+where the font is published); they are kept with the style. Fonts that come in the template's
+`.zip` are used as they are. The preview shows LaTeX's pages without
 click-to-edit or the red marks of what spills over; the PDF export is LaTeX's own PDF, and the
 LaTeX export is the template's `.tex`, filled, with its files. The command line has no LaTeX: it
 writes that `.tex` (`--format tex`) and no PDF.

@@ -68,7 +68,8 @@ export function readTemplate(files: Record<string, Uint8Array>): Template {
   const latexMain = Object.keys(texts)
     .filter((p) => p.endsWith(".tex") && /\\begin\s*\{document\}/.test(texts[p]))
     .sort((a, b) => a.split("/").length - b.split("/").length)[0];
-  if (latexMain && !Object.keys(texts).some((p) => p.endsWith(".typ"))) return readLatex(texts, binaries, fonts, latexMain, license);
+  // A LaTeX template keeps the fonts it brings: XeLaTeX finds them by name, or at their path.
+  if (latexMain && !Object.keys(texts).some((p) => p.endsWith(".typ"))) return readLatex(texts, { ...binaries, ...Object.fromEntries(fonts.map((p) => [p, files[p]])) }, [], latexMain, license);
   const parsed = Object.fromEntries(Object.entries(texts).filter(([p]) => p.endsWith(".typ")).map(([p, s]) => [p, parseTypst(s)]));
   const score = (p: ParsedFile) => p.sections.length * 3 + [...p.preamble, ...p.sections.flatMap((s) => s.blocks)].filter((b) => b.kind === "call").length + (p.header ? 5 : 0);
   const main = Object.keys(parsed).sort((a, b) => score(parsed[b]) - score(parsed[a]) || a.split("/").length - b.split("/").length)[0];

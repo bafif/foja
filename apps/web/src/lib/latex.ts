@@ -4,8 +4,9 @@
 // that dvipdfmx turns into one. The PDF goes to the Typst worker, whose style for the template
 // shows its pages, so the preview, the page count and the exports work as with any other style.
 
-import { customFilePath, LATEX_INFO, LATEX_PDF, type Project } from "@foja/core";
+import { customFilePath, FONT_FILE, fontListRecord, LATEX_INFO, LATEX_PDF, readFont, type Project } from "@foja/core";
 import { latexStyleOf, latexTemplateFiles } from "@foja/core/export/latex-template";
+import { t } from "../editor/i18n";
 
 export type LatexEngine = "pdftex" | "xetex";
 
@@ -96,6 +97,11 @@ export function pdfPages(pdf: Uint8Array, log = "", xdv?: Uint8Array): { pages: 
   return paper ? { pages, width: +paper[1] * UNIT[paper[2]], height: +paper[3] * UNIT[paper[4]] } : { pages, ...A4 };
 }
 
+/** The fonts LaTeX's errors say it could not find by name. */
+export function missingFonts(errors: string[]): string[] {
+  return [...new Set(errors.flatMap((e) => [...e.matchAll(/The font "([^"]+)" cannot be found/g)].map((m) => m[1])))];
+}
+
 /** LaTeX's errors: each `!` line with the line of the source it points at. */
 export function latexErrors(log: string): string[] {
   const lines = log.split("\n");
@@ -114,11 +120,20 @@ async function run(files: Record<string, string | Uint8Array>, main: string, eng
     const reply = await request("pdftex", { cmd: "compile", files: { ...files, [main]: `\\pdfobjcompresslevel=0\n${files[main]}` }, main });
     return reply.pdf && reply.status === 0 ? { pdf: reply.pdf, errors: [], ...pdfPages(reply.pdf, reply.log) } : failed(reply.log);
   }
-  const tex = await request("xetex", { cmd: "compile", files, main });
+  // The template's own fonts (uploaded, or in its files) join the list XeTeX finds fonts by name
+  // in, at their path in its file system; dvipdfmx then reads them at that same path.
+  const fonts = Object.entries(files).filter((f): f is [string, Uint8Array] => FONT_FILE.test(f[0]) && typeof f[1] !== "string");
+  const fontlist = fonts
+    .flatMap(([path, data], i) => {
+      const info = readFont(data);
+      return info ? [fontListRecord(info, 100_000 + i, `/work/${path}`)] : [];
+    })
+    .join("\n");
+  const tex = await request("xetex", { cmd: "compile", files, main, fontlist });
   if (!tex.pdf || tex.status !== 0) return failed(tex.log);
   const xdv = tex.pdf;
   const name = main.replace(/\.tex$/, "") + ".xdv";
-  const out = await request("dvipdfm", { cmd: "compile", files: { [name]: xdv.slice() }, main: name });
+  const out = await request("dvipdfm", { cmd: "compile", files: { ...Object.fromEntries(fonts), [name]: xdv.slice() }, main: name });
   return out.pdf && out.status === 0 ? { pdf: out.pdf, errors: [], ...pdfPages(out.pdf, tex.log, xdv) } : failed(out.log);
 }
 
@@ -153,7 +168,9 @@ export async function latexExtra(project: Project, profileId: string): Promise<R
   const compiled = compileProfileLatex(project, profileId);
   if (!style || !compiled) return undefined;
   const r = await compiled;
-  const info = r.pdf ? { pages: r.pages, width: r.width, height: r.height, message: "" } : { pages: 0, width: r.width, height: r.height, message: `LaTeX: ${r.errors.join("\n")}` };
+  const missing = missingFonts(r.errors);
+  const message = missing.length ? t.latexFonts.missing(missing) : `LaTeX: ${r.errors.join("\n")}`;
+  const info = r.pdf ? { pages: r.pages, width: r.width, height: r.height, message: "" } : { pages: 0, width: r.width, height: r.height, message };
   return {
     [customFilePath(style.id, LATEX_INFO)]: encoder.encode(JSON.stringify(info)),
     ...(r.pdf ? { [customFilePath(style.id, LATEX_PDF)]: r.pdf } : {}),

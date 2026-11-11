@@ -132,12 +132,22 @@ export const es = {
     extra: "Extra",
     hint: "Se marca una vez en el banco. Corto muestra lo imprescindible; Normal, también lo normal; Completo, todo.",
   },
+  latexFonts: {
+    title: "Fuentes de la plantilla",
+    missing: (names: string[]) =>
+      `${names.length === 1 ? `Falta la fuente «${names[0]}»` : `Faltan las fuentes ${names.map((n) => `«${n}»`).join(", ")}`}: la plantilla la pide por nombre y Foja no la trae. Bajá sus archivos .otf o .ttf de donde se publica (muchas están en Google Fonts) y subilos acá.`,
+    upload: "Subir fuentes (.otf, .ttf)",
+    remove: (name: string) => `Quitar ${name}`,
+    notAFont: (name: string) => `${name} no es una fuente OpenType o TrueType que se pueda leer.`,
+    tooBig: (name: string) => `${name} pesa más de 15 MB.`,
+    hint: "Las fuentes quedan guardadas con el estilo, en el proyecto, y XeLaTeX las encuentra por su nombre. Foja trae Latin Modern y FontAwesome 5.",
+  },
   importer: {
     open: "Importar una plantilla Typst o LaTeX",
     title: "Importar una plantilla Typst o LaTeX",
     hint: "Subí un .typ, un .tex, un .zip o un .tar.gz. Foja lee la plantilla con reglas fijas, sin IA: propone qué argumento de cada macro es cada campo y vos lo corregís. El código de la plantilla no se ejecuta fuera del compilador de Typst o de LaTeX.",
     latex: (xetex: boolean) =>
-      `Es una plantilla ${xetex ? "XeLaTeX" : "LaTeX"}: su aspecto se compila con ${xetex ? "XeLaTeX" : "pdfLaTeX"} en el navegador. La primera vez Foja baja unos ${xetex ? 12 : 9} MB y arma el formato de LaTeX, que tarda unos segundos; después queda guardado. Trae los paquetes comunes${xetex ? " y fuentes libres (Latin Modern, TeX Gyre, Roboto, Lato y Open Sans)" : ""}. Con una plantilla Typst, la vista previa anda más rápido.`,
+      `Es una plantilla ${xetex ? "XeLaTeX" : "LaTeX"}: su aspecto se compila con ${xetex ? "XeLaTeX" : "pdfLaTeX"} en el navegador. La primera vez Foja baja unos ${xetex ? 6 : 9} MB y arma el formato de LaTeX, que tarda unos segundos; después queda guardado. Trae los paquetes comunes${xetex ? "; si la plantilla pide fuentes que Foja no trae, después se suben en Estilo y diseño" : ""}. Con una plantilla Typst, la vista previa anda más rápido.`,
     file: "Archivo de la plantilla",
     missing: (list: string) =>
       `La plantilla usa paquetes que no vinieron en el archivo: ${list}. Foja no los baja de internet. Para importar el aspecto, subí un .zip que los traiga (la carpeta de cada paquete, con su typst.toml); los datos se pueden importar igual.`,
@@ -440,12 +450,22 @@ export const en: Strings = {
     extra: "Extra",
     hint: "Marked once in the bank. Short shows the essential; Normal, the normal too; Full, everything.",
   },
+  latexFonts: {
+    title: "The template's fonts",
+    missing: (names: string[]) =>
+      `${names.length === 1 ? `The font “${names[0]}” is missing` : `The fonts ${names.map((n) => `“${n}”`).join(", ")} are missing`}: the template asks for it by name and Foja does not bring it. Download its .otf or .ttf files from where it is published (many are on Google Fonts) and upload them here.`,
+    upload: "Upload fonts (.otf, .ttf)",
+    remove: (name: string) => `Remove ${name}`,
+    notAFont: (name: string) => `${name} is not an OpenType or TrueType font that can be read.`,
+    tooBig: (name: string) => `${name} is over 15 MB.`,
+    hint: "The fonts are kept with the style, in the project, and XeLaTeX finds them by name. Foja brings Latin Modern and FontAwesome 5.",
+  },
   importer: {
     open: "Import a Typst or LaTeX template",
     title: "Import a Typst or LaTeX template",
     hint: "Upload a .typ, a .tex, a .zip or a .tar.gz. Foja reads the template with fixed rules, no AI: it proposes which argument of each macro is which field, and you correct it. The template's code does not run outside the Typst or LaTeX compiler.",
     latex: (xetex: boolean) =>
-      `This is a ${xetex ? "XeLaTeX" : "LaTeX"} template: its look is compiled with ${xetex ? "XeLaTeX" : "pdfLaTeX"} in the browser. The first time, Foja downloads about ${xetex ? 12 : 9} MB and makes LaTeX's format, which takes a few seconds; after that it is kept. It brings the common packages${xetex ? " and free fonts (Latin Modern, TeX Gyre, Roboto, Lato and Open Sans)" : ""}. With a Typst template, the preview is faster.`,
+      `This is a ${xetex ? "XeLaTeX" : "LaTeX"} template: its look is compiled with ${xetex ? "XeLaTeX" : "pdfLaTeX"} in the browser. The first time, Foja downloads about ${xetex ? 6 : 9} MB and makes LaTeX's format, which takes a few seconds; after that it is kept. It brings the common packages${xetex ? "; fonts the template asks for that Foja does not bring are uploaded afterwards in Style and layout" : ""}. With a Typst template, the preview is faster.`,
     file: "Template file",
     missing: (list: string) =>
       `The template uses packages that did not come in the file: ${list}. Foja does not download them. To import the look, upload a .zip that brings them (each package's folder, with its typst.toml); the data can be imported anyway.`,

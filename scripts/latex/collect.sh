@@ -4,15 +4,18 @@
 #  - /out/texlive.tar.gz for pdfLaTeX: what common.tex, the test templates for pdfLaTeX and the
 #    making of LaTeX's format read (found with -recorder), plus every file of FontAwesome 5;
 #  - /out/xetex.tar.gz for XeLaTeX: the same for common-xetex.tex and the XeLaTeX test templates,
-#    the OpenType fonts below, the TECkit mapping fontspec uses, and xetexfontlist.txt, the list
-#    of those fonts that SwiftLaTeX's XeTeX reads instead of fontconfig (fontlist.py).
+#    Latin Modern (fontspec's default) and FontAwesome 5 in OpenType, the TECkit mapping fontspec
+#    uses, and xetexfontlist.txt, the list of those fonts that SwiftLaTeX's XeTeX reads instead of
+#    fontconfig (fontlist.py). Other fonts a template names, the editor asks the user to upload.
+#    The test templates use Foja's own fonts (packages/template/fonts), installed here only to
+#    compile them, not packed.
 # Their lists go to /out/files.txt and /out/xetex-files.txt.
 set -eu
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-latex-extra \
     texlive-fonts-recommended texlive-pictures texlive-lang-spanish texlive-lang-english texlive-xetex lmodern \
-    fonts-lmodern fonts-texgyre fonts-roboto-unhinted fonts-lato fonts-open-sans fontconfig python3-fonttools \
+    fonts-lmodern fontconfig python3-fonttools \
     curl ca-certificates xz-utils >/dev/null 2>&1
 
 fa=https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2022/tlnet-final/archive/fontawesome5.tar.xz
@@ -23,7 +26,9 @@ tar -xJf /tmp/fa5.tar.xz -C /usr/local/share/texmf --exclude=tlpkg
 mktexlsr >/dev/null 2>&1
 updmap-sys --enable Map=fontawesome5.map >/dev/null 2>&1
 
-mkdir -p /w/pdftex /w/xetex
+mkdir -p /usr/local/share/fonts/foja /w/pdftex /w/xetex
+cp /repo-fonts/*.ttf /repo-fonts/*.otf /usr/local/share/fonts/foja/
+fc-cache -f >/dev/null
 cp /in/common.tex /w/pdftex/
 cp /in/common-xetex.tex /w/xetex/
 for doc in /fx/*.tex; do
@@ -61,13 +66,7 @@ xetex -ini -etex -recorder -jobname=format '*xelatex.ini' >/dev/null 2>&1 || tru
     recorded
     fa5 -name '*.otf'
     find /usr/share/texlive/texmf-dist/fonts/misc/xetex/fontmapping/base -name 'tex-text.tec'
-    # Latin Modern Roman, Sans and Mono at their 10 pt design size (fontspec's default), four TeX
-    # Gyre families, and Roboto, Lato and Open Sans in light, regular and bold, with their italics:
-    # what CV templates pick, at about half the size of every weight of every family.
+    # Latin Modern Roman, Sans and Mono at their 10 pt design size, fontspec's default.
     find /usr/share/texmf/fonts/opentype/public/lm -regex '.*/lm\(roman\|sans\|mono\)10-\(regular\|bold\|italic\|bolditalic\|oblique\|boldoblique\)\.otf'
     find /usr/share/texmf/fonts/opentype/public/lm -name 'lmromancaps10-regular.otf'
-    find /usr/share/texmf/fonts/opentype/public/tex-gyre -regex '.*/texgyre\(heros\|termes\|pagella\|adventor\)-.*\.otf'
-    for family in Roboto Lato "Open Sans"; do
-        fc-list ":family=$family" file weight | awk -F': :weight=' '{ w = $2 + 0; if (w == 50 || w == 80 || w == 200) print $1 }'
-    done
 } | sort -u | pack xetex

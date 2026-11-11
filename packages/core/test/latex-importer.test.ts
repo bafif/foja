@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { importData, importStyle, latexEngine, latexText, parseLatex, proposeMapping, readTemplate, validate, type Project } from "../src/index.ts";
+import { fontListRecord, importData, importStyle, latexEngine, latexText, parseLatex, proposeMapping, readFont, readTemplate, validate, type Project } from "../src/index.ts";
 import { fillLatex, latexBundle } from "../src/export/index.ts";
 
 const resume = readFileSync(new URL("./fixtures/latex/resume.tex", import.meta.url));
@@ -109,6 +109,26 @@ describe("LaTeX templates", () => {
     expect(mapping.header).toEqual({ "#1": "name", "#2": "email", "#3": "github", "#4": "location" });
     const style = importStyle(t, mapping, "modern", "Modern");
     expect(style.latex).toMatchObject({ engine: "xetex", section: "\\cvsection", entry: "job" });
+  });
+
+  test("fonts are read for XeTeX's list, and a LaTeX template keeps the ones it brings", () => {
+    const font = (name: string) => new Uint8Array(readFileSync(new URL(`../../template/fonts/${name}`, import.meta.url)));
+    const bold = readFont(font("NotoSans-Bold.ttf"))!;
+    expect(bold).toMatchObject({ families: ["Noto Sans"], psName: "NotoSans-Bold", weight: 700, bold: true, italic: false });
+    const italic = readFont(font("XCharter-Italic.otf"))!;
+    expect(italic.families).toContain("XCharter");
+    expect(italic).toMatchObject({ italic: true, bold: false });
+    expect(italic.slant).toBeGreaterThan(0);
+    expect(readFont(new TextEncoder().encode("not a font at all"))).toBeUndefined();
+    expect(readFont(font("NotoSans-Bold.ttf").slice(0, 300))).toBeUndefined();
+    const record = fontListRecord(bold, 7, "/work/fonts/NotoSans-Bold.ttf").split("\n");
+    expect(record.slice(0, 5)).toEqual(["7", "/work/fonts/NotoSans-Bold.ttf", "0", "1", "Noto Sans"]);
+    expect(record.slice(-11)).toEqual(["700", "5", "0", "0", "1", "0", "10", "0", "0", "0", "0"]);
+
+    const modern = new Uint8Array(readFileSync(new URL("./fixtures/latex/modern.tex", import.meta.url)));
+    const t = readTemplate({ "modern.tex": modern, "fonts/NotoSans-Bold.ttf": font("NotoSans-Bold.ttf") });
+    expect(t.fonts).toEqual([]);
+    expect(Object.keys(t.binaries)).toEqual(["fonts/NotoSans-Bold.ttf"]);
   });
 
   test("a list-based template keeps its lists when filled", () => {
