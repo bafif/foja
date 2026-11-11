@@ -214,13 +214,14 @@ El trabajo hasta ahora, en el orden en que se dio:
   Banda y Minimal ponían las fechas en una columna, cuando en Typst van a la derecha; que los grupos de habilidades
   lado a lado cortaban palabras; y que el interlineado no era el de Typst. Todo eso se arregló, el texto
   justificado ahora corta palabras en el idioma del CV, y los tests fijan cada cosa.
-- **Instaladores de escritorio** (11 de noviembre de 2026). La app de escritorio es una ventana de Tauri 2 alrededor
+- **Instaladores de escritorio.** La app de escritorio es una ventana de Tauri 2 alrededor
   del mismo sitio, generado sin el service worker y con los archivos de LaTeX adentro, así que funciona sin conexión
   desde el principio. Un webview no tiene descargas ni pestañas, así que las exportaciones pasan por el diálogo de
   guardar del sistema y los links se abren en el navegador; todo lo demás es el editor web tal cual. Un workflow que
   se corre a mano arma un `.deb`, un `.rpm` y un AppImage para Linux, un `.exe` de instalación para Windows y un
   `.dmg` para los dos tipos de Mac, en los runners de GitHub, y los deja en un borrador de release. Ninguno está
-  firmado, y las notas de la release y la guía de uso dicen cómo abrirlos.
+  firmado, y las notas de la release y la guía de uso dicen cómo abrirlos. Los paquetes de Linux están probados; los
+  instaladores de Windows y macOS todavía no se probaron.
 
 ## Qué viene después
 

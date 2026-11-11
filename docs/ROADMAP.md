@@ -227,12 +227,13 @@ The work so far, in the order it happened:
   in a column, where Typst has them on the right; that skill groups side by side cut words in two; and that the
   line spacing was not Typst's. All of that is fixed, justified text now breaks words in the CV's language, and
   the tests hold each one in place.
-- **Desktop installers** (November 11, 2026). The desktop app is a Tauri 2 window around the same site, built
+- **Desktop installers.** The desktop app is a Tauri 2 window around the same site, built
   without the service worker and with the LaTeX files inside, so it works offline from the start. A webview has no
   downloads and no tabs, so exports go through the system's save dialog and links open in the browser; everything
   else is the web editor as it is. A workflow run by hand builds a `.deb`, an `.rpm` and an AppImage for Linux, a
   setup `.exe` for Windows and a `.dmg` for both kinds of Mac, on GitHub's runners, and leaves them on a draft
-  release. None is signed, and the release notes and the user guide say how to open them.
+  release. None is signed, and the release notes and the user guide say how to open them. The Linux packages are
+  tested; the Windows and macOS installers have not been tried yet.
 
 ## What comes next
 
