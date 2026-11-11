@@ -128,7 +128,8 @@ fails: the sidebar stays on the first page and the main column continues on the 
 - `python/tests`: builds every profile, checks the data validation, and compiles an overflowing
   CV to check that it continues in the main column (skipped without tectonic and `pdftotext`).
 - `c/tests`: JSON and Markdown parsing, dates, font metrics, and the PDF of each profile against
-  the real data (the teacher CVs on one page, `programador` overflowing onto a second).
+  the real data (`docente-ia` and `programador`, each on one page; `programador` with its
+  experience twice runs onto a second).
 
 ## License
 GPL-3.0. See [LICENSE](../LICENSE).

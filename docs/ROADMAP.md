@@ -33,7 +33,8 @@ One product, three ways to run it, all from the same release:
 
 - **The Typst template is the generator.** The styles read the project JSON and lay out the CV
   themselves, so the browser, the desktop app and the CLI run exactly the same `.typ` files.
-  Nothing generates Typst source on the side.
+  Nothing generates Typst source on the side. The one exception is an imported LaTeX template,
+  whose look comes from LaTeX, which also runs in the browser.
 - **Local first, no server.** The web build is the product: Typst compiles to WebAssembly in a
   worker, projects live in IndexedDB, and the desktop app wraps the same build. A static site
   has no server to pay for and nothing to attack, and the CV data stays with its owner.
@@ -44,14 +45,16 @@ One product, three ways to run it, all from the same release:
   photo. A JSON Schema is the contract for the template, the exporters, the editor and the CLI.
 - **Two levels, kept explicit.** The bank holds every entry once; a profile chooses which entries
   go where. Editing an entry warns where else it is used, and removing it from a profile never
-  deletes it.
+  deletes it. The priority of each entry, item and skill is marked once in the bank, and each
+  profile's length decides what goes in, with exceptions of its own.
 - **Layout is data.** Columns, sidebar side and width, photo shape, font, size, accent colour,
   margins, density, page size, date format and label language are options per profile, read by
   the Typst styles and by the Word exporter alike.
 - **Typed blocks.** Sections hold blocks (an entry from the bank, an item, a paragraph) and the
   styles render them by type, which leaves room for new kinds of blocks later.
 - **One-page discipline.** The preview always says whether the CV fits on one page and, if not,
-  which parts spill over.
+  which parts spill over, and "Fit to one page" trims it one step at a time, in a fixed order,
+  until it fits.
 - **Untrusted input is expected.** A project or a style may come from someone else, so the
   preview strips scripts, embedded HTML and links from the SVG, the CLI compiles in an empty
   temporary root, and every exporter escapes what it writes. Details in the
@@ -128,6 +131,12 @@ dates in a column of their own), **Banda** (a band of colour across the top, Not
 **Minimal** (black on white, hierarchy from size and weight only). The interface got the same
 treatment: three themes, Papel y tinta, Neutro and Vivo, each light and dark.
 
+Later I added three styles for applicant tracking systems (ATS), which read a CV before a person
+does: **Claustro** (the classic: serif, the name centred), **Recto** (sans-serif, left-aligned)
+and **Llano** (the plainest and most compact). They are one column of text, with no icons,
+standard headings and the contact details in the body, and a test checks that the PDF carries the
+text in the order it is seen.
+
 ## What is built
 
 The work so far, in the order it happened:
@@ -181,14 +190,38 @@ The work so far, in the order it happened:
   where Chrome offers one, and on an iPhone it shows the steps instead, as does the welcome
   screen, since a site left in a Safari tab loses its data after a week without use. iOS also
   got its own Home Screen icon.
+- **Two languages** (November 10, 2026). Besides the editor, the landing page, the command line
+  and all the documentation are in Spanish and English: each picks from the browser's or the
+  system's languages, and the tests fail when a text or a document lacks its other language. A
+  link to Foja shared on X, WhatsApp or other apps shows a preview of its own.
+- **Exports in the style's look.** LaTeX and Word always came out as Legajo; now they reproduce
+  the profile's built-in style. A style of one's own is Typst code, so for it they still come out
+  as Legajo, and the Typst export is the one that keeps it.
+- **Three styles for applicant tracking systems**: Claustro, Recto and Llano (see *A look of its
+  own*). Picking one leaves the profile with one column, no photo and the short length.
+- **What goes in each profile** (format `foja/3`). A priority per entry, item and skill
+  (essential, normal or extra), a length per profile (short, normal or full), per-profile
+  exceptions, a short summary and "Fit to one page". LaTeX, Word, Markdown and JSON pick exactly
+  what the PDF shows. The editor's example became my CV with three profiles, each with its own
+  style and length.
+- **Imported templates** (November 11, 2026). A CV template written in Typst or LaTeX is read
+  with fixed rules, no AI: its sample content becomes bank entries and a profile, and its look a
+  style of one's own, after a form where you check which argument of each macro is which field. A
+  LaTeX template is compiled in the browser with pdfTeX or XeTeX: the deployment builds the engine
+  and the TeX Live files, they download the first time one is used, and the user uploads the
+  fonts a XeLaTeX template names. The command line gains `foja import`.
 
 ## What comes next
 
 In this order:
 
-1. **Try it on real phones**, an Android with Chrome and an iPhone with Safari: install it, edit,
-   export through the share sheet, and use it offline. The automated tests emulate a phone in
-   Chromium, which has neither Safari's quirks nor a real share sheet.
+1. **A comfortable interface on phones.** The first try on a real phone (November 11, 2026)
+   showed that the phone layout works but is uncomfortable: on a small screen like an iPhone
+   SE's there are too many buttons and controls for the room there is. The phone version needs
+   an interface made for that screen, with fewer things in view at once and what is used most
+   within reach. Then the full test on an Android with Chrome and an iPhone with Safari: install
+   it, edit, export through the share sheet, and use it offline. The automated tests emulate a
+   phone in Chromium, which has neither Safari's quirks nor a real share sheet.
 2. **Publish the CLI on npm** as `foja` (the name was still free at the end of October 2026). The
    package already bundles itself on `npm pack`; it needs an npm account and
    `npm publish -w packages/cli`.
@@ -214,7 +247,10 @@ Smaller things that can go in at any point:
   a link to any version control system.
 
 Known limitations: the LaTeX export breaks lines a little differently from Typst and can run a
-few lines past one page where the PDF fits (the user guide says so).
+few lines past one page where the PDF fits (the user guide says so). An imported LaTeX template
+shows in the preview without click-to-edit or the marks of what spills over; only the data of
+templates that need LuaLaTeX is imported, and the command line does not compile LaTeX: it writes
+the filled `.tex`.
 
 ### Long term
 
@@ -240,7 +276,10 @@ All free and open source, and all Node packages installed only inside the develo
 Astro, React, Tailwind, Zustand and `zundo`, dnd-kit, typst.ts (web compiler, renderer and the
 Node compiler for the CLI), `docx`, and Vitest and Playwright for the tests. There is no ZIP or
 JSON Schema library: both are small enough to keep in `packages/core`. The bundled fonts are
-XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. The desktop app will
+XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. Imported LaTeX
+templates use SwiftLaTeX's pdfTeX and XeTeX engines and TeX Live 2022 files, which the deployment
+builds and the repository does not hold ([details and licences](../apps/web/public/latex/README.md)).
+The desktop app will
 add the Rust toolchain, Tauri 2 and `flatpak-builder`.
 
 ## Sources

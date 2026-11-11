@@ -128,7 +128,8 @@ falla: la barra lateral queda en la primera página y la columna principal sigue
 - `python/tests`: genera todos los perfiles, verifica la validación de los datos y compila un CV
   que desborda para comprobar que sigue en la columna principal (se saltea si no hay tectonic y `pdftotext`).
 - `c/tests`: parseo de JSON y Markdown, fechas, métricas de fuentes y el PDF de cada perfil contra
-  los datos reales (los CV de docente en una página, `programador` desbordando a una segunda).
+  los datos reales (`docente-ia` y `programador`, cada uno en una página; `programador` con la experiencia dos veces
+  desborda a una segunda).
 
 ## Licencia
 GPL-3.0. Ver [LICENSE](../LICENSE).

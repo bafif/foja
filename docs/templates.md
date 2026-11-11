@@ -96,7 +96,7 @@ profile when the style is picked (the three above set one column, no photo and t
 
 ## Imported templates
 
-A style made by **Import a Typst template** keeps the template's files in the project
+A style made by **Import a Typst or LaTeX template** from a Typst template keeps the template's files in the project
 (`templates.<id>.files`, pictures in `binaries`, the licence's path in `license`); the compiler
 sees them under `/custom/<id>/`. Its source, `/custom/<id>.typ`, imports them (the main file's
 own definitions go to `foja-defs.typ`, without the sample content), copies the main file's `#set`
@@ -105,3 +105,12 @@ contacts, and lays out each section calling, for each entry, the macro its secti
 template (`foja-section-macro`) through `foja-entry`, with the arguments the review form mapped:
 `b.title`, `b.place`, `b.period`, `foja-start(b)`, `foja-end(b)`, the note, and the items as a
 list. It is an ordinary style of your own after that: edit it in **Edit in Typst** like any other.
+
+A LaTeX template keeps its files the same way, plus `templates.<id>.latex`, which says how to fill
+its macros with the CV: the main `.tex` file (`main`), the engine (`engine: "xetex"` for XeLaTeX;
+pdfLaTeX when absent), the header macro and what goes in each argument (`header`), the arguments
+of each entry macro (`entries`), the macro of each section (`sections`, and `entry` for the rest)
+and the section command (`section`). With that Foja writes the filled `.tex` and LaTeX compiles it
+in the browser. That style's Typst source only shows the pages of the PDF LaTeX made: the look
+comes from the template's files. The fonts uploaded in **The template's fonts** go in `binaries`, under
+`fonts/`.

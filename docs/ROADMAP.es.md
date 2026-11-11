@@ -23,7 +23,8 @@ Un solo producto, tres maneras de usarlo, todas desde la misma versión:
 
 - **La plantilla de Typst es el generador.** Los estilos leen el JSON del proyecto y arman el CV
   por su cuenta, así que el navegador, la app de escritorio y la CLI ejecutan exactamente los mismos archivos `.typ`.
-  Nada genera código Typst por afuera.
+  Nada genera código Typst por afuera. La única excepción es una plantilla LaTeX importada, cuyo aspecto lo da
+  LaTeX, que también corre en el navegador.
 - **Local primero, sin servidor.** La versión web es el producto: Typst compila a WebAssembly en un
   worker, los proyectos viven en IndexedDB y la app de escritorio envuelve esa misma versión. Un sitio estático
   no tiene servidor que pagar ni nada que atacar, y los datos del CV quedan en manos de su dueño.
@@ -34,14 +35,15 @@ Un solo producto, tres maneras de usarlo, todas desde la misma versión:
   foto. Un JSON Schema es el contrato entre la plantilla, los exportadores, el editor y la CLI.
 - **Dos niveles, bien explícitos.** El banco guarda cada entrada una sola vez; un perfil elige qué entradas
   van y dónde. Al editar una entrada te avisa en qué otros lugares se usa, y sacarla de un perfil nunca
-  la borra.
+  la borra. La prioridad de cada entrada, ítem y habilidad se marca una vez en el banco, y el largo de cada
+  perfil decide qué entra, con sus propias excepciones.
 - **La disposición es un dato.** Columnas, lado y ancho de la barra lateral, forma de la foto, fuente, tamaño, color de acento,
   márgenes, densidad, tamaño de página, formato de fecha e idioma de las etiquetas son opciones de cada perfil, que leen
   tanto los estilos de Typst como el exportador de Word.
 - **Bloques con tipo.** Las secciones contienen bloques (una entrada del banco, un ítem, un párrafo) y los
   estilos los muestran según su tipo, lo que deja lugar para nuevos tipos de bloque más adelante.
 - **Disciplina de una página.** La vista previa siempre te dice si el CV entra en una página y, si no,
-  qué partes se pasan.
+  qué partes se pasan, y «Ajustar a una página» lo achica de a un paso, en un orden fijo, hasta que entra.
 - **Se espera entrada no confiable.** Un proyecto o un estilo puede venir de otra persona, así que la
   vista previa le saca al SVG los scripts, el HTML embebido y los enlaces, la CLI compila en una raíz temporal
   vacía y cada exportador escapa lo que escribe. Los detalles están en el
@@ -118,6 +120,11 @@ fechas en una columna propia), **Banda** (una banda de color de lado a lado arri
 **Minimal** (negro sobre blanco, jerarquía solo con tamaño y peso). La interfaz recibió el mismo
 tratamiento: tres temas, Papel y tinta, Neutro y Vivo, cada uno en claro y oscuro.
 
+Después sumé tres estilos para los sistemas de selección de personal (ATS), que leen un CV antes que una persona:
+**Claustro** (el clásico: serif, el nombre centrado), **Recto** (sans-serif, alineado a la izquierda) y **Llano**
+(el más sobrio y compacto). Son una sola columna de texto, sin íconos, con títulos estándar y el contacto en el
+cuerpo, y un test comprueba que el PDF lleva el texto en el orden en que se ve.
+
 ## Qué está hecho
 
 El trabajo hasta ahora, en el orden en que se dio:
@@ -171,14 +178,37 @@ El trabajo hasta ahora, en el orden en que se dio:
   donde Chrome lo ofrece, y en un iPhone muestra los pasos en su lugar, igual que la pantalla
   de bienvenida, porque un sitio que queda en una pestaña de Safari pierde sus datos después de una semana sin usarse. iOS además
   tiene su propio ícono para la pantalla de inicio.
+- **En dos idiomas** (10 de noviembre de 2026). Además del editor, la página de inicio, la línea de comandos y toda
+  la documentación están en español y en inglés: cada una elige según los idiomas del navegador o del sistema, y los
+  tests fallan si a un texto o a un documento le falta su otro idioma. Un link a Foja compartido en X, WhatsApp u
+  otras apps muestra su propia vista previa.
+- **Las exportaciones con el aspecto del estilo.** LaTeX y Word salían siempre como Legajo; ahora reproducen el
+  estilo incluido del perfil. Un estilo propio es código Typst, así que ahí siguen saliendo como Legajo, y la
+  exportación a Typst es la que lo conserva.
+- **Tres estilos para los sistemas de selección**: Claustro, Recto y Llano (ver *Una estética propia*). Al elegir
+  uno, el perfil queda con una columna, sin foto y con el largo corto.
+- **Qué entra en cada perfil** (formato `foja/3`). Una prioridad por entrada, ítem y habilidad (imprescindible,
+  normal o extra), un largo por perfil (corto, normal o completo), excepciones por perfil, un resumen corto y
+  «Ajustar a una página». LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que el PDF. El ejemplo del editor
+  pasó a ser mi CV con tres perfiles, cada uno con su estilo y su largo.
+- **Plantillas importadas** (11 de noviembre de 2026). Una plantilla de CV escrita en Typst o en LaTeX se lee con
+  reglas fijas, sin IA: su contenido de ejemplo pasa a ser entradas del banco y un perfil, y su aspecto un estilo
+  propio, después de un formulario donde se revisa qué argumento de cada macro es cada campo. Una plantilla LaTeX
+  se compila en el navegador con pdfTeX o XeTeX: el motor y los archivos de TeX Live los arma el deploy y se bajan
+  la primera vez que se usan, y las fuentes que nombra una plantilla XeLaTeX las sube el usuario. La línea de
+  comandos suma `foja import`.
 
 ## Qué viene después
 
 En este orden:
 
-1. **Probarlo en teléfonos reales**, un Android con Chrome y un iPhone con Safari: instalarlo, editar,
-   exportar a través del menú de compartir y usarlo sin conexión. Los tests automáticos emulan un teléfono en
-   Chromium, que no tiene ni las mañas de Safari ni un menú de compartir de verdad.
+1. **Una interfaz cómoda en el teléfono.** La primera prueba en un teléfono real (11 de noviembre de 2026) mostró
+   que la disposición para teléfono funciona pero es incómoda: en una pantalla chica como la de un iPhone SE hay
+   demasiados botones y controles para el lugar que hay. La versión para teléfono necesita una interfaz pensada
+   para esa pantalla, con menos cosas a la vista a la vez y lo que más se usa a mano. Después, la prueba completa
+   en un Android con Chrome y en un iPhone con Safari: instalarla, editar, exportar a través del menú de compartir
+   y usarla sin conexión. Los tests automáticos emulan un teléfono en Chromium, que no tiene ni las mañas de Safari
+   ni un menú de compartir de verdad.
 2. **Publicar la CLI en npm** como `foja` (el nombre seguía libre a fines de octubre de 2026). El
    paquete ya se empaqueta solo con `npm pack`; falta una cuenta de npm y
    `npm publish -w packages/cli`.
@@ -203,7 +233,9 @@ Cosas más chicas que pueden entrar en cualquier momento:
   un enlace a ningún sistema de control de versiones.
 
 Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse
-unas líneas de una página cuando el PDF entra (la guía de uso lo aclara).
+unas líneas de una página cuando el PDF entra (la guía de uso lo aclara). Una plantilla LaTeX importada se ve en la
+vista previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se
+importan solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
 
 ### A largo plazo
 
@@ -229,7 +261,9 @@ Todas libres y de código abierto, y todos los paquetes de Node se instalan solo
 Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el
 compilador de Node para la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de
 JSON Schema: las dos cosas son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son
-XCharter, Latin Modern Mono y Noto Sans, cada una con su licencia al lado. La app de escritorio va a
+XCharter, Latin Modern Mono y Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan
+los motores pdfTeX y XeTeX de SwiftLaTeX y archivos de TeX Live 2022, que arma el deploy y no están en el repositorio
+([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio va a
 sumar el toolchain de Rust, Tauri 2 y `flatpak-builder`.
 
 ## Fuentes

@@ -8,8 +8,8 @@ const en = {
       every profile unless --profile is given
   foja validate <project.json>
   foja convert-curriculum <cvgen/data> <out.json> [--public]
-  foja import <template.typ|.zip|.tar.gz> <out.json> [--into <project.json>] [--name <name>] [--no-style]
-      reads a Typst template with fixed rules: its sample content as a profile, its look as a style
+  foja import <template.typ|.tex|.zip|.tar.gz> <out.json> [--into <project.json>] [--name <name>] [--no-style]
+      reads a Typst or LaTeX template with fixed rules: its sample content as a profile, its look as a style
 
 options:
   --lang <es|en>   the language of these messages (by default, the system's)
@@ -23,7 +23,7 @@ options:
   badLanguage: (lang: string) => `unknown language "${lang}" (es or en)`,
   imported: (entries: number, profile: string, style: string) => `${entries} entr${entries === 1 ? "y" : "ies"} in profile "${profile}"${style ? `, in the style "${style}"` : ""}`,
   missingPackages: (list: string) => `the look is not imported: the template uses packages that are not in the file (${list})`,
-  latexStyle: (profile: string) => `profile "${profile}" uses a LaTeX template: this command has no LaTeX, so it writes no PDF, SVG or Typst for it; --format tex gives the filled .tex, to compile with pdflatex`,
+  latexStyle: (profile: string) => `profile "${profile}" uses a LaTeX template: this command has no LaTeX, so it writes no PDF, SVG or Typst for it; --format tex gives the filled .tex, to compile with pdflatex, or xelatex if the template picks its fonts by name`,
 };
 
 export type Messages = typeof en;
@@ -35,8 +35,8 @@ const es: Messages = {
       todos los perfiles, salvo que se indique --profile
   foja validate <proyecto.json>
   foja convert-curriculum <cvgen/data> <salida.json> [--public]
-  foja import <plantilla.typ|.zip|.tar.gz> <salida.json> [--into <proyecto.json>] [--name <nombre>] [--no-style]
-      lee una plantilla de Typst con reglas fijas: su contenido de ejemplo como perfil, su aspecto como estilo
+  foja import <plantilla.typ|.tex|.zip|.tar.gz> <salida.json> [--into <proyecto.json>] [--name <nombre>] [--no-style]
+      lee una plantilla de Typst o de LaTeX con reglas fijas: su contenido de ejemplo como perfil, su aspecto como estilo
 
 opciones:
   --lang <es|en>   el idioma de estos mensajes (por defecto, el del sistema)
@@ -50,7 +50,7 @@ opciones:
   badLanguage: (lang: string) => `idioma desconocido: "${lang}" (es o en)`,
   imported: (entries: number, profile: string, style: string) => `${entries} ${entries === 1 ? "entrada" : "entradas"} en el perfil "${profile}"${style ? `, con el estilo "${style}"` : ""}`,
   missingPackages: (list: string) => `el aspecto no se importa: la plantilla usa paquetes que no vinieron en el archivo (${list})`,
-  latexStyle: (profile: string) => `el perfil "${profile}" usa una plantilla LaTeX: este comando no tiene LaTeX, así que no escribe PDF, SVG ni Typst para él; --format tex da el .tex lleno, para compilarlo con pdflatex`,
+  latexStyle: (profile: string) => `el perfil "${profile}" usa una plantilla LaTeX: este comando no tiene LaTeX, así que no escribe PDF, SVG ni Typst para él; --format tex da el .tex lleno, para compilarlo con pdflatex, o con xelatex si la plantilla elige sus fuentes por nombre`,
 };
 
 export const MESSAGES = { en, es };
