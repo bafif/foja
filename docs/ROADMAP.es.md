@@ -79,9 +79,9 @@ primera visita muestra un estado de carga y el service worker lo precachea.
 
 Una distribución de TeX completa en WebAssembly descarga unos 120 MB, así que la exportación a LaTeX es código fuente
 (un `cv.tex` autocontenido), no un PDF. Solo una plantilla LaTeX importada se compila en el navegador, con el pdfTeX o
-el XeTeX de SwiftLaTeX y un grupo chico de paquetes comunes: unos 9 MB (6 MB para XeTeX), que arma cada deploy y que se
-bajan la primera vez que se usa una. Las fuentes que nombra una plantilla XeLaTeX, aparte de Latin Modern, las sube el
-usuario.
+el XeTeX de BusyTeX (TeX Live 2026) y un grupo chico de paquetes comunes: unos 21 MB (19 MB para XeTeX), que arma cada
+deploy y que se bajan la primera vez que se usa una. Las fuentes que nombra una plantilla XeLaTeX, aparte de Latin
+Modern, las sube el usuario.
 
 ### Canales de distribución gratuitos
 
@@ -252,13 +252,13 @@ El nombre viene de *foja de servicios*, el registro de la trayectoria de alguien
 ## Dependencias
 
 Todas libres y de código abierto, y todos los paquetes de Node se instalan solo dentro del contenedor de desarrollo:
-Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el compilador de Node
-para la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de JSON Schema: las dos cosas
-son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son XCharter, Latin Modern Mono y
-Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan los motores pdfTeX y XeTeX de
-SwiftLaTeX y archivos de TeX Live 2022, que arma el deploy y no están en el repositorio
-([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma Rust, Tauri 2 y sus plugins
-de diálogo y de apertura, que se compilan solo en su contenedor y en los runners de la release; el Flatpak va a sumar
+Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el compilador de Node para
+la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de JSON Schema: las dos cosas son lo
+bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son XCharter, Latin Modern Mono y Noto
+Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan los motores pdfTeX y XeTeX de BusyTeX
+(texlyre-busytex) y archivos de TeX Live 2026, que arma el deploy y no están en el repositorio ([detalle y
+licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma Rust, Tauri 2 y sus plugins de diálogo y
+de apertura, que se compilan solo en su contenedor y en los runners de la release; el Flatpak va a sumar
 `flatpak-builder`.
 
 ## Fuentes
@@ -270,8 +270,7 @@ de diálogo y de apertura, que se compilan solo en su contenedor y en los runner
 - Tauri con un sidecar de PyInstaller, problemas de firma:
   <https://github.com/phoson-lat/Phoson-Desktop/pull/11>,
   <https://github.com/ActivityWatch/activitywatch/issues/1249>
-- LaTeX en el navegador: <https://github.com/TeXlyre/texlyre-busytex>,
-  <https://github.com/SwiftLaTeX/SwiftLaTeX>
+- LaTeX en el navegador: <https://github.com/TeXlyre/texlyre-busytex>
 - Distribución gratuita: registro y firma en la Microsoft Store
   <https://blogs.windows.com/windowsdeveloper/2025/05/19/microsoft-store-expands-opportunities-for-windows-app-developers/>,
   <https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options>;

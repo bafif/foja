@@ -6,7 +6,7 @@ test-results/
 playwright-report/
 
 # Made by scripts/latex-assets.sh, which the Pages deploy runs: not in the repository.
-apps/web/public/latex/swiftlatex*
+apps/web/public/latex/busytex.*
 apps/web/public/latex/*.tar.gz
 apps/web/public/latex/*-files.txt
 apps/web/public/latex/version.txt

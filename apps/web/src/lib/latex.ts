@@ -1,10 +1,11 @@
 // LaTeX in the browser, for styles imported from LaTeX templates: the worker in public/latex/
-// (SwiftLaTeX's engines in WebAssembly), one per engine, started the first time one is needed.
+// (BusyTeX's engines in WebAssembly), one per engine, started the first time one is needed.
 // pdfLaTeX compiles the template filled with the profile to a PDF; XeLaTeX compiles it to an .xdv
-// that dvipdfmx turns into one. The PDF goes to the Typst worker, whose style for the template
-// shows its pages, so the preview, the page count and the exports work as with any other style.
+// that xdvipdfmx, in the same worker, turns into one. The PDF goes to the Typst worker, whose style
+// for the template shows its pages, so the preview, the page count and the exports work as with any
+// other style.
 
-import { customFilePath, FONT_FILE, fontListRecord, LATEX_INFO, LATEX_PDF, readFont, type Project } from "@foja/core";
+import { customFilePath, LATEX_INFO, LATEX_PDF, type Project } from "@foja/core";
 import { latexStyleOf, latexTemplateFiles } from "@foja/core/export/latex-template";
 import { t } from "../editor/i18n";
 
@@ -20,11 +21,11 @@ export interface LatexResult {
   height: number;
 }
 
-type Worker_ = "pdftex" | "xetex" | "dvipdfm";
-type Reply = { id: number; status: number; log: string; pdf?: Uint8Array };
+type Worker_ = LatexEngine;
+type Reply = { id: number; status: number; log: string; pdf?: Uint8Array; xdv?: Uint8Array };
 
-// The first job downloads the engine and the TeX files and makes LaTeX's format: it can take a
-// while on a slow connection. After that a CV compiles in a second or two.
+// The first job downloads the engine and the TeX files: it can take a while on a slow connection.
+// After that a CV compiles in a second or two.
 const FIRST_MS = 180_000;
 const NEXT_MS = 30_000;
 const A4 = { width: 595.28, height: 841.89 };
@@ -78,7 +79,6 @@ function request(engine: Worker_, message: object, transfer: Transferable[] = []
 /** Starts loading LaTeX before it is needed (when a LaTeX template is being imported). */
 export function warmLatex(engine: LatexEngine = "pdftex"): void {
   void request(engine, { cmd: "warm" });
-  if (engine === "xetex") void request("dvipdfm", { cmd: "warm" });
 }
 
 const latin1 = new TextDecoder("latin1");
@@ -102,15 +102,22 @@ export function missingFonts(errors: string[]): string[] {
   return [...new Set(errors.flatMap((e) => [...e.matchAll(/The font "([^"]+)" cannot be found/g)].map((m) => m[1])))];
 }
 
-/** LaTeX's errors: each `!` line with the line of the source it points at. */
+/** LaTeX's errors, each once: each `!` line, with the lines a package's error goes on in (they start
+ * with its name in parentheses), and the line of the source it points at. */
 export function latexErrors(log: string): string[] {
   const lines = log.split("\n");
   const errors = lines.flatMap((line, i) => {
     if (!line.startsWith("!")) return [];
-    const at = lines.slice(i + 1, i + 8).find((l) => /^l\.\d+/.test(l));
-    return [`${line.slice(1).trim()}${at ? ` (${at.trim()})` : ""}`];
+    let text = line.slice(1).trim();
+    for (const next of lines.slice(i + 1)) {
+      const more = /^\([\w@.-]+\)\s+(.*)$/.exec(next);
+      if (!more) break;
+      text += " " + more[1].trim();
+    }
+    const at = lines.slice(i + 1, i + 12).find((l) => /^l\.\d+/.test(l));
+    return [`${text}${at ? ` (${at.trim()})` : ""}`];
   });
-  return errors.length ? errors.slice(0, 5) : [log.trim().split("\n").slice(-3).join(" ") || "LaTeX failed"];
+  return errors.length ? [...new Set(errors)].slice(0, 5) : [log.trim().split("\n").slice(-3).join(" ") || "LaTeX failed"];
 }
 
 async function run(files: Record<string, string | Uint8Array>, main: string, engine: LatexEngine): Promise<LatexResult> {
@@ -120,21 +127,10 @@ async function run(files: Record<string, string | Uint8Array>, main: string, eng
     const reply = await request("pdftex", { cmd: "compile", files: { ...files, [main]: `\\pdfobjcompresslevel=0\n${files[main]}` }, main });
     return reply.pdf && reply.status === 0 ? { pdf: reply.pdf, errors: [], ...pdfPages(reply.pdf, reply.log) } : failed(reply.log);
   }
-  // The template's own fonts (uploaded, or in its files) join the list XeTeX finds fonts by name
-  // in, at their path in its file system; dvipdfmx then reads them at that same path.
-  const fonts = Object.entries(files).filter((f): f is [string, Uint8Array] => FONT_FILE.test(f[0]) && typeof f[1] !== "string");
-  const fontlist = fonts
-    .flatMap(([path, data], i) => {
-      const info = readFont(data);
-      return info ? [fontListRecord(info, 100_000 + i, `/work/${path}`)] : [];
-    })
-    .join("\n");
-  const tex = await request("xetex", { cmd: "compile", files, main, fontlist });
-  if (!tex.pdf || tex.status !== 0) return failed(tex.log);
-  const xdv = tex.pdf;
-  const name = main.replace(/\.tex$/, "") + ".xdv";
-  const out = await request("dvipdfm", { cmd: "compile", files: { ...Object.fromEntries(fonts), [name]: xdv.slice() }, main: name });
-  return out.pdf && out.status === 0 ? { pdf: out.pdf, errors: [], ...pdfPages(out.pdf, tex.log, xdv) } : failed(out.log);
+  // The template's own fonts (uploaded, or in its files) are among its files: XeTeX finds them by
+  // name there, as it finds Foja's.
+  const reply = await request("xetex", { cmd: "compile", files, main });
+  return reply.pdf && reply.status === 0 ? { pdf: reply.pdf, errors: [], ...pdfPages(reply.pdf, reply.log, reply.xdv) } : failed(reply.log);
 }
 
 const results = new Map<string, Promise<LatexResult>>();

@@ -42,16 +42,17 @@ Una plantilla de Typst o de LaTeX que escribió otra persona es un dato hasta qu
   LaTeX quedan con su estilo, para XeLaTeX.
 - La licencia de la plantilla, si la tiene, queda guardada con el estilo.
 - El aspecto de una plantilla LaTeX se compila en el navegador con el motor pdfTeX de
-  [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), o con sus motores XeTeX y dvipdfmx (WebAssembly, AGPL-3.0, sin
-  cambios), cada uno en un worker propio que se carga solo cuando se usa una plantilla LaTeX. Los motores y los archivos
-  de TeX Live y las fuentes que pueden leer vienen del mismo sitio (`apps/web/public/latex/`, armados en cada deploy por
-  `scripts/latex-assets.sh`, con el motor y FontAwesome verificados contra SHA-256 fijos) y quedan en Cache Storage bajo
-  un hash de ellos. Las fuentes que se suben para una plantilla XeLaTeX quedan en el proyecto, con su estilo; Foja lee
-  de ellas solo sus nombres y su estilo, con cada lectura verificada contra el tamaño del archivo
-  (`packages/core/src/fonts.ts`), y XeTeX las usa en su worker. Cada archivo se pone en el sistema de archivos en
-  memoria del motor antes de compilar: no usa la red mientras compila, y lo que no está no se encuentra. No hay shell al
-  que escapar (`\write18` no tiene qué ejecutar en WebAssembly), una compilación que no termina se corta, y lo que el
-  motor puede escribir queda en su memoria.
+  [texlyre-busytex](https://github.com/TeXlyre/texlyre-busytex), o con sus motores XeTeX y xdvipdfmx (TeX Live 2026 en
+  WebAssembly, AGPL-3.0, sin cambios), cada motor en un worker propio que se carga solo cuando se usa una plantilla
+  LaTeX. El motor y los archivos de TeX Live y las fuentes que puede leer vienen del mismo sitio
+  (`apps/web/public/latex/`, armados en cada deploy por `scripts/latex-assets.sh`, con el motor, FontAwesome y los datos
+  de ICU verificados contra SHA-256 fijos) y quedan en Cache Storage bajo un hash de ellos. Las fuentes que se suben
+  para una plantilla XeLaTeX quedan en el proyecto, con su estilo; Foja lee de ellas solo sus nombres y su estilo, con
+  cada lectura verificada contra el tamaño del archivo (`packages/core/src/fonts.ts`), y XeTeX las usa en su worker.
+  Cada archivo se pone en el sistema de archivos en memoria del motor antes de compilar: no usa la red mientras compila
+  (su búsqueda de archivos faltantes en un servidor de TeX Live está apagada), y lo que no está no se encuentra. No hay
+  shell al que escapar (`\write18` no tiene qué ejecutar en WebAssembly), una compilación que no termina se corta, y lo
+  que el motor puede escribir queda en su memoria.
 
 ## La app web
 

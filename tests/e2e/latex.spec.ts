@@ -17,7 +17,7 @@ test("a LaTeX template is imported, compiled with LaTeX in the browser and shown
 
   await page.getByRole("button", { name: "Importar", exact: true }).click();
   await expect(page.getByRole("combobox", { name: "Perfil" })).toHaveValue("resume");
-  // LaTeX's PDF, as an image on the preview's page: the first time it also makes LaTeX's format.
+  // LaTeX's PDF, as an image on the preview's page: the first time it also downloads the engine.
   await expect(page.locator(".foja-page image")).toHaveCount(1, { timeout: 180_000 });
   await expect(page.getByTestId("page-badge")).toContainText("1 página");
   await expect(page.getByRole("alert")).toHaveCount(0);

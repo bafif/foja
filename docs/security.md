@@ -40,14 +40,15 @@ A Typst or LaTeX template someone else wrote is data until Typst or LaTeX compil
   LaTeX template's stay with its style, for XeLaTeX.
 - The template's licence, when it has one, is kept with the style.
 - A LaTeX template's look is compiled in the browser by the pdfTeX engine of
-  [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), or by its XeTeX and dvipdfmx engines (WebAssembly, AGPL-3.0,
-  unchanged), each in a worker of its own that is loaded only when a LaTeX template is used. The engines and the TeX
-  Live files and fonts they may read come from the site itself (`apps/web/public/latex/`, made at each deploy by
-  `scripts/latex-assets.sh`, the engine and FontAwesome checked against fixed SHA-256 sums) and stay in Cache Storage
-  under a hash of them. Fonts uploaded for a XeLaTeX template are kept in the project with its style; Foja reads only
-  their names and style bits from them, every read bounds-checked (`packages/core/src/fonts.ts`), and XeTeX lays them
-  out in its worker. Every file is put in the engine's memory file system before it compiles: it reaches no network
-  while compiling, and what is not there is not found. There is no shell to escape to (`\write18` has nothing to run in
+  [texlyre-busytex](https://github.com/TeXlyre/texlyre-busytex), or by its XeTeX and xdvipdfmx engines (TeX Live 2026 in
+  WebAssembly, AGPL-3.0, unchanged), each engine in a worker of its own that is loaded only when a LaTeX template is
+  used. The engine and the TeX Live files and fonts it may read come from the site itself (`apps/web/public/latex/`,
+  made at each deploy by `scripts/latex-assets.sh`, the engine, FontAwesome and ICU's data checked against fixed SHA-256
+  sums) and stay in Cache Storage under a hash of them. Fonts uploaded for a XeLaTeX template are kept in the project
+  with its style; Foja reads only their names and style bits from them, every read bounds-checked
+  (`packages/core/src/fonts.ts`), and XeTeX lays them out in its worker. Every file is put in the engine's memory file
+  system before it compiles: it reaches no network while compiling (its lookups of missing files on a TeX Live server
+  are off), and what is not there is not found. There is no shell to escape to (`\write18` has nothing to run in
   WebAssembly), a compile that does not end is stopped, and what the engine can write stays in its memory.
 
 ## The web app

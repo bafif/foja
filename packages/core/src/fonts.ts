@@ -77,33 +77,3 @@ export function readFont(data: Uint8Array): FontInfo | undefined {
     return undefined;
   }
 }
-
-/** One record of xetexfontlist.txt, the list SwiftLaTeX's XeTeX reads instead of fontconfig, for a
- * font at `path` in its file system (scripts/latex/fontlist.py writes the same for Foja's own). */
-export function fontListRecord(info: FontInfo, id: number, path: string): string {
-  const flag = (b: boolean) => (b ? "1" : "0");
-  return [
-    id,
-    path,
-    0,
-    info.families.length,
-    ...info.families,
-    info.styles.length,
-    ...info.styles,
-    info.fullNames.length,
-    ...info.fullNames,
-    info.psName,
-    info.subFamily,
-    info.weight,
-    info.width,
-    info.slant,
-    flag(info.regular),
-    flag(info.bold),
-    flag(info.italic),
-    10,
-    0,
-    0,
-    0,
-    0,
-  ].join("\n");
-}

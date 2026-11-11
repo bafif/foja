@@ -75,9 +75,9 @@ loading state and the service worker precaches it.
 ### LaTeX: exported as source, compiled only for imported templates
 
 A full TeX distribution in WebAssembly downloads about 120 MB, so the LaTeX export is source (a self-contained
-`cv.tex`), not a PDF. Only an imported LaTeX template is compiled in the browser, by SwiftLaTeX's pdfTeX or XeTeX with a
-small set of common packages: about 9 MB (6 MB for XeTeX), built at each deploy and downloaded the first time one is
-used. The fonts a XeLaTeX template names besides Latin Modern, the user uploads.
+`cv.tex`), not a PDF. Only an imported LaTeX template is compiled in the browser, by BusyTeX's pdfTeX or XeTeX (TeX
+Live 2026) with a small set of common packages: about 21 MB (19 MB for XeTeX), built at each deploy and downloaded the
+first time one is used. The fonts a XeLaTeX template names besides Latin Modern, the user uploads.
 
 ### Free distribution channels
 
@@ -238,14 +238,14 @@ The name comes from *foja de servicios*, the record of someone's career.
 
 ## Dependencies
 
-All free and open source, and all Node packages installed only inside the development container: Astro, React,
-Tailwind, Zustand and `zundo`, dnd-kit, typst.ts (web compiler, renderer and the Node compiler for the CLI), `docx`,
-and Vitest and Playwright for the tests. There is no ZIP or JSON Schema library: both are small enough to keep in
-`packages/core`. The bundled fonts are XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it.
-Imported LaTeX templates use SwiftLaTeX's pdfTeX and XeTeX engines and TeX Live 2022 files, which the deployment
-builds and the repository does not hold ([details and licences](../apps/web/public/latex/README.md)). The desktop app
-adds Rust, Tauri 2 and its dialog and opener plugins, built only in its container and on the release runners; the
-Flatpak will add `flatpak-builder`.
+All free and open source, and all Node packages installed only inside the development container: Astro, React, Tailwind,
+Zustand and `zundo`, dnd-kit, typst.ts (web compiler, renderer and the Node compiler for the CLI), `docx`, and Vitest
+and Playwright for the tests. There is no ZIP or JSON Schema library: both are small enough to keep in `packages/core`.
+The bundled fonts are XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. Imported LaTeX
+templates use BusyTeX's pdfTeX and XeTeX engines (texlyre-busytex) and TeX Live 2026 files, which the deployment builds
+and the repository does not hold ([details and licences](../apps/web/public/latex/README.md)). The desktop app adds
+Rust, Tauri 2 and its dialog and opener plugins, built only in its container and on the release runners; the Flatpak
+will add `flatpak-builder`.
 
 ## Sources
 
@@ -256,8 +256,7 @@ Flatpak will add `flatpak-builder`.
 - Tauri with a PyInstaller sidecar, signing issues:
   <https://github.com/phoson-lat/Phoson-Desktop/pull/11>,
   <https://github.com/ActivityWatch/activitywatch/issues/1249>
-- LaTeX in the browser: <https://github.com/TeXlyre/texlyre-busytex>,
-  <https://github.com/SwiftLaTeX/SwiftLaTeX>
+- LaTeX in the browser: <https://github.com/TeXlyre/texlyre-busytex>
 - Free distribution: Microsoft Store registration and signing
   <https://blogs.windows.com/windowsdeveloper/2025/05/19/microsoft-store-expands-opportunities-for-windows-app-developers/>,
   <https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options>;
