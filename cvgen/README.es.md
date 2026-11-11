@@ -68,9 +68,9 @@ data/
 }
 ```
 
-Las fechas son `YYYY-MM`. Una entrada que solo tiene `desde` es una fecha única; `"hasta": null` significa que sigue en curso.
-`tareas` apunta a un archivo Markdown con el detalle; `nota` es una línea corta que se muestra incluso
-en las secciones compactas.
+Las fechas son `YYYY-MM`. Una entrada que solo tiene `desde` es una fecha única; `"hasta": null` significa que sigue en
+curso. `tareas` apunta a un archivo Markdown con el detalle; `nota` es una línea corta que se muestra incluso en las
+secciones compactas.
 
 ### `privado.json`
 Mi domicilio, teléfono y correo no están en el repositorio. Van en `data/privado.json`, que
@@ -103,16 +103,15 @@ usan siempre `privado.ejemplo.json`, nunca el archivo real.
 }
 ```
 
-Cada fila de `habilidades` es el nombre de un grupo, o un par de nombres que se muestran uno al lado del otro: el de la derecha
-tan ancho como su línea más larga, el de la izquierda en el resto de la barra lateral.
+Cada fila de `habilidades` es el nombre de un grupo, o un par de nombres que se muestran uno al lado del otro: el de la
+derecha tan ancho como su línea más larga, el de la izquierda en el resto de la barra lateral.
 
-Una sección lista `entradas` (ids de `cv.json`), `items` (un archivo Markdown de párrafos con título,
-o una lista de líneas simples), o ambas cosas. `"compacto": true` muestra cada entrada como título, lugar, fechas y `nota`, sin sus
-`tareas`.
-`"lateral": true` pasa la sección a la barra lateral, debajo de las habilidades, como títulos de entrada con
+Una sección lista `entradas` (ids de `cv.json`), `items` (un archivo Markdown de párrafos con título, o una lista de
+líneas simples), o ambas cosas. `"compacto": true` muestra cada entrada como título, lugar, fechas y `nota`, sin sus
+`tareas`. `"lateral": true` pasa la sección a la barra lateral, debajo de las habilidades, como títulos de entrada con
 su lugar y fechas, párrafos con título justificados y líneas simples alineadas a la derecha. En cualquier ítem,
-`**texto**` va en negrita. La barra lateral nunca se parte entre páginas: el generador en C
-se detiene con un error si no entra, y LaTeX la desborda en la columna principal.
+`**texto**` va en negrita. La barra lateral nunca se parte entre páginas: el generador en C se detiene con un error si
+no entra, y LaTeX la desborda en la columna principal.
 
 ### Textos
 `data/textos/*.md` tienen párrafos simples (textos de perfil) o líneas `# Título` seguidas cada una de un
