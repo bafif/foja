@@ -88,6 +88,17 @@ body {
   height: 100dvh;
 }
 
+/* The "more actions" sheet of narrow screens: one action per row, the whole width, the text at the start. */
+@media (width < 64rem) {
+  #more-actions > :is(button, select, div.relative),
+  #more-actions > :is(div.relative, span) > button {
+    width: 100%;
+  }
+  #more-actions button:not([aria-label]) {
+    text-align: start;
+  }
+}
+
 /* Safari on iOS zooms into any field whose text is under 16px as soon as it gets focus. Outside
    Tailwind's layers, so it wins over `text-sm`. */
 @media (pointer: coarse) {
@@ -95,6 +106,20 @@ body {
   select,
   textarea {
     font-size: max(16px, 1em);
+  }
+
+  /* The controls of the bars and menus, at least as big as a fingertip (44 px, Apple's minimum). */
+  .foja-touch button,
+  .foja-touch select,
+  .foja-touch label:has(> input[type="file"]) {
+    min-height: 44px;
+  }
+  .foja-touch button {
+    min-width: 44px;
+  }
+  .foja-touch label:has(> input[type="file"]) {
+    display: flex;
+    align-items: center;
   }
 }
 

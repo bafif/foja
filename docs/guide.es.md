@@ -95,7 +95,7 @@ Nombres en alfabetos no latinos: las fuentes incluidas cubren solo alfabetos lat
 
 ## En el celular o la tablet
 
-Foja también funciona en el navegador del celular, de a un panel por vez: **Secciones**, **Editar** y **Vista previa**, que se cambian desde la barra de abajo.
+Foja también funciona en el navegador del celular, de a un panel por vez: **Secciones**, **Editar** y **Vista previa**, que se cambian desde la barra de abajo, donde también está **Exportar**, al alcance del pulgar. Si el CV se pasa de una página, **Vista previa** lo marca con un punto. Arriba quedan solo el perfil, deshacer, rehacer y **⋯**, que abre desde abajo el resto: crear, duplicar o borrar un perfil, el proyecto, el idioma, la apariencia y la paleta de comandos.
 
 - **Instalala como app.** En Android, en Chrome: **⋯ → Instalar como app** en el menú de Foja (o en el menú de Chrome → *Agregar a la pantalla principal*). En iPhone y iPad, en Safari o Chrome: **Compartir → Agregar a inicio** (en Chrome, Compartir está en la barra de direcciones). Se abre en pantalla completa, sin las barras del navegador, y funciona sin conexión.
 - **En el iPhone, instalala si tu CV vive ahí.** iOS borra lo que un sitio guardó cuando pasa una semana sin abrirse, salvo que esté en la pantalla de inicio. La app de la pantalla de inicio tiene su propio almacenamiento, separado del del navegador: para llevarte un proyecto que empezaste en el navegador, exportalo como JSON e importalo en la app. Exportar el JSON cada tanto te deja una copia en cualquier caso.

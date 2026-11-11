@@ -79,13 +79,13 @@ export function PersonForm() {
       </Field>
       <Field label={t.photo} problem={error ?? photoProblem}>
         {(id) => (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {photo && <img alt="" className="h-20 w-20 rounded object-cover" src={`data:${photo.type};base64,${photo.data}`} />}
             <input
               id={id}
               type="file"
               accept="image/jpeg,image/png"
-              className="text-sm"
+              className="max-w-full min-w-0 text-sm"
               onChange={(e) => {
                 upload(e.target.files?.[0]);
                 e.target.value = "";

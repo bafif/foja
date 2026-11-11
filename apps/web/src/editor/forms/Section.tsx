@@ -121,7 +121,7 @@ export function SectionForm({ index }: { index: number }) {
       </SortableList>
       <div className="flex flex-wrap gap-2">
         <select
-          className="rounded border border-line bg-surface px-2 py-1 text-sm"
+          className="max-w-full min-w-0 rounded border border-line bg-surface px-2 py-1 text-sm"
           value=""
           aria-label={t.includeEntry}
           onChange={(e) => e.target.value && edit((s) => s.blocks.push({ type: "entry", entry: e.target.value }))}

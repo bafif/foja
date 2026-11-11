@@ -197,18 +197,20 @@ El trabajo hasta ahora, en el orden en que se dio:
   se compila en el navegador con pdfTeX o XeTeX: el motor y los archivos de TeX Live los arma el deploy y se bajan
   la primera vez que se usan, y las fuentes que nombra una plantilla XeLaTeX las sube el usuario. La línea de
   comandos suma `foja import`.
+- **Una interfaz para el teléfono** (11 de noviembre de 2026). La primera prueba en un teléfono real mostró que
+  la disposición para teléfono funcionaba pero era incómoda: en un iPhone SE la barra de arriba no entraba y
+  arrastraba la página de costado. Ahora arriba quedan solo el perfil, deshacer, rehacer y un menú; la barra de
+  abajo, al alcance del pulgar, cambia de panel y exporta, y marca con un punto la vista previa si el CV se pasa
+  de una página; el menú es una hoja que sube desde abajo, con botones del tamaño de un dedo; los estilos se
+  eligen de a dos por fila. Un test recorre todos los paneles en una pantalla de 320 px y falla si algo se sale.
 
 ## Qué viene después
 
 En este orden:
 
-1. **Una interfaz cómoda en el teléfono.** La primera prueba en un teléfono real (11 de noviembre de 2026) mostró
-   que la disposición para teléfono funciona pero es incómoda: en una pantalla chica como la de un iPhone SE hay
-   demasiados botones y controles para el lugar que hay. La versión para teléfono necesita una interfaz pensada
-   para esa pantalla, con menos cosas a la vista a la vez y lo que más se usa a mano. Después, la prueba completa
-   en un Android con Chrome y en un iPhone con Safari: instalarla, editar, exportar a través del menú de compartir
-   y usarla sin conexión. Los tests automáticos emulan un teléfono en Chromium, que no tiene ni las mañas de Safari
-   ni un menú de compartir de verdad.
+1. **La prueba completa en teléfonos reales**, con la interfaz nueva: en un Android con Chrome y en un iPhone con
+   Safari, instalarla, editar, exportar a través del menú de compartir y usarla sin conexión. Los tests automáticos
+   emulan un teléfono en Chromium, que no tiene ni las mañas de Safari ni un menú de compartir de verdad.
 2. **Publicar la CLI en npm** como `foja` (el nombre seguía libre a fines de octubre de 2026). El
    paquete ya se empaqueta solo con `npm pack`; falta una cuenta de npm y
    `npm publish -w packages/cli`.

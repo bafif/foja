@@ -164,7 +164,10 @@ as missing glyphs for now.
 ## On a phone or a tablet
 
 Foja works in the phone's browser too, one pane at a time: **Sections**, **Edit** and **Preview**,
-switched from the bar at the bottom.
+switched from the bar at the bottom, which also has **Export**, in reach of the thumb. When the CV runs past
+one page, **Preview** shows a dot. The top keeps only the profile, undo, redo and **⋯**, which brings up the
+rest from the bottom: creating, duplicating or deleting a profile, the project, the language, the appearance
+and the command palette.
 
 - **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or
   Chrome's own menu → *Add to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → Add to

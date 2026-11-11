@@ -110,7 +110,7 @@ export function LayoutForm() {
     <Panel title={t.layout}>
       <section className="flex flex-col gap-2" aria-label={t.styles.title}>
         <h3 className="text-xs font-semibold tracking-wide text-muted uppercase">{t.styles.builtin}</h3>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {BUILTIN_STYLES.map((s) => (
             <StyleCard key={s.id} id={s.id} name={s.name} description={s.description} active={style.id === s.id} onPick={() => pick(s.id)} />
           ))}
@@ -118,7 +118,7 @@ export function LayoutForm() {
         {Object.keys(project.templates ?? {}).length > 0 && (
           <>
             <h3 className="mt-2 text-xs font-semibold tracking-wide text-muted uppercase">{t.styles.own}</h3>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {Object.entries(project.templates!).map(([id, s]) => (
                 // Only the style in use gets a thumbnail: compiling every style of one's own (one may be
                 // slow or broken) on each edit is not worth it.

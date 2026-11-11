@@ -47,8 +47,9 @@ export function ItemRow({
 }) {
   const problem = useProblem(`${path}/text`);
   return (
-    <div className="flex gap-2 rounded border border-line p-2">
-      <div className="flex flex-1 flex-col gap-1">
+    // On a narrow screen the controls beside the fields go under them, so the fields keep a usable width.
+    <div className="flex flex-wrap justify-end gap-2 rounded border border-line p-2">
+      <div className="flex min-w-[13rem] flex-1 flex-col gap-1">
         <TextInput
           value={item.heading ?? ""}
           placeholder={t.heading}

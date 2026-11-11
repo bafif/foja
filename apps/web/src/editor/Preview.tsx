@@ -63,7 +63,7 @@ export function Preview() {
   return (
     <section aria-label={t.preview} className="flex min-h-0 flex-col bg-desk">
       <header className="flex flex-wrap items-center gap-3 border-b border-line bg-surface-2 px-3 py-2 text-sm">
-        <h2 className="font-semibold">{t.preview}</h2>
+        <h2 className="hidden font-semibold lg:block">{t.preview}</h2>
         {pages > 0 && (
           <span
             data-testid="page-badge"
@@ -78,7 +78,7 @@ export function Preview() {
           </button>
         )}
         {compileMs !== undefined && (
-          <span className="ml-auto text-xs text-muted" title="Typst · SVG">
+          <span className="ml-auto hidden text-xs text-muted sm:inline" title="Typst · SVG">
             {compileMs.toFixed(0)} ms · {renderMs?.toFixed(0)} ms
           </span>
         )}

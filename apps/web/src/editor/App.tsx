@@ -156,23 +156,53 @@ export default function App() {
 
 const openEvent = (name: string) => () => window.dispatchEvent(new Event(name));
 
-/** Narrow screens show one pane at a time; these tabs switch between them. */
-function PaneTabs() {
+/** The outline icons of the bottom bar, 24 px, in the color of their text. */
+const icons = {
+  nav: "M4 6h16M4 12h16M4 18h10",
+  edit: "M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4",
+  preview: "M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5",
+  export: "M12 3v12M7 8l5-5 5 5M5 14v6h14v-6",
+};
+
+function Icon({ name }: { name: keyof typeof icons }) {
+  return (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={icons[name]} />
+    </svg>
+  );
+}
+
+/** Narrow screens show one pane at a time: the bar at the bottom, in reach of the thumb, switches between them
+ * and exports. */
+function PaneTabs({ onExport }: { onExport: () => void }) {
   const pane = useEditor((s) => s.pane);
   const setPane = useEditor((s) => s.setPane);
+  const pages = usePreview((s) => s.pages);
   const tabs: [typeof pane, string][] = [
     ["nav", t.panes.nav],
     ["edit", t.panes.edit],
     ["preview", t.panes.preview],
   ];
+  const tab = "flex flex-col items-center gap-0.5 pt-1.5 pb-1 text-xs";
   return (
-    <nav aria-label={t.panes.label} className="grid grid-cols-3 border-t border-line bg-surface lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-      {tabs.map(([id, label]) => (
-        <button key={id} aria-current={pane === id || undefined} onClick={() => setPane(id)} className={`py-3 text-sm ${pane === id ? "font-semibold text-accent" : "text-muted"}`}>
-          {label}
-        </button>
-      ))}
-    </nav>
+    <div className="grid grid-cols-4 border-t border-line bg-surface lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <nav aria-label={t.panes.label} className="col-span-3 grid grid-cols-3">
+        {tabs.map(([id, label]) => (
+          <button key={id} aria-current={pane === id || undefined} onClick={() => setPane(id)} className={`${tab} ${pane === id ? "font-semibold text-accent" : "text-muted"}`}>
+            <span className="relative">
+              <Icon name={id} />
+              {/* Past one page: the same warning as the badge of the preview. */}
+              {id === "preview" && pages > 1 && <span data-testid="overflow-dot" className="absolute -top-0.5 -right-1 h-2.5 w-2.5 rounded-full border-2 border-surface bg-amber-500" />}
+            </span>
+            {label}
+          </button>
+        ))}
+      </nav>
+      <button title="Ctrl+E" onClick={onExport} className={`${tab} font-semibold text-accent`}>
+        <Icon name="export" />
+        {t.export}
+      </button>
+    </div>
   );
 }
 
@@ -200,7 +230,7 @@ function Editor() {
         <div className={`min-h-0 ${pane === "preview" ? "grid" : "hidden"} lg:grid`}>
           <Preview />
         </div>
-        <PaneTabs />
+        <PaneTabs onExport={openExport} />
       </div>
       {exporting && <ExportDialog onClose={() => setExporting(false)} />}
       {palette && <Palette onClose={() => setPalette(false)} onExport={openExport} />}
@@ -270,6 +300,7 @@ function TopBar({ onExport }: { onExport: () => void }) {
           onClick={() => {
             update((p) => delete p.profiles[profileId]);
             setConfirming(false);
+            setMore(false);
           }}
         >
           {t.yesDelete}
@@ -283,15 +314,16 @@ function TopBar({ onExport }: { onExport: () => void }) {
     ));
 
   return (
-    <header className="relative flex items-center gap-2 border-b border-line bg-surface px-3 py-2 lg:flex-wrap">
-      <a href={import.meta.env.BASE_URL} className="mr-1 font-heading text-xl font-semibold tracking-wide text-accent lg:mr-2">
+    <header className="foja-touch relative flex items-center gap-1 border-b border-line bg-surface px-2 py-1 sm:gap-2 sm:px-3 lg:flex-wrap lg:py-2">
+      {/* On a phone the bar keeps only what is used all the time; the name of the app goes. */}
+      <a href={import.meta.env.BASE_URL} className="mr-1 hidden font-heading text-xl font-semibold tracking-wide text-accent sm:inline lg:mr-2">
         {t.appName}
       </a>
-      <label className="flex min-w-0 items-center gap-1 text-sm">
+      <label className="flex min-w-0 flex-1 items-center gap-1 text-sm lg:flex-none">
         <span className="hidden sm:inline">{t.profile}</span>
         <select
           aria-label={t.profile}
-          className="max-w-[9rem] rounded border border-line bg-surface px-2 py-1 text-sm sm:max-w-none"
+          className="w-full min-w-0 rounded border border-line bg-surface px-2 py-1 text-sm lg:w-auto"
           value={profileId}
           onChange={(e) => setProfile(e.target.value)}
         >
@@ -303,16 +335,26 @@ function TopBar({ onExport }: { onExport: () => void }) {
         </select>
       </label>
 
-      {/* Secondary actions: inline on wide screens, a "more" menu on narrow ones. */}
+      {/* Secondary actions: inline on wide screens, a sheet that comes up from the bottom on narrow ones. */}
+      {more && <div className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden />}
       <div
         id="more-actions"
+        data-sheet
         ref={moreBox}
-        className={`${more ? "flex" : "hidden"} absolute top-full right-2 z-30 mt-1 w-64 flex-col items-stretch gap-1 rounded-lg border border-line bg-surface p-2 shadow-lg lg:contents`}
+        className={`${more ? "flex" : "hidden"} fixed inset-x-0 bottom-0 z-40 max-h-[85dvh] flex-col items-stretch gap-1 overflow-y-auto rounded-t-2xl border-t border-line bg-surface px-3 pt-2 shadow-2xl lg:contents`}
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
       >
-        <Button onClick={addProfile}>+ {t.newProfile}</Button>
-        <Button onClick={duplicate}>{t.duplicate}</Button>
+        <div className="flex items-center justify-between lg:hidden">
+          <h2 className="font-semibold">{t.more}</h2>
+          <Button variant="ghost" label={t.close} onClick={() => setMore(false)}>
+            ✕
+          </Button>
+        </div>
+        <h3 className="pt-1 text-xs font-semibold tracking-wide text-muted uppercase lg:hidden">{t.profile}</h3>
+        <Button onClick={() => (addProfile(), setMore(false))}>+ {t.newProfile}</Button>
+        <Button onClick={() => (duplicate(), setMore(false))}>{t.duplicate}</Button>
         {deleteControls}
-        <span className="hidden lg:ml-auto lg:block" />
+        <span className="mt-2 border-t border-line lg:mt-0 lg:ml-auto lg:border-0" />
         <div className="relative" ref={projectBox}>
           <Button
             expanded={projectMenu}
@@ -324,7 +366,7 @@ function TopBar({ onExport }: { onExport: () => void }) {
             {t.project} ▾
           </Button>
           {projectMenu && (
-            <div className="absolute right-0 z-10 mt-1 flex w-56 flex-col gap-1 rounded border border-line bg-surface p-2 shadow-lg">
+            <div className="z-10 mt-1 flex flex-col gap-1 rounded border border-line bg-surface p-2 lg:absolute lg:right-0 lg:w-56 lg:shadow-lg">
               <Button variant="ghost" onClick={() => (load(emptyProject()), setProjectMenu(false))}>
                 {t.newProject}
               </Button>
@@ -382,9 +424,12 @@ function TopBar({ onExport }: { onExport: () => void }) {
             ⋯
           </Button>
         </span>
-        <Button variant="primary" title="Ctrl+E" onClick={onExport}>
-          {t.export}
-        </Button>
+        {/* On narrow screens, export is in the bar at the bottom. */}
+        <span className="hidden lg:block">
+          <Button variant="primary" title="Ctrl+E" onClick={onExport}>
+            {t.export}
+          </Button>
+        </span>
       </div>
     </header>
   );
@@ -406,7 +451,7 @@ function NavButton({ selection, children }: { selection: Selection; children: Re
       <button
         aria-current={active || undefined}
         onClick={() => select(selection)}
-        className={`w-full truncate rounded px-2 py-1 text-left text-sm ${active ? "bg-accent-soft font-medium text-accent-ink" : "hover:bg-surface-2"}`}
+        className={`w-full truncate rounded px-2 py-1 text-left text-sm pointer-coarse:py-2.5 ${active ? "bg-accent-soft font-medium text-accent-ink" : "hover:bg-surface-2"}`}
       >
         {children}
       </button>

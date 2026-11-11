@@ -210,17 +210,19 @@ The work so far, in the order it happened:
   LaTeX template is compiled in the browser with pdfTeX or XeTeX: the deployment builds the engine
   and the TeX Live files, they download the first time one is used, and the user uploads the
   fonts a XeLaTeX template names. The command line gains `foja import`.
+- **An interface for phones** (November 11, 2026). The first try on a real phone showed that the phone
+  layout worked but was uncomfortable: on an iPhone SE the top bar did not fit and dragged the page sideways.
+  Now the top keeps only the profile, undo, redo and a menu; the bar at the bottom, in reach of the thumb,
+  switches panes and exports, and puts a dot on the preview when the CV runs past one page; the menu is a sheet
+  that comes up from the bottom, with buttons the size of a finger; styles are picked two to a row. A test goes
+  through every pane on a 320 px screen and fails if anything sticks out.
 
 ## What comes next
 
 In this order:
 
-1. **A comfortable interface on phones.** The first try on a real phone (November 11, 2026)
-   showed that the phone layout works but is uncomfortable: on a small screen like an iPhone
-   SE's there are too many buttons and controls for the room there is. The phone version needs
-   an interface made for that screen, with fewer things in view at once and what is used most
-   within reach. Then the full test on an Android with Chrome and an iPhone with Safari: install
-   it, edit, export through the share sheet, and use it offline. The automated tests emulate a
+1. **The full test on real phones**, with the new interface: on an Android with Chrome and an iPhone with
+   Safari, install it, edit, export through the share sheet, and use it offline. The automated tests emulate a
    phone in Chromium, which has neither Safari's quirks nor a real share sheet.
 2. **Publish the CLI on npm** as `foja` (the name was still free at the end of October 2026). The
    package already bundles itself on `npm pack`; it needs an npm account and

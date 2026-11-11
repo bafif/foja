@@ -30,7 +30,7 @@ export function ThemeMenu() {
         {t.themes.menu} ▾
       </Button>
       {open && (
-        <div role="dialog" aria-label={t.themes.menu} className="absolute right-0 z-20 mt-1 flex w-72 flex-col gap-3 rounded-lg border border-line bg-surface p-3 shadow-lg">
+        <div role="dialog" aria-label={t.themes.menu} className="z-20 mt-1 flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 lg:absolute lg:right-0 lg:w-72 lg:shadow-lg">
           <fieldset className="flex flex-col gap-1">
             <legend className="mb-1 text-xs font-semibold tracking-wide text-muted uppercase">{t.themes.title}</legend>
             {themes.map((th) => (

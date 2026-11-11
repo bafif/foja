@@ -54,12 +54,20 @@ export function TextArea({ id, value, onChange, rows = 3, label }: { id?: string
   return <textarea id={id} rows={rows} aria-label={label} className={control + " resize-y"} value={value} onChange={(e) => onChange(e.target.value)} />;
 }
 
-/** Closes a menu on Escape or on a click outside `ref`. */
+/** Closes a menu on Escape or on a click outside `ref`. Inside a sheet (`data-sheet`, the "more actions" of a
+ * phone) a menu opens like an accordion and a touch elsewhere in the sheet leaves it open: closing it would shrink
+ * the sheet, which sits at the bottom, and move what the finger is on before the tap ends. */
 export function useDismiss(ref: React.RefObject<HTMLElement | null>, open: boolean, close: () => void) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    const onDown = (e: PointerEvent) => ref.current && !ref.current.contains(e.target as Node) && close();
+    const onDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (!ref.current || ref.current.contains(target)) return;
+      const sheet = ref.current.parentElement?.closest<HTMLElement>("[data-sheet]");
+      if (sheet && sheet.contains(target) && getComputedStyle(sheet).display !== "contents") return;
+      close();
+    };
     window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onDown);
     return () => {

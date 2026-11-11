@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import type { Page } from "@playwright/test";
 import { expect, previewMarkup, startFictional, test } from "./fixtures";
 
 const example = JSON.parse(readFileSync("examples/fictional.project.json", "utf8"));
@@ -113,13 +114,28 @@ test.describe("in dark mode", () => {
   });
 });
 
+/** What sticks out of the screen sideways, outside the CV itself: the outermost offenders, by tag and text. */
+const sticksOut = (page: Page) =>
+  page.evaluate(() => {
+    const out: string[] = [];
+    for (const e of Array.from(document.querySelectorAll("body *"))) {
+      const right = e.getBoundingClientRect().right;
+      if (right <= innerWidth + 1 || e.closest(".foja-page")) continue;
+      if (e.parentElement && e.parentElement.getBoundingClientRect().right > innerWidth + 1) continue;
+      out.push(`${e.tagName.toLowerCase()} «${(e.textContent ?? "").trim().slice(0, 30)}»`);
+    }
+    return out;
+  });
+
 test.describe("on a phone", () => {
-  test.use({ viewport: { width: 400, height: 800 }, isMobile: true, hasTouch: true });
+  // An iPhone SE, the smallest screen Safari still runs on.
+  test.use({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
 
   test("one pane at a time, nothing wider than the screen", async ({ page }) => {
     await startFictional(page);
     const panes = page.getByRole("navigation", { name: "Paneles" });
     await expect(page.getByLabel("Subtítulo")).toBeVisible();
+    expect(await sticksOut(page)).toEqual([]);
     await panes.getByRole("button", { name: "Vista previa" }).click();
     await expect(page.locator(".foja-page svg")).toBeVisible();
     await expect(page.getByLabel("Subtítulo")).toBeHidden();
@@ -127,8 +143,62 @@ test.describe("on a phone", () => {
     await panes.getByRole("button", { name: "Secciones" }).click();
     await page.getByRole("button", { name: "Banco de entradas" }).click();
     await expect(page.getByRole("button", { name: "Nueva entrada" })).toBeVisible();
+    // Export is in the bar at the bottom, in reach of the thumb; the bar at the top keeps only the profile,
+    // undo, redo and the menu.
+    await expect(page.getByRole("button", { name: "Exportar", exact: true })).toHaveCount(1);
+    expect((await page.getByRole("button", { name: "Exportar", exact: true }).boundingBox())!.y).toBeGreaterThan(600);
     await page.getByRole("button", { name: "Más acciones" }).click();
     await expect(page.getByRole("button", { name: "+ Nuevo perfil" })).toBeVisible();
+  });
+
+  test("the menu is a sheet from the bottom with controls a finger can hit", async ({ page }) => {
+    await startFictional(page);
+    await page.getByRole("button", { name: "Más acciones" }).click();
+    const sheet = page.locator("#more-actions");
+    const box = (await sheet.boundingBox())!;
+    expect(box.x).toBe(0);
+    expect(box.width).toBe(375);
+    expect(Math.round(box.y + box.height)).toBe(667);
+    for (const button of await sheet.getByRole("button").all()) expect((await button.boundingBox())!.height, await button.innerText()).toBeGreaterThanOrEqual(44);
+    // Menus inside it open like an accordion: a touch elsewhere in the sheet leaves them open, so the sheet does
+    // not shrink under the finger, and closing the sheet works with one open.
+    await sheet.getByRole("button", { name: "Apariencia ▾" }).click();
+    await sheet.getByRole("button", { name: "Proyecto ▾" }).click();
+    await expect(sheet.getByRole("dialog", { name: "Apariencia" })).toBeVisible();
+    await expect(sheet.getByRole("button", { name: "Nuevo proyecto" })).toBeVisible();
+    await sheet.getByRole("button", { name: "Cerrar" }).click();
+    await expect(sheet).toBeHidden();
+    // An action on the profile closes the sheet, so what it did is in sight.
+    await page.getByRole("button", { name: "Más acciones" }).click();
+    await sheet.getByRole("button", { name: "Duplicar" }).click();
+    await expect(sheet).toBeHidden();
+    await expect(page.getByLabel("Perfil", { exact: true })).toHaveValue(/.+/);
+    expect(await page.getByLabel("Perfil", { exact: true }).locator("option").count()).toBe(Object.keys(example.profiles).length + 1);
+  });
+
+  test.describe("on the narrowest phones", () => {
+    test.use({ viewport: { width: 320, height: 640 } });
+
+    test("no panel sticks out of the screen", async ({ page }) => {
+      await startFictional(page);
+      const panes = page.getByRole("navigation", { name: "Paneles" });
+      await panes.getByRole("button", { name: "Secciones" }).click();
+      // Every part of the navigation but the handles for dragging sections.
+      const items = page.getByRole("navigation", { name: "Secciones" }).locator("button:not([aria-label])");
+      const names = await items.allInnerTexts();
+      expect(names.length).toBeGreaterThan(6);
+      for (let i = 0; i < names.length; i++) {
+        await panes.getByRole("button", { name: "Secciones" }).click();
+        await items.nth(i).click();
+        expect(await sticksOut(page), names[i]).toEqual([]);
+      }
+      // An entry of the bank, with its items and their controls.
+      await panes.getByRole("button", { name: "Secciones" }).click();
+      await page.getByRole("button", { name: "Banco de entradas" }).click();
+      await page.getByRole("main").getByRole("button").nth(1).click();
+      await expect(page.getByLabel("Título", { exact: true })).toBeVisible();
+      expect(await sticksOut(page)).toEqual([]);
+    });
   });
 
   test("fields are big enough that Safari does not zoom into them", async ({ page }) => {
