@@ -30,12 +30,28 @@ y solo lee archivos dentro de la raíz de su proyecto.
 
 Una plantilla de Typst o de LaTeX que escribió otra persona es un dato hasta que Typst o LaTeX la compila:
 
-- Foja la lee con reglas fijas (`packages/core/src/importer/`): recorre el código, nunca lo ejecuta, y no llama a ningún modelo ni servicio.
-- Un `.zip` o un `.tar.gz` se descomprime con el descompresor propio de la plataforma, con topes: como mucho 400 archivos y 20 MB descomprimidos, contados mientras se descomprime, así que un archivo chico que se inflaría a gigas se corta enseguida. Se rechazan las rutas absolutas, las que tienen `..`, las barras invertidas y los enlaces.
-- Sus archivos van al proyecto, con el estilo, y el compilador los ve bajo `/custom/<id>/`, en el mismo encierro que cualquier estilo: no se puede leer nada fuera del proyecto (probado).
-- Los paquetes `@preview` no se bajan nunca: se usan los que vinieron en el archivo, y el editor nombra los que faltan. Las fuentes que traiga se dejan afuera.
+- Foja la lee con reglas fijas (`packages/core/src/importer/`): recorre el código, nunca lo ejecuta, y no llama a ningún
+  modelo ni servicio.
+- Un `.zip` o un `.tar.gz` se descomprime con el descompresor propio de la plataforma, con topes: como mucho 400
+  archivos y 20 MB descomprimidos, contados mientras se descomprime, así que un archivo chico que se inflaría a gigas se
+  corta enseguida. Se rechazan las rutas absolutas, las que tienen `..`, las barras invertidas y los enlaces.
+- Sus archivos van al proyecto, con el estilo, y el compilador los ve bajo `/custom/<id>/`, en el mismo encierro que
+  cualquier estilo: no se puede leer nada fuera del proyecto (probado).
+- Los paquetes `@preview` no se bajan nunca: se usan los que vinieron en el archivo, y el editor nombra los que faltan.
+  Las fuentes de una plantilla de Typst se dejan afuera (el compilador tiene solo las de Foja); las de una plantilla
+  LaTeX quedan con su estilo, para XeLaTeX.
 - La licencia de la plantilla, si la tiene, queda guardada con el estilo.
-- El aspecto de una plantilla LaTeX se compila en el navegador con el motor pdfTeX de [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), o con sus motores XeTeX y dvipdfmx (WebAssembly, AGPL-3.0, sin cambios), cada uno en un worker propio que se carga solo cuando se usa una plantilla LaTeX. Los motores y los archivos de TeX Live y las fuentes que pueden leer vienen del mismo sitio (`apps/web/public/latex/`, armados en cada deploy por `scripts/latex-assets.sh`, con el motor y FontAwesome verificados contra SHA-256 fijos) y quedan en Cache Storage bajo un hash de ellos. Las fuentes que se suben para una plantilla XeLaTeX quedan en el proyecto, con su estilo; Foja lee de ellas solo sus nombres y su estilo, con cada lectura verificada contra el tamaño del archivo (`packages/core/src/fonts.ts`), y XeTeX las usa en su worker. Cada archivo se pone en el sistema de archivos en memoria del motor antes de compilar: no usa la red mientras compila, y lo que no está no se encuentra. No hay shell al que escapar (`\write18` no tiene qué ejecutar en WebAssembly), una compilación que no termina se corta, y lo que el motor puede escribir queda en su memoria.
+- El aspecto de una plantilla LaTeX se compila en el navegador con el motor pdfTeX de
+  [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), o con sus motores XeTeX y dvipdfmx (WebAssembly, AGPL-3.0, sin
+  cambios), cada uno en un worker propio que se carga solo cuando se usa una plantilla LaTeX. Los motores y los archivos
+  de TeX Live y las fuentes que pueden leer vienen del mismo sitio (`apps/web/public/latex/`, armados en cada deploy por
+  `scripts/latex-assets.sh`, con el motor y FontAwesome verificados contra SHA-256 fijos) y quedan en Cache Storage bajo
+  un hash de ellos. Las fuentes que se suben para una plantilla XeLaTeX quedan en el proyecto, con su estilo; Foja lee
+  de ellas solo sus nombres y su estilo, con cada lectura verificada contra el tamaño del archivo
+  (`packages/core/src/fonts.ts`), y XeTeX las usa en su worker. Cada archivo se pone en el sistema de archivos en
+  memoria del motor antes de compilar: no usa la red mientras compila, y lo que no está no se encuentra. No hay shell al
+  que escapar (`\write18` no tiene qué ejecutar en WebAssembly), una compilación que no termina se corta, y lo que el
+  motor puede escribir queda en su memoria.
 
 ## La app web
 

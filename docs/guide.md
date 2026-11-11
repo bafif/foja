@@ -10,10 +10,18 @@ stays on your device. It is at <https://bafif.github.io/foja/>.
 
 Open the editor and pick one of:
 
-- **Start with the example**: my own CV, with three profiles (programmer, mathematics, physics and electronics teacher, and electronics technician) built from the same data, to see how a real one is put together. Switch between them with **Profile**, at the top.
-- **More examples, with made-up people**: for those with little experience. Camila, a student looking for her first internship (Portada and Claustro); Julieta, a newly qualified cosmetologist (Arco and Recto); and Tomás, who finished secondary school and is looking for a job in shops (Rótulo and Llano). Each has two profiles: an eye-catching one first and one that job portals read well. They are also in the **Project** menu.
+- **Start with the example**: my own CV, with three profiles (programmer, mathematics, physics and electronics teacher,
+  and electronics technician) built from the same data, to see how a real one is put together. Switch between them with
+  **Profile**, at the top.
+- **More examples, with made-up people**: for those with little experience. Camila, a student looking for her first
+  internship (Portada and Claustro); Julieta, a newly qualified cosmetologist (Arco and Recto); and Tomás, who finished
+  secondary school and is looking for a job in shops (Rótulo and Llano). Each has two profiles: an eye-catching one
+  first and one that job portals read well. They are also in the **Project** menu.
 - **Empty project**: a blank CV.
-- **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared), or a CV in [JSON Resume](https://jsonresume.org), the open format other tools use: its jobs, studies, projects, awards, certificates and publications go to the bank of entries, with a profile that has a section for each; its skills and languages become skill groups. A photo on the web is not downloaded (Foja connects to nothing): add it by hand.
+- **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared), or a CV in [JSON
+  Resume](https://jsonresume.org), the open format other tools use: its jobs, studies, projects, awards, certificates
+  and publications go to the bank of entries, with a profile that has a section for each; its skills and languages
+  become skill groups. A photo on the web is not downloaded (Foja connects to nothing): add it by hand.
 
 Your work is saved in the browser as you go ("Saved" in the header). **Ctrl+S** saves at once.
 Replacing the project (new, example, import) keeps the previous one: **Project ▾ → Restore the
@@ -49,7 +57,7 @@ Dates use month pickers; an entry can be *ongoing* or have a *single date*. Text
 - **Minimal**: black on white with plenty of air; the colour only on the name.
 
 Three more are made for applicant tracking systems (ATS) and the search tools that read CVs for
-recruiters, in the manner of the CVs that Harvard's career office recommends:
+recruiters:
 
 - **Claustro**: the classic. Serif, the name centred with the contacts on one line below it,
   section titles in capitals over a rule, the institution above the position and the dates.
@@ -87,13 +95,12 @@ last good version. How to write a style: [`templates.md`](templates.md).
 
 ## Importing a Typst or LaTeX template
 
-**Style and layout → Import a Typst or LaTeX template** takes a CV template written in Typst or
-LaTeX: a `.typ` or a `.tex`, or a `.zip` or `.tar.gz` with its files. Foja reads it with fixed rules, no AI: the functions it
-defines, the ones its sample content calls again and again (each call is an entry), its headings
-(the sections), the bullets under each call (the items) and its `#show: x.with(...)` (the
-header). It then proposes which argument of each macro is the position, the place, the dates, a
-note or the items, from the argument's name (`title`, `company`, `dates`, `institución`…) and from
-what its value looks like (a date, an e-mail, a URL).
+**Style and layout → Import a Typst or LaTeX template** takes a CV template written in Typst or LaTeX: a `.typ` or a
+`.tex`, or a `.zip` or `.tar.gz` with its files. Foja reads it with fixed rules, no AI: the functions it defines, the
+ones its sample content calls again and again (each call is an entry), its headings (the sections), the bullets under
+each call (the items) and its `#show: x.with(...)` (the header). It then proposes which argument of each macro is the
+position, the place, the dates, a note or the items, from the argument's name (`title`, `company`, `dates`,
+`institución`…) and from what its value looks like (a date, an e-mail, a URL).
 
 The form shows each argument with its sample value and the field it goes to, which you can
 change; below, what will come in. The same correspondence is used twice:
@@ -183,9 +190,9 @@ one page, **Preview** shows a dot. The top keeps only the profile, undo, redo an
 rest from the bottom: creating, duplicating or deleting a profile, the project, the language, the appearance
 and the command palette.
 
-- **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or
-  Chrome's own menu → *Add to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → Add to
-  Home Screen** (Chrome has Share in the address bar). It opens full screen, without the browser's bars, and works offline.
+- **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or Chrome's own menu → *Add
+  to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → Add to Home Screen** (Chrome has Share in the
+  address bar). It opens full screen, without the browser's bars, and works offline.
 - **On an iPhone, install it if your CV lives there.** iOS deletes what a site saved when the
   site goes a week without being opened, unless it is on the Home Screen. The app on the Home
   Screen keeps its own storage, apart from the browser's: to take a project you started in the
@@ -197,8 +204,9 @@ and the command palette.
 
 ## The desktop app
 
-Foja also comes as an app for Linux, Windows and macOS, on the
-[releases page](https://github.com/bafif/foja/releases). It is the same editor in a window of its own: it works
+Foja also comes as an app for Linux, Windows and macOS. Its installers go on the
+[releases page](https://github.com/bafif/foja/releases) with each version; the first one has not been published
+yet. It is the same editor in a window of its own: it works
 offline from the start, exports open the system's **Save as** dialog, and links open in your browser.
 
 - **Linux:** the `.deb` for Debian, Ubuntu and their derivatives (`sudo apt install ./Foja_*.deb`), the `.rpm` for
@@ -244,5 +252,6 @@ screen; on a phone, under **⋯**) changes it, and Foja remembers what you pick.
 
 ## Command line
 
-`npx foja build my.foja.json` builds every profile as PDF; `--format` adds svg, typ, tex, md,
-json, docx or all. See [`packages/cli/README.md`](../packages/cli/README.md).
+`foja build my.foja.json` builds every profile as PDF; `--format` adds svg, typ, tex, md, json, jsonresume, docx or
+all, and `foja import` brings in a template or a JSON Resume file. It is not on npm yet: see its
+[README](../packages/cli/README.md).

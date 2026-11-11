@@ -16,8 +16,8 @@ built, already resolved:
 #cv.subtitle
 ```
 
-In the editor: **Estilo y diseño → Editar en Typst** copies the profile's style into one of your
-own and opens its code; **Nuevo estilo desde cero** starts from a small skeleton. Your styles
+In the editor: **Style and layout → Edit in Typst** copies the profile's style into one of your
+own and opens its code; **New style from scratch** starts from a small skeleton. Your styles
 live in the project file (`templates`), so they travel with it and with the Typst export.
 
 ## What `cv` holds
@@ -56,7 +56,7 @@ left empty by that is not in `cv`; `index` and `path` still give each part's pla
 
 ## Layout options
 
-The profile's options (the **Opciones** panel) reach the style through `opt(key, default)` and a
+The profile's options (the **Options** panel) reach the style through `opt(key, default)` and a
 few ready-made values: `accent(default-colour)`, `base-size`, `density` (0.7, 1 or 1.3),
 `paper` (`(width, height)`), `margins(defaults-in-mm)`, `lang`. A style reads the options it
 wants and ignores the rest; `opt("columns", 2)`, `opt("sidebar", "left")`,
