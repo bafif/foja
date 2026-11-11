@@ -1,0 +1,128 @@
+{
+  "format": "foja/3",
+  "language": "es",
+  "person": { "givenNames": ["Julieta"], "familyNames": ["Ferraro"], "photo": null },
+  "contacts": {
+    "phone": "+54 351 555-0187",
+    "email": "julieta.ferraro@example.com",
+    "website": "julietaferraro.example.com",
+    "location": "Córdoba"
+  },
+  "skills": {
+    "habilidades": {
+      "title": "Habilidades",
+      "items": [
+        { "id": "limpieza", "text": "Limpieza facial profunda" },
+        { "id": "piel", "text": "Diagnóstico y cuidado de la piel" },
+        { "id": "maquillaje", "text": "Maquillaje social y para eventos" },
+        { "id": "cejas", "text": "Perfilado de cejas y lifting de pestañas" },
+        { "id": "trato", "text": "Trato cálido y paciente" }
+      ]
+    },
+    "atencion": {
+      "title": "Atención al público",
+      "items": [
+        { "id": "turnos", "text": "Agenda de turnos y recordatorios" },
+        { "id": "cobros", "text": "Cobros y registro de ventas" },
+        { "id": "whatsapp", "text": "WhatsApp Business" },
+        { "id": "calma", "text": "Calma en los días de mucho movimiento" }
+      ]
+    },
+    "idiomas": {
+      "title": "Idiomas",
+      "items": [{ "id": "espanol", "text": "Español (nativo)" }, { "id": "portugues", "text": "Portugués (básico)" }]
+    }
+  },
+  "entries": {
+    "lavanda": {
+      "title": "Asistente de cabina",
+      "place": "Centro de Estética Lavanda",
+      "start": "2025-02",
+      "end": null,
+      "items": [
+        { "id": "cabina", "text": "Preparación de la cabina y asistencia en tratamientos faciales y corporales." },
+        { "id": "turnos", "text": "Agenda de turnos por WhatsApp y recepción de clientas." },
+        { "id": "higiene", "text": "Control de higiene y reposición de productos." }
+      ]
+    },
+    "independiente": {
+      "title": "Maquilladora independiente",
+      "place": "Eventos, egresados y casamientos",
+      "start": "2023-10",
+      "end": null,
+      "items": [
+        { "id": "eventos", "text": "Maquillaje para más de 40 eventos, con prueba previa." },
+        { "id": "redes", "text": "Difusión de mis trabajos en redes sociales." }
+      ]
+    },
+    "practicas": {
+      "title": "Prácticas profesionales",
+      "place": "Consultorio dermatológico, 120 horas",
+      "start": "2024-08",
+      "end": "2024-11",
+      "items": [{ "id": "asistencia", "text": "Asistencia en limpiezas faciales y peelings superficiales." }]
+    },
+    "tecnicatura": {
+      "title": "Técnica Superior en Cosmetología Facial y Corporal",
+      "place": "Instituto Superior de Estética Córdoba",
+      "start": "2022-03",
+      "end": "2024-12"
+    },
+    "maquillaje": { "title": "Maquillaje profesional", "place": "Curso de seis meses", "start": "2023-04", "end": "2023-09" },
+    "lifting": { "title": "Lifting y tinte de pestañas", "place": "Taller de 8 horas", "start": "2024-05" },
+    "bioseguridad": { "title": "Bioseguridad en gabinetes de estética", "place": "Curso en línea, 20 horas", "start": "2023-11" }
+  },
+  "profiles": {
+    "cosmetologa": {
+      "name": "Cosmetóloga",
+      "subtitle": "Cosmetóloga recibida",
+      "contacts": ["phone", "email", "website", "location"],
+      "skills": [["habilidades"], ["idiomas"]],
+      "summary": "Cosmetóloga recién recibida, con práctica en cabina y en maquillaje para eventos. Me gusta que cada clienta se vaya sabiendo cómo cuidar su piel. Busco sumarme a un centro de estética donde seguir aprendiendo.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [
+            { "type": "entry", "entry": "lavanda" },
+            { "type": "entry", "entry": "independiente" },
+            { "type": "entry", "entry": "practicas" }
+          ]
+        },
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "blocks": [{ "type": "entry", "entry": "tecnicatura" }, { "type": "entry", "entry": "maquillaje" }]
+        },
+        {
+          "id": "cursos",
+          "title": "Cursos cortos",
+          "column": "side",
+          "blocks": [{ "type": "entry", "entry": "lifting" }, { "type": "entry", "entry": "bioseguridad" }]
+        }
+      ],
+      "layout": { "template": "arco", "fontSize": 11, "density": "relaxed" }
+    },
+    "recepcion": {
+      "name": "Recepción",
+      "subtitle": "Recepcionista de centro de estética o consultorio",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["atencion"], ["idiomas"]],
+      "summary": "Cosmetóloga recibida, con experiencia en atención de clientas, agenda de turnos y orden de la cabina. Busco un puesto de recepción en un centro de estética o un consultorio.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [{ "type": "entry", "entry": "lavanda" }, { "type": "entry", "entry": "independiente" }]
+        },
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "compact": true,
+          "blocks": [{ "type": "entry", "entry": "tecnicatura" }, { "type": "entry", "entry": "maquillaje" }]
+        }
+      ],
+      "layout": { "template": "recto", "columns": 1, "photo": "none" }
+    }
+  }
+}

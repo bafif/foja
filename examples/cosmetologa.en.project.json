@@ -1,0 +1,128 @@
+{
+  "format": "foja/3",
+  "language": "en",
+  "person": { "givenNames": ["Julieta"], "familyNames": ["Ferraro"], "photo": null },
+  "contacts": {
+    "phone": "+54 351 555-0187",
+    "email": "julieta.ferraro@example.com",
+    "website": "julietaferraro.example.com",
+    "location": "Córdoba, Argentina"
+  },
+  "skills": {
+    "skills": {
+      "title": "Skills",
+      "items": [
+        { "id": "facials", "text": "Deep-cleansing facials" },
+        { "id": "skin", "text": "Skin assessment and care" },
+        { "id": "makeup", "text": "Everyday and event makeup" },
+        { "id": "brows", "text": "Brow shaping and lash lifts" },
+        { "id": "manner", "text": "Warm and patient manner" }
+      ]
+    },
+    "front-desk": {
+      "title": "Front desk",
+      "items": [
+        { "id": "bookings", "text": "Bookings and reminders" },
+        { "id": "payments", "text": "Payments and sales records" },
+        { "id": "whatsapp", "text": "WhatsApp Business" },
+        { "id": "calm", "text": "Calm on the busiest days" }
+      ]
+    },
+    "languages": {
+      "title": "Languages",
+      "items": [{ "id": "spanish", "text": "Spanish (native)" }, { "id": "portuguese", "text": "Portuguese (basic)" }]
+    }
+  },
+  "entries": {
+    "lavanda": {
+      "title": "Treatment room assistant",
+      "place": "Centro de Estética Lavanda",
+      "start": "2025-02",
+      "end": null,
+      "items": [
+        { "id": "room", "text": "Preparing the treatment room and assisting with facial and body treatments." },
+        { "id": "bookings", "text": "Bookings over WhatsApp and welcoming clients." },
+        { "id": "hygiene", "text": "Hygiene checks and restocking products." }
+      ]
+    },
+    "freelance": {
+      "title": "Freelance makeup artist",
+      "place": "Events, graduations and weddings",
+      "start": "2023-10",
+      "end": null,
+      "items": [
+        { "id": "events", "text": "Makeup for more than 40 events, each with a trial beforehand." },
+        { "id": "social", "text": "Sharing my work on social media." }
+      ]
+    },
+    "placement": {
+      "title": "Work placement",
+      "place": "Dermatology practice, 120 hours",
+      "start": "2024-08",
+      "end": "2024-11",
+      "items": [{ "id": "assisting", "text": "Assisted with deep-cleansing facials and light peels." }]
+    },
+    "diploma": {
+      "title": "Higher technical diploma in facial and body cosmetology",
+      "place": "Instituto Superior de Estética Córdoba",
+      "start": "2022-03",
+      "end": "2024-12"
+    },
+    "makeup-course": { "title": "Professional makeup", "place": "Six-month course", "start": "2023-04", "end": "2023-09" },
+    "lash-lift": { "title": "Lash lift and tint", "place": "Eight-hour workshop", "start": "2024-05" },
+    "biosafety": { "title": "Biosafety in beauty treatment rooms", "place": "Online course, 20 hours", "start": "2023-11" }
+  },
+  "profiles": {
+    "cosmetologist": {
+      "name": "Cosmetologist",
+      "subtitle": "Qualified cosmetologist",
+      "contacts": ["phone", "email", "website", "location"],
+      "skills": [["skills"], ["languages"]],
+      "summary": "Newly qualified cosmetologist, with practice in the treatment room and in event makeup. I like every client to leave knowing how to look after her skin. I am looking to join a beauty centre where I can keep learning.",
+      "sections": [
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [
+            { "type": "entry", "entry": "lavanda" },
+            { "type": "entry", "entry": "freelance" },
+            { "type": "entry", "entry": "placement" }
+          ]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [{ "type": "entry", "entry": "diploma" }, { "type": "entry", "entry": "makeup-course" }]
+        },
+        {
+          "id": "courses",
+          "title": "Short courses",
+          "column": "side",
+          "blocks": [{ "type": "entry", "entry": "lash-lift" }, { "type": "entry", "entry": "biosafety" }]
+        }
+      ],
+      "layout": { "template": "arco", "fontSize": 11, "density": "relaxed" }
+    },
+    "reception": {
+      "name": "Reception",
+      "subtitle": "Receptionist at a beauty centre or a practice",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["front-desk"], ["languages"]],
+      "summary": "Qualified cosmetologist, with experience in client care, bookings and keeping the treatment room in order. Looking for a reception job at a beauty centre or a medical practice.",
+      "sections": [
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [{ "type": "entry", "entry": "lavanda" }, { "type": "entry", "entry": "freelance" }]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "compact": true,
+          "blocks": [{ "type": "entry", "entry": "diploma" }, { "type": "entry", "entry": "makeup-course" }]
+        }
+      ],
+      "layout": { "template": "recto", "columns": 1, "photo": "none" }
+    }
+  }
+}

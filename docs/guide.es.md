@@ -9,6 +9,7 @@ Foja es un editor de CV hecho sobre [Typst](https://typst.app). Vos completás f
 Abrí el editor y elegí una de estas opciones:
 
 - **Empezar con el ejemplo**: mi propio CV, con tres perfiles (programador, docente de matemática, física y electrónica, y técnico electrónico) armados con los mismos datos, para ver cómo está armado uno real. Se pasa de uno a otro en **Perfil**, arriba.
+- **Más ejemplos, con personas inventadas**: para quien tiene poca experiencia. Camila, estudiante que busca su primera pasantía (Portada y Claustro); Julieta, cosmetóloga recién recibida (Arco y Recto); y Tomás, que terminó el secundario y busca trabajo en comercios (Rótulo y Llano). Cada uno trae dos perfiles: primero uno vistoso y después uno que los portales de empleo leen bien. También están en el menú **Proyecto**.
 - **Proyecto vacío**: un CV en blanco.
 - **Importar JSON**: un archivo `.foja.json` exportado desde Foja (tuyo, o una plantilla que alguien compartió), o un CV en [JSON Resume](https://jsonresume.org), el formato abierto que usan otras herramientas: sus trabajos, estudios, proyectos, premios, certificaciones y publicaciones pasan al banco de entradas, y queda un perfil con una sección para cada cosa; sus habilidades y sus idiomas, como grupos de habilidades. Una foto que esté en la web no se baja (Foja no se conecta a nada): se agrega a mano.
 
@@ -27,7 +28,7 @@ Las fechas se cargan con selectores de mes; una entrada puede estar *en curso* o
 
 ## Estilos
 
-**Estilo y diseño** muestra los seis estilos de Foja, cada uno con una miniatura de tu CV:
+**Estilo y diseño** muestra los nueve estilos de Foja, cada uno con una miniatura de tu CV:
 
 - **Legajo** (el predeterminado): serif, el nombre en versalitas sobre una línea, una tarjeta en la barra lateral, las fechas en una columna propia.
 - **Banda**: una franja de color con el nombre y la foto; una sola columna, sans-serif.
@@ -40,6 +41,12 @@ Otros tres están hechos para los sistemas de selección (ATS) y los buscadores 
 - **Llano**: el más sobrio y compacto; títulos en negrita del color de acento, cada entrada en un renglón con el cargo y la institución.
 
 Los tres son una sola columna de texto, sin íconos ni texto en imágenes, con el contacto en el cuerpo (nunca en el encabezado ni en el pie de Word), títulos estándar (el resumen bajo «Perfil», las habilidades bajo «Habilidades») y el texto del PDF en el orden en que se ve, cosa que comprueba un test. Al elegir uno, el perfil queda con una columna, sin foto y con el largo Corto (ver abajo), salvo que Corto deje el perfil sin entradas; todo se escribe en el perfil, así que se ve y se cambia como cualquier otra opción.
+
+Los últimos tres son para un CV corto, un primer empleo o una pasantía: reparten lo poco que hay para que la hoja se vea llena y llame la atención. Donde va la foto, si no hay, muestran las iniciales.
+
+- **Arco**: un panel de color a la izquierda con la foto en arco, el nombre grande en una serif negrita, el subtítulo y el resumen en una tarjeta suave, títulos sobre una línea fina.
+- **Rótulo**: la foto en un círculo con un aro de color, el nombre grande y liviano en dos renglones, cada título sobre un rótulo de color, una línea fina entre las dos columnas.
+- **Portada**: editorial, como una revista: el contacto arriba de lado a lado, el nombre muy grande en mayúsculas al lado de la foto, cada parte en una fila con su título a la izquierda, las habilidades en columnas al pie.
 
 Debajo de los estilos, las opciones que respeta el estilo elegido: una o dos columnas, lado y ancho de la barra lateral, forma de la foto, tipografía, tamaño, color, márgenes, espaciado, papel, formato de fecha y el idioma de las etiquetas fijas (español, inglés, portugués).
 
@@ -84,9 +91,9 @@ La insignia arriba de la vista previa te dice si el CV entra en una página y, s
 | :--- | :--- |
 | PDF | El CV tal como lo ves. |
 | JPG | Una imagen por página, a 72, 150 o 300 dpi. |
-| Word (`.docx`) | Con el aspecto del estilo incluido del perfil, rehecho en Word, que no puede correr Typst. Un estilo propio sale como Legajo. Claustro, Recto y Llano van solo con párrafos, sin tablas, y las fechas en una tabulación en el margen derecho. Word no trae XCharter y usa Georgia, que es más ancha: un CV que entra justo en el PDF puede pasarse a una segunda página. |
+| Word (`.docx`) | Con el aspecto del estilo incluido del perfil, rehecho en Word, que no puede correr Typst. Un estilo propio sale como Legajo; Arco y Rótulo, con la disposición de Legajo, y Portada, con la de Minimal, cada uno con su color. Claustro, Recto y Llano van solo con párrafos, sin tablas, y las fechas en una tabulación en el margen derecho. Word no trae XCharter y usa Georgia, que es más ancha: un CV que entra justo en el PDF puede pasarse a una segunda página. |
 | Typst (`.zip`) | El estilo, el proyecto y las fuentes: compila con `typst compile` y se abre en typst.app. Es la única exportación que conserva tal cual un estilo propio. |
-| LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. |
+| LaTeX (`.zip`) | Con el aspecto del estilo incluido del perfil; un estilo propio sale como Legajo, y Arco, Rótulo y Portada, como en Word. LaTeX corta las líneas un poco distinto, así que un CV que entra justo en el PDF puede pasarse por unas líneas. |
 | Markdown | Un CV en texto plano para un README o un formulario que acepta texto. |
 | JSON | El archivo del proyecto, para volver a importarlo o pasarlo a otro dispositivo. |
 | JSON Resume | El perfil en [JSON Resume](https://jsonresume.org), para otras herramientas y sus temas. Sus secciones son fijas: cada sección del perfil va a la que dice su nombre (experiencia, formación, proyectos, premios, idiomas…), y una de entradas que no coincide con ninguna, a la experiencia. Lo que no tiene lugar ahí, como una sección de fortalezas, Foja lo nombra al exportar; sigue en el JSON del proyecto. |

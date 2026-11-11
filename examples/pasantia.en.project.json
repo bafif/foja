@@ -1,0 +1,120 @@
+{
+  "format": "foja/3",
+  "language": "en",
+  "person": { "givenNames": ["Camila"], "familyNames": ["Ríos"], "photo": null },
+  "contacts": {
+    "phone": "+54 341 555-0142",
+    "email": "camila.rios@example.com",
+    "linkedin": "linkedin.com/in/camila-rios-ejemplo",
+    "location": "Rosario, Argentina"
+  },
+  "skills": {
+    "languages": {
+      "title": "Languages",
+      "items": [{ "id": "spanish", "text": "Spanish (native)" }, { "id": "english", "text": "English (B2)" }]
+    },
+    "skills": {
+      "title": "Skills",
+      "items": [
+        { "id": "administration", "text": "Office administration" },
+        { "id": "data", "text": "Data analysis" },
+        { "id": "teamwork", "text": "Teamwork" },
+        { "id": "communication", "text": "Written and spoken communication" },
+        { "id": "problems", "text": "Problem solving" }
+      ]
+    },
+    "tools": {
+      "title": "Tools",
+      "items": [
+        { "id": "excel", "text": "Excel (intermediate)" },
+        { "id": "workspace", "text": "Google Workspace" },
+        { "id": "power-bi", "text": "Power BI (basic)" },
+        { "id": "tango", "text": "Tango Gestión (basic)" }
+      ]
+    }
+  },
+  "entries": {
+    "degree": {
+      "title": "Bachelor's in Business Administration (in progress)",
+      "place": "Universidad Nacional de Rosario",
+      "start": "2021-03",
+      "end": null,
+      "note": "Fourth year · GPA 8.4 out of 10"
+    },
+    "excel-course": { "title": "Excel for management", "place": "University extension course, 30 hours", "start": "2024-08" },
+    "school": {
+      "title": "Secondary school, economics and administration",
+      "place": "Escuela Secundaria N.º 512",
+      "start": "2015-03",
+      "end": "2020-12"
+    },
+    "assistant": {
+      "title": "Student teaching assistant, Principles of Management",
+      "place": "School of Economics and Statistics, UNR",
+      "start": "2023-03",
+      "end": null,
+      "items": [
+        { "id": "materials", "text": "Preparing study materials and practical assignments." },
+        { "id": "questions", "text": "Answering students' questions before exams, in groups of 30." },
+        { "id": "schedules", "text": "Keeping track of the course and its submission schedules." }
+      ]
+    },
+    "treasurer": {
+      "title": "Volunteer treasurer",
+      "place": "Club Social y Deportivo Barrio Norte",
+      "start": "2022-04",
+      "end": "2023-12",
+      "items": [
+        { "id": "fees", "text": "Recorded fees and payments in an Excel workbook I built from scratch." },
+        { "id": "report", "text": "Monthly report of income and expenses to the club's board." }
+      ]
+    }
+  },
+  "profiles": {
+    "internship": {
+      "name": "Internship",
+      "subtitle": "Business Administration student",
+      "highlight": { "title": "Looking for", "text": "An internship in administration or finance" },
+      "contacts": ["phone", "email", "linkedin", "location"],
+      "skills": [["languages", "skills", "tools"]],
+      "summary": "Advanced Business Administration student with an interest in finance and management. I am organised, learn fast and enjoy working in a team. I am looking for an internship where I can apply what I study and gain experience in an organisation.",
+      "sections": [
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [{ "type": "entry", "entry": "degree" }, { "type": "entry", "entry": "excel-course" }]
+        },
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [{ "type": "entry", "entry": "assistant" }, { "type": "entry", "entry": "treasurer" }]
+        }
+      ],
+      "layout": { "template": "portada", "fontSize": 11, "density": "relaxed" }
+    },
+    "job-boards": {
+      "name": "Job boards",
+      "subtitle": "Business Administration student",
+      "contacts": ["phone", "email", "linkedin", "location"],
+      "skills": [["tools"], ["languages"]],
+      "summary": "Fourth-year Business Administration student, with experience as a teaching assistant and as a club's treasurer. Looking for an internship in administration or finance.",
+      "sections": [
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [
+            { "type": "entry", "entry": "degree" },
+            { "type": "entry", "entry": "school" },
+            { "type": "entry", "entry": "excel-course" }
+          ]
+        },
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [{ "type": "entry", "entry": "assistant" }, { "type": "entry", "entry": "treasurer" }]
+        }
+      ],
+      "layout": { "template": "claustro", "columns": 1, "photo": "none" }
+    }
+  }
+}

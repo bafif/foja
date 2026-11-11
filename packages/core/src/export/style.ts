@@ -3,7 +3,7 @@
 
 import { DEFAULT_ACCENT } from "../project.ts";
 import { resolveProfile, type ResolvedCv } from "../resolve.ts";
-import { styleOf } from "../templates.ts";
+import { BUILTIN_STYLES, styleOf } from "../templates.ts";
 import type { Layout, Project } from "../types.ts";
 
 export type ExportStyle = "legajo" | "banda" | "minimal" | "claustro" | "recto" | "llano";
@@ -26,21 +26,38 @@ const STYLE_DEFAULTS: Record<Exclude<ExportStyle, "legajo">, Defaults> = {
   llano: { margins: { top: 13, bottom: 13, left: 15, right: 15 }, accent: DEFAULT_ACCENT, font: "Noto Sans" },
 };
 
-/** The profile's built-in style, or Legajo for a style of the user's own. */
-export function exportStyleOf(project: Project, profileId: string): { style: ExportStyle; custom: boolean } {
+/** Built-in styles with no LaTeX or Word version of their own (Arco, Rótulo and Portada, whose
+ * looks are made of Typst's shapes): they come out in the layout of the nearest one, with their
+ * own colour and typeface. */
+const NEAREST: Record<string, { look: ExportStyle; accent: string; font: NonNullable<Layout["font"]> }> = {
+  arco: { look: "legajo", accent: "#b06a5b", font: "Noto Sans" },
+  rotulo: { look: "legajo", accent: "#a35a83", font: "Noto Sans" },
+  portada: { look: "minimal", accent: "#1b1b1b", font: "Noto Sans" },
+};
+
+/** The name of a built-in style by id. */
+export const styleName = (id: string) => BUILTIN_STYLES.find((s) => s.id === id)?.name ?? id;
+
+/** The profile's built-in style, or Legajo for a style of the user's own. `standsIn` is the
+ * built-in style the look stands in for, when that one has no LaTeX or Word version. */
+export function exportStyleOf(project: Project, profileId: string): { style: ExportStyle; custom: boolean; standsIn?: string } {
   const s = styleOf(project, profileId);
-  return s.custom ? { style: "legajo", custom: true } : { style: s.id as ExportStyle, custom: false };
+  if (s.custom) return { style: "legajo", custom: true };
+  const near = NEAREST[s.id];
+  return near ? { style: near.look, custom: false, standsIn: s.id } : { style: s.id as ExportStyle, custom: false };
 }
 
 /** The profile resolved with its style's defaults where the layout says nothing (the resolver
  * fills in Legajo's): every other style is one column, with its own font, margins and accent. */
-export function resolveStyled(project: Project, profileId: string): { cv: ResolvedCv; style: ExportStyle; custom: boolean } {
-  const { style, custom } = exportStyleOf(project, profileId);
-  if (style === "legajo") return { cv: resolveProfile(project, profileId), style, custom };
+export function resolveStyled(project: Project, profileId: string): { cv: ResolvedCv; style: ExportStyle; custom: boolean; standsIn?: string } {
+  const { style, custom, standsIn } = exportStyleOf(project, profileId);
   const profile = project.profiles[profileId];
   const layout = profile.layout ?? {};
+  const near = standsIn ? NEAREST[standsIn] : undefined;
+  const own = near ? { font: layout.font ?? near.font, accent: layout.accent ?? near.accent } : {};
+  const withLayout = (next: Layout) => ({ ...project, profiles: { ...project.profiles, [profileId]: { ...profile, layout: next } } });
+  if (style === "legajo") return { cv: resolveProfile(near ? withLayout({ ...layout, ...own }) : project, profileId), style, custom, standsIn };
   const d = STYLE_DEFAULTS[style];
-  const styled = { ...layout, columns: 1 as const, font: layout.font ?? d.font, accent: layout.accent ?? d.accent, margins: { ...d.margins, ...layout.margins } };
-  const styledProject = { ...project, profiles: { ...project.profiles, [profileId]: { ...profile, layout: styled } } };
-  return { cv: resolveProfile(styledProject, profileId), style, custom };
+  const styled = { ...layout, columns: 1 as const, font: layout.font ?? d.font, accent: layout.accent ?? d.accent, margins: { ...d.margins, ...layout.margins }, ...own };
+  return { cv: resolveProfile(withLayout(styled), profileId), style, custom, standsIn };
 }

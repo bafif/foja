@@ -37,5 +37,23 @@
     "description": "El más sobrio y compacto, en sans: títulos en negrita del color de acento y cada entrada en un renglón, con el cargo y la institución. Una columna, legible para ATS.",
     "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"],
     "preset": { "columns": 1, "photo": "none", "length": "short" }
+  },
+  {
+    "id": "arco",
+    "name": "Arco",
+    "description": "Para un CV con pocas cosas: un panel de color a la izquierda con la foto en arco (o las iniciales), el nombre grande en serif, el subtítulo y el resumen en una tarjeta suave y títulos con una línea fina. Dos columnas.",
+    "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"]
+  },
+  {
+    "id": "rotulo",
+    "name": "Rótulo",
+    "description": "Liviano y con aire: la foto en un círculo con aro de color (o las iniciales), el nombre grande en dos renglones, el subtítulo en mayúsculas espaciadas y cada título sobre un rótulo de color. Dos columnas separadas por una línea fina.",
+    "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"]
+  },
+  {
+    "id": "portada",
+    "name": "Portada",
+    "description": "Editorial, como una revista: el contacto en mayúsculas arriba, la foto junto al nombre muy grande, y cada parte en su fila, con el título a la izquierda en serif y una raya entre filas. Las habilidades cierran la hoja en columnas.",
+    "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"]
   }
 ]

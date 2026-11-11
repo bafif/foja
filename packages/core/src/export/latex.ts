@@ -8,7 +8,7 @@ import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "
 import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
 import type { ZipInput } from "../zip.ts";
-import { isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
+import { isAtsStyle, resolveStyled, STYLE_NAMES, styleName, type AtsStyle, type ExportStyle } from "./style.ts";
 import { latexStyleOf, latexTemplateBundle } from "./latex-template.ts";
 
 type LatexStyle = ExportStyle;
@@ -444,7 +444,7 @@ export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo"): strin
 export function latexBundle(project: Project, profileId: string): ZipInput {
   // An imported LaTeX template is handed out as itself, filled with the CV.
   if (latexStyleOf(project, profileId)) return latexTemplateBundle(project, profileId);
-  const { cv, style, custom } = resolveStyled(project, profileId);
+  const { cv, style, custom, standsIn } = resolveStyled(project, profileId);
   const files: ZipInput = {
     "cv.tex": renderLatex(cv, style),
     "README.txt": [
@@ -455,7 +455,9 @@ export function latexBundle(project: Project, profileId: string): ZipInput {
       "and MiKTeX.",
       custom
         ? "The profile uses a style of your own, written in Typst, which cannot be turned into LaTeX: this is in Foja's Legajo look. The Typst export keeps your style."
-        : `It is in the look of Foja's ${STYLE_NAMES[style]} style, the one the profile uses.`,
+        : standsIn
+          ? `The profile uses Foja's ${styleName(standsIn)} style, which has no LaTeX version of its own: this is in the layout of the ${STYLE_NAMES[style]} style, with ${styleName(standsIn)}'s colour. The Typst export keeps ${styleName(standsIn)}.`
+          : `It is in the look of Foja's ${STYLE_NAMES[style]} style, the one the profile uses.`,
       ...(cv.photo?.type === "image/svg+xml" ? ["", "The photo is an SVG, which pdflatex cannot include, so it was left out."] : []),
       "",
     ].join("\n"),

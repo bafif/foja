@@ -7,8 +7,8 @@ that is the real Typst output, and exports to Typst, PDF, JPG, LaTeX, Markdown, 
 Everything runs in the browser; your CV never leaves your machine.
 
 - **Profiles from one bank of entries**: one CV per kind of job, the entries written once.
-- **Six styles of its own** (Legajo, Banda, Minimal, and Claustro, Recto and Llano, made for
-  applicant tracking systems) with layout options, and **styles you write in Typst** ("Edit in
+- **Nine styles of its own** (Legajo, Banda, Minimal; Claustro, Recto and Llano, made for
+  applicant tracking systems; Arco, Rótulo and Portada, for a short CV) with layout options, and **styles you write in Typst** ("Edit in
   Typst" copies any style into one of your own).
 - **Typst and LaTeX templates imported** with fixed rules, no AI: their sample content as a
   profile and their look as a style of your own, after a form where you check which argument is
@@ -38,11 +38,11 @@ Status: the editor, the exporters and the CLI work, and the editor is online at
 
 ```
 packages/core      project format (JSON Schema + types), validation, shared helpers
-packages/template  the six built-in Typst styles, their library, labels and fonts
+packages/template  the nine built-in Typst styles, their library, labels and fonts
 packages/cli       `foja` on Node: build PDF/SVG/Typst bundles from a project
 apps/web           the Astro site and editor
-examples/          the editor's example, my CV with its three profiles (Spanish, English); test fixtures: a
-                   fictional CV and my full CV (fake phone)
+examples/          the editor's examples (Spanish, English): my CV with its three profiles, and three made-up
+                   people with little experience; test fixtures: a fictional CV and my full CV (fake phone)
 cvgen/             the first version: my CV data and the Python (LaTeX) and C generators
 ```
 

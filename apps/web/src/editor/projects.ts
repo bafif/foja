@@ -1,11 +1,30 @@
 import { CONTACT_KINDS, FORMAT, fromJsonResume, isJsonResume, migrate, validate, type Profile, type Project } from "@foja/core";
 import exampleEs from "../../../../examples/example.project.json";
 import exampleEn from "../../../../examples/example.en.project.json";
+import pasantiaEs from "../../../../examples/pasantia.project.json";
+import pasantiaEn from "../../../../examples/pasantia.en.project.json";
+import cosmetologaEs from "../../../../examples/cosmetologa.project.json";
+import cosmetologaEn from "../../../../examples/cosmetologa.en.project.json";
+import primerEmpleoEs from "../../../../examples/primer-empleo.project.json";
+import primerEmpleoEn from "../../../../examples/primer-empleo.en.project.json";
 import { t, useLanguage } from "./i18n";
 import { newId } from "./forms/Skills";
 
-/** The example, my own CV with its three profiles, in the interface's language. */
-export const exampleProject = (): Project => structuredClone(useLanguage.getState().lang === "es" ? exampleEs : exampleEn) as Project;
+/** The examples with made-up people, for a CV with little in it: each has a profile in an
+ * eye-catching style first and one for job portals second. */
+const EXAMPLES = {
+  pasantia: [pasantiaEs, pasantiaEn],
+  cosmetologa: [cosmetologaEs, cosmetologaEn],
+  primerEmpleo: [primerEmpleoEs, primerEmpleoEn],
+} satisfies Record<string, [unknown, unknown]>;
+export type ExampleId = keyof typeof EXAMPLES;
+export const EXAMPLE_IDS = Object.keys(EXAMPLES) as ExampleId[];
+
+/** An example in the interface's language: my own CV with its three profiles, or `id`'s. */
+export const exampleProject = (id?: ExampleId): Project => {
+  const [es, en]: [unknown, unknown] = id ? EXAMPLES[id] : [exampleEs, exampleEn];
+  return structuredClone(useLanguage.getState().lang === "es" ? es : en) as Project;
+};
 
 export function emptyProject(): Project {
   return {

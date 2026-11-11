@@ -25,7 +25,7 @@ const es = {
     ],
     [
       "Estilos propios, en Typst",
-      "Seis estilos de Foja (Legajo, Banda, Minimal y tres legibles para los sistemas de selección: Claustro, Recto y Llano) con sus opciones: columnas, foto, color, letra, márgenes, papel. Y si querés otro, «Editar en Typst» te da el código del estilo para hacerlo tuyo.",
+      "Nueve estilos de Foja (Legajo, Banda, Minimal, tres legibles para los sistemas de selección, Claustro, Recto y Llano, y tres para un CV con pocas cosas, Arco, Rótulo y Portada) con sus opciones: columnas, foto, color, letra, márgenes, papel. Y si querés otro, «Editar en Typst» te da el código del estilo para hacerlo tuyo.",
     ],
   ],
   exportHeading: "Exportá a lo que te pidan",
@@ -65,7 +65,7 @@ const en: typeof es = {
     ],
     [
       "Styles of your own, in Typst",
-      "Six Foja styles (Legajo, Banda, Minimal and three that applicant tracking systems read well: Claustro, Recto and Llano) with their options: columns, photo, colour, typeface, margins, paper. And if you want another, “Edit in Typst” gives you the style's code to make it yours.",
+      "Nine Foja styles (Legajo, Banda, Minimal, three that applicant tracking systems read well, Claustro, Recto and Llano, and three for a CV with little in it, Arco, Rótulo and Portada) with their options: columns, photo, colour, typeface, margins, paper. And if you want another, “Edit in Typst” gives you the style's code to make it yours.",
     ],
   ],
   exportHeading: "Export to whatever they ask for",

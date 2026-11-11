@@ -8,8 +8,8 @@ Todo corre en el navegador; tu CV nunca sale de tu máquina.
 
 - **Perfiles a partir de un solo banco de entradas**: un CV por tipo de trabajo, con las entradas escritas una sola
   vez.
-- **Seis estilos propios** (Legajo, Banda, Minimal, y Claustro, Recto y Llano, hechos para los sistemas de
-  selección) con opciones de diseño, y **estilos que escribís vos en Typst**
+- **Nueve estilos propios** (Legajo, Banda, Minimal; Claustro, Recto y Llano, hechos para los sistemas de
+  selección; Arco, Rótulo y Portada, para un CV corto) con opciones de diseño, y **estilos que escribís vos en Typst**
   («Editar en Typst» copia cualquier estilo en uno tuyo).
 - **Plantillas de Typst y de LaTeX importadas** con reglas fijas, sin IA: su contenido de ejemplo como perfil y
   su aspecto como estilo propio, después de un formulario donde revisás qué argumento es cada campo (una plantilla
@@ -39,11 +39,12 @@ Estado: el editor, los exportadores y la CLI funcionan, y el editor está en lí
 
 ```
 packages/core      formato de proyecto (JSON Schema + tipos), validación, utilidades compartidas
-packages/template  los seis estilos de Typst incluidos, su biblioteca, etiquetas y fuentes
+packages/template  los nueve estilos de Typst incluidos, su biblioteca, etiquetas y fuentes
 packages/cli       `foja` sobre Node: genera PDF/SVG/paquetes de Typst a partir de un proyecto
 apps/web           el sitio y el editor en Astro
-examples/          el ejemplo del editor, mi CV con sus tres perfiles (español, inglés); fixtures de prueba: un
-                   CV ficticio y mi CV completo (teléfono falso)
+examples/          los ejemplos del editor (español, inglés): mi CV con sus tres perfiles y tres personas
+                   inventadas con poca experiencia; fixtures de prueba: un CV ficticio y mi CV completo
+                   (teléfono falso)
 cvgen/             la primera versión: los datos de mi CV y los generadores en Python (LaTeX) y C
 ```
 

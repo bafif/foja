@@ -2,7 +2,7 @@ import { useState } from "react";
 import { installed, ios } from "./device";
 import { t } from "./i18n";
 import { LanguageSelect } from "./LanguageSelect";
-import { emptyProject, exampleProject, parseProject } from "./projects";
+import { EXAMPLE_IDS, emptyProject, exampleProject, parseProject } from "./projects";
 import { useEditor } from "./store";
 
 export function Welcome() {
@@ -32,6 +32,25 @@ export function Welcome() {
       <p data-testid="example-profiles" className="text-sm text-muted">
         {t.exampleProfiles}
       </p>
+      <section className="flex flex-col gap-2" aria-labelledby="more-examples">
+        <h2 id="more-examples" className="text-lg font-semibold">
+          {t.moreExamples}
+        </h2>
+        <p className="text-sm text-muted">{t.moreExamplesText}</p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {EXAMPLE_IDS.map((id) => (
+            <button
+              key={id}
+              data-example={id}
+              className="flex flex-col items-start gap-1 rounded border border-line p-3 text-left hover:border-accent hover:bg-surface-2"
+              onClick={() => load(exampleProject(id))}
+            >
+              <span className="font-semibold">{t.examples[id].name}</span>
+              <span className="text-xs text-muted">{t.examples[id].description}</span>
+            </button>
+          ))}
+        </div>
+      </section>
       {error && (
         <pre role="alert" className="text-sm whitespace-pre-wrap text-red-700">
           {t.importFailed}
