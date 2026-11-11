@@ -67,10 +67,10 @@ Containers (rootless Podman) stay for development only.
 
 ### Live preview in the browser
 
-typst.ts compiles in a Web Worker. On a modest four-core CPU a one-character change takes about 50 ms of Typst and 4
-ms of SVG rendering, so the preview follows every keystroke, and it replaces only the pages that changed, so a long CV
-does not slow typing down. The compiler is 28 MB of WebAssembly (7 MB with brotli): the first visit shows a loading
-state and the service worker precaches it.
+typst.ts compiles in a Web Worker. On a modest four-core CPU a one-character change takes about 50 ms of Typst and
+4 ms of SVG rendering, so the preview follows every keystroke; and since it replaces only the pages that changed, a
+long CV does not slow typing down. The compiler is 28 MB of WebAssembly (7 MB with brotli): the first visit shows a
+loading state and the service worker precaches it.
 
 ### LaTeX: exported as source, compiled only for imported templates
 
