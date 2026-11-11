@@ -41,8 +41,8 @@ icon and offline:
 
 - **On a computer**, install it from Chrome's or Edge's install button.
 - **On Android**, in Chrome: “⋯ → Install as an app” in Foja's menu.
-- **On iPhone and iPad**, in Safari or Chrome: “Share → Add to Home Screen”. If your CV lives on an iPhone, install
-  it: iOS deletes what a site saved after a week without opening it, unless it is on the Home Screen.
+- **On iPhone and iPad**, in Safari or Chrome: “Share → More → Add to Home Screen”. If your CV lives on an iPhone,
+  install it: iOS deletes what a site saved after a week without opening it, unless it is on the Home Screen.
 
 There are also a desktop app and a command line, not published yet (see [Status](#status)): the
 [user guide](docs/guide.md#the-desktop-app) and the [command line's README](packages/cli/README.md) describe them.

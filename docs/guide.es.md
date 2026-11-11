@@ -182,9 +182,10 @@ página, **Vista previa** lo marca con un punto. Arriba quedan solo el perfil, d
 abajo el resto: crear, duplicar o borrar un perfil, el proyecto, el idioma, la apariencia y la paleta de comandos.
 
 - **Instalala como app.** En Android, en Chrome: **⋯ → Instalar como app** en el menú de Foja (o en el menú de Chrome →
-  *Agregar a la pantalla principal*). En iPhone y iPad, en Safari o Chrome: **Compartir → Agregar a inicio** (en Chrome,
-  Compartir está en la barra de direcciones). Se abre en pantalla completa, sin las barras del navegador, y funciona sin
-  conexión.
+  *Agregar a la pantalla principal*). En iPhone y iPad, en Safari o Chrome: **Compartir → Más → Agregar a inicio**, con
+  «Abrir como app web» activado (en Chrome, Compartir está en la barra de direcciones; en Safari desde iOS 26, adentro
+  de «•••»). **⋯ → Instalar como app** muestra los pasos para el navegador que estés usando. Se abre en pantalla
+  completa, sin las barras del navegador, y funciona sin conexión.
 - **En el iPhone, instalala si tu CV vive ahí.** iOS borra lo que un sitio guardó cuando pasa una semana sin abrirse,
   salvo que esté en la pantalla de inicio. La app de la pantalla de inicio tiene su propio almacenamiento, separado del
   del navegador: para llevarte un proyecto que empezaste en el navegador, exportalo como JSON e importalo en la app.

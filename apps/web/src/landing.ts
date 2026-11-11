@@ -12,7 +12,7 @@ const es = {
     'Completás formularios y ves al lado el resultado real de <a class="underline" href="https://typst.app">Typst</a>, al instante. Un mismo banco de experiencias alimenta varios perfiles: el CV para un puesto de programación y el de docencia salen de los mismos datos.',
   open: "Abrir el editor",
   source: "Código fuente",
-  note: "Gratis, sin cuentas, y funciona sin conexión una vez abierto. En el celular se instala como una app: desde Chrome en Android y desde Safari o Chrome en iPhone (Compartir → «Agregar a inicio»).",
+  note: "Gratis, sin cuentas, y funciona sin conexión una vez abierto. En el celular se instala como una app: desde Chrome en Android y desde Safari o Chrome en iPhone (Compartir → «Más» → «Agregar a inicio»).",
   screenshot: "El editor de Foja: a la izquierda, los formularios de una entrada; a la derecha, la vista previa del CV.",
   features: [
     [
@@ -52,7 +52,7 @@ const en: typeof es = {
     'You fill in forms and see the real <a class="underline" href="https://typst.app">Typst</a> output next to them, as you type. One bank of experience feeds several profiles: the CV for a programming job and the one for teaching come from the same data.',
   open: "Open the editor",
   source: "Source code",
-  note: "Free, no accounts, and it works offline once it has been opened. On a phone it installs as an app: from Chrome on Android, and from Safari or Chrome on iPhone (Share → “Add to Home Screen”).",
+  note: "Free, no accounts, and it works offline once it has been opened. On a phone it installs as an app: from Chrome on Android, and from Safari or Chrome on iPhone (Share → “More” → “Add to Home Screen”).",
   screenshot: "Foja's editor: on the left, the forms of an entry; on the right, the preview of the CV.",
   features: [
     [

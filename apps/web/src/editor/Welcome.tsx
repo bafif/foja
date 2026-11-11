@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { installed, ios } from "./device";
+import { InstallSteps } from "./InstallSteps";
 import { t } from "./i18n";
 import { LanguageSelect } from "./LanguageSelect";
 import { EXAMPLE_IDS, emptyProject, exampleProject, parseProject } from "./projects";
@@ -16,9 +17,13 @@ export function Welcome() {
       <h1 className="text-3xl font-semibold">{t.welcomeTitle}</h1>
       <p className="text-muted">{t.welcomeText}</p>
       {ios() && !installed() && (
-        <p data-testid="ios-install" className="rounded border border-line bg-surface-2 p-3 text-sm">
-          {t.iosKeep}
-        </p>
+        <div data-testid="ios-install" className="rounded border border-line bg-surface-2 p-3 text-sm">
+          <p>{t.iosKeep}</p>
+          <details className="mt-1">
+            <summary className="cursor-pointer">{t.installHow}</summary>
+            <InstallSteps />
+          </details>
+        </div>
       )}
       <div className="flex flex-wrap gap-3">
         <button className="rounded bg-accent px-4 py-2 text-on-accent hover:opacity-90" onClick={() => load(exampleProject())}>

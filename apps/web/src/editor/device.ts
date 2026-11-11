@@ -12,6 +12,10 @@ export const installed = () => matchMedia("(display-mode: standalone)").matches 
 /** iPhone or iPad (iPadOS presents itself as a Mac with a touch screen). */
 export const ios = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
+/** The browser on an iPhone or iPad: each puts "Add to Home Screen" in a different place. */
+export const iosBrowser = (): "chrome" | "safari" | "other" =>
+  /CriOS/.test(navigator.userAgent) ? "chrome" : /FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|YaBrowser/.test(navigator.userAgent) ? "other" : "safari";
+
 /** Whether exports can go to the share sheet here, before building any file. */
 export const canShareFiles = () => touch() && typeof navigator.canShare === "function";
 

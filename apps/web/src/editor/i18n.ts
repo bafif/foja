@@ -21,9 +21,30 @@ export const es = {
   project: "Proyecto",
   more: "Más acciones",
   install: "Instalar como app",
-  installIos: "En Safari o en Chrome, tocá Compartir (en Chrome está en la barra de direcciones) y después «Agregar a inicio».",
-  iosKeep:
-    "En iPhone y iPad, agregala a la pantalla de inicio desde Safari o Chrome (Compartir → «Agregar a inicio»): queda como una app y tu CV no se borra si pasás una semana sin abrirla.",
+  installHow: "Cómo instalarla",
+  installSteps: {
+    chrome: [
+      "Tocá el ícono de compartir, a la derecha de la dirección.",
+      "Si «Agregar a inicio» no está a la vista, tocá «Más» o deslizá la lista hacia abajo.",
+      "Tocá «Agregar a inicio», dejá activado «Abrir como app web» si aparece y tocá «Agregar».",
+    ],
+    safari: [
+      "Tocá Compartir. En iOS 26 o más nuevo está adentro de «•••», al lado de la dirección.",
+      "Si «Agregar a inicio» no está a la vista, tocá «Más» o deslizá la lista hacia abajo.",
+      "Tocá «Agregar a inicio», dejá activado «Abrir como app web» si aparece y tocá «Agregar».",
+    ],
+    other: [
+      "Abrí el menú de compartir del navegador.",
+      "Si «Agregar a inicio» no está a la vista, tocá «Más» o deslizá la lista hacia abajo.",
+      "Tocá «Agregar a inicio», dejá activado «Abrir como app web» si aparece y tocá «Agregar».",
+    ],
+  },
+  installElse: {
+    chrome: "Si no aparece, abrí Foja en Safari y hacelo desde ahí.",
+    safari: "Si no aparece, tocá «Editar acciones…», al final de la lista, y sumalo.",
+    other: "Si no aparece, abrí Foja en Safari y hacelo desde ahí.",
+  },
+  iosKeep: "En iPhone y iPad conviene instalarla como app: así tu CV no se borra si pasás una semana sin abrirla.",
   restorePrevious: "Recuperar el proyecto anterior",
   tabs: {
     elsewhereTitle: "Foja ya está abierto en otra pestaña",
@@ -361,9 +382,30 @@ export const en: Strings = {
   project: "Project",
   more: "More actions",
   install: "Install as an app",
-  installIos: "In Safari or Chrome, tap Share (in Chrome it is in the address bar), then “Add to Home Screen”.",
-  iosKeep:
-    "On iPhone and iPad, add it to the Home Screen from Safari or Chrome (Share → “Add to Home Screen”): it becomes an app, and your CV is not deleted if you leave it unopened for a week.",
+  installHow: "How to install it",
+  installSteps: {
+    chrome: [
+      "Tap the share icon, to the right of the address.",
+      "If “Add to Home Screen” is not in sight, tap “More” or scroll the list down.",
+      "Tap “Add to Home Screen”, leave “Open as Web App” on if it shows, and tap “Add”.",
+    ],
+    safari: [
+      "Tap Share. On iOS 26 or later it is inside “•••”, next to the address.",
+      "If “Add to Home Screen” is not in sight, tap “More” or scroll the list down.",
+      "Tap “Add to Home Screen”, leave “Open as Web App” on if it shows, and tap “Add”.",
+    ],
+    other: [
+      "Open the browser's share menu.",
+      "If “Add to Home Screen” is not in sight, tap “More” or scroll the list down.",
+      "Tap “Add to Home Screen”, leave “Open as Web App” on if it shows, and tap “Add”.",
+    ],
+  },
+  installElse: {
+    chrome: "If it is not there, open Foja in Safari and do it from there.",
+    safari: "If it is not there, tap “Edit Actions…” at the end of the list and add it.",
+    other: "If it is not there, open Foja in Safari and do it from there.",
+  },
+  iosKeep: "On iPhone and iPad it is worth installing it as an app: that way your CV is not deleted if you leave it unopened for a week.",
   restorePrevious: "Restore the previous project",
   tabs: {
     elsewhereTitle: "Foja is already open in another tab",

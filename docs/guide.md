@@ -191,8 +191,10 @@ rest from the bottom: creating, duplicating or deleting a profile, the project, 
 and the command palette.
 
 - **Install it as an app.** On Android, in Chrome: **⋯ → Install as an app** in Foja's menu (or Chrome's own menu → *Add
-  to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → Add to Home Screen** (Chrome has Share in the
-  address bar). It opens full screen, without the browser's bars, and works offline.
+  to Home screen*). On iPhone and iPad, in Safari or Chrome: **Share → More → Add to Home Screen**, with
+  “Open as Web App” on (Chrome has Share in the address bar; Safari, since iOS 26, inside “•••”). **⋯ → Install as an
+  app** shows the steps for the browser you are using. It opens full screen, without the browser's bars, and works
+  offline.
 - **On an iPhone, install it if your CV lives there.** iOS deletes what a site saved when the
   site goes a week without being opened, unless it is on the Home Screen. The app on the Home
   Screen keeps its own storage, apart from the browser's: to take a project you started in the

@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { profileName } from "@foja/core";
+import { InstallSteps } from "./InstallSteps";
 import { ExportDialog } from "./ExportDialog";
 import { ContactsForm } from "./forms/Contacts";
 import { EntriesList, EntryForm } from "./forms/Entries";
@@ -251,7 +252,11 @@ function InstallControl() {
       <Button expanded={steps} onClick={() => setSteps(!steps)}>
         {t.install}
       </Button>
-      {steps && <p className="px-2 text-xs text-muted">{t.installIos}</p>}
+      {steps && (
+        <div className="px-2">
+          <InstallSteps />
+        </div>
+      )}
     </>
   );
 }
