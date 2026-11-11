@@ -9,6 +9,7 @@ import { EntriesList, EntryForm } from "./forms/Entries";
 import { LayoutForm } from "./forms/Layout";
 import { PersonForm } from "./forms/Person";
 import { addSection, ProfileTextForm } from "./forms/ProfileText";
+import { SelectionForm } from "./forms/Selection";
 import { SectionForm } from "./forms/Section";
 import { SkillsForm } from "./forms/Skills";
 import { StyleEditor } from "./forms/StyleEditor";
@@ -494,6 +495,11 @@ function SelectionPanel() {
     case "section":
       return <SectionForm key={selection.index} index={selection.index} />;
     default:
-      return <ProfileTextForm />;
+      return (
+        <>
+          <ProfileTextForm />
+          <SelectionForm />
+        </>
+      );
   }
 }

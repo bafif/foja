@@ -2,6 +2,7 @@ import { skillsFromLines, slug, type SkillGroup } from "@foja/core";
 import { t } from "../i18n";
 import { pointer, useEditor, useProblem } from "../store";
 import { Button, Field, LinesArea, Panel, TextInput } from "../ui";
+import { PriorityControl, setPriority } from "./Priority";
 
 export function SkillsForm() {
   const skills = useEditor((s) => s.project!.skills);
@@ -48,6 +49,19 @@ function SkillGroupEditor({ id, group }: { id: string; group: SkillGroup }) {
         </Button>
       </div>
       <Field label={t.groupItems}>{(fid) => <LinesArea id={fid} value={group.items.map((s) => s.text)} onChange={(v) => update((p) => (p.skills[id].items = skillsFromLines(v, p.skills[id].items)))} />}</Field>
+      {group.items.some((s) => s.text.trim()) && (
+        <ul className="flex flex-col gap-1" aria-label={t.priority.label}>
+          {group.items.map(
+            (s, i) =>
+              s.text.trim() && (
+                <li key={s.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{s.text}</span>
+                  <PriorityControl name={s.text} value={s.priority} onChange={(v) => update((p) => setPriority(p.skills[id].items[i], v))} />
+                </li>
+              ),
+          )}
+        </ul>
+      )}
     </div>
   );
 }

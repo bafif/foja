@@ -46,7 +46,7 @@ const documentXml = async (data: Uint8Array) => (await docxParts(data))["word/do
 /** The example's programador profile in an ATS style, picked as the editor does (with its preset). */
 function inAtsStyle(style: string): Project {
   const p = structuredClone(example);
-  p.profiles.programador.layout = pickStyle(p.profiles.programador.layout, style);
+  p.profiles.programador.layout = { ...pickStyle(p.profiles.programador.layout, style), length: "full" };
   return p;
 }
 

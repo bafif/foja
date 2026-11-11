@@ -24,11 +24,13 @@
         },
         {
           "id": "javascript",
-          "text": "JavaScript"
+          "text": "JavaScript",
+          "priority": "essential"
         },
         {
           "id": "typescript",
-          "text": "TypeScript"
+          "text": "TypeScript",
+          "priority": "essential"
         }
       ]
     },
@@ -37,15 +39,18 @@
       "items": [
         {
           "id": "c",
-          "text": "C"
+          "text": "C",
+          "priority": "essential"
         },
         {
           "id": "c-2",
-          "text": "C++"
+          "text": "C++",
+          "priority": "essential"
         },
         {
           "id": "python",
-          "text": "Python"
+          "text": "Python",
+          "priority": "essential"
         },
         {
           "id": "racket",
@@ -58,7 +63,8 @@
       "items": [
         {
           "id": "arduino-c",
-          "text": "Arduino (C++)"
+          "text": "Arduino (C++)",
+          "priority": "essential"
         },
         {
           "id": "avr-assembly",
@@ -71,11 +77,13 @@
       "items": [
         {
           "id": "espanol-nativo",
-          "text": "Español (nativo)"
+          "text": "Español (nativo)",
+          "priority": "essential"
         },
         {
           "id": "ingles-general-c2",
-          "text": "Inglés general (C2)"
+          "text": "Inglés general (C2)",
+          "priority": "essential"
         },
         {
           "id": "ingles-tecnico-c1",
@@ -94,13 +102,15 @@
       "items": [
         {
           "id": "desarrollo-full-stack-de",
-          "text": "Desarrollo full stack de un proyecto, con sus servidores, ciberseguridad y DevOps."
+          "text": "Desarrollo full stack de un proyecto, con sus servidores, ciberseguridad y DevOps.",
+          "priority": "essential"
         },
         {
           "id": "programacion-con-agentes-de",
           "text": "Programación con agentes de inteligencia artificial avanzados: ingeniería de prompts, de contexto y de loops, y desarrollo guiado por especificaciones (SDD)."
         }
-      ]
+      ],
+      "priority": "essential"
     },
     "tecso": {
       "title": "Pasante de desarrollo",
@@ -111,7 +121,8 @@
         {
           "id": "datalogger-attiny85",
           "heading": "Datalogger ATtiny85",
-          "text": "Diseño de un datalogger en C++ basado en el controlador ATtiny85."
+          "text": "Diseño de un datalogger en C++ basado en el controlador ATtiny85.",
+          "priority": "essential"
         },
         {
           "id": "actualizacion-de-la-estacion",
@@ -135,7 +146,8 @@
         {
           "id": "atencion-al-cliente",
           "heading": "Atención al cliente",
-          "text": "Comunicación con clientes, diagnóstico y presupuesto."
+          "text": "Comunicación con clientes, diagnóstico y presupuesto.",
+          "priority": "essential"
         },
         {
           "id": "servicios-a-usuarios-de",
@@ -178,36 +190,23 @@
         {
           "id": "materias-destacadas",
           "heading": "Materias destacadas",
-          "text": "Electrónica, álgebra, cálculo, física, programación (C, C++, Python, Pseudocódigo, Racket), química y epistemología."
+          "text": "Electrónica, álgebra, cálculo, física, programación (C, C++, Python, Pseudocódigo, Racket), química y epistemología.",
+          "priority": "essential"
         },
         {
           "id": "ia-para-aprender",
           "heading": "IA para aprender",
-          "text": "Enseño a estudiar con IA sin que resuelva todo: a separar la IA para trabajar («resolvé») de la IA para aprender («enseñame»)."
+          "text": "Enseño a estudiar con IA sin que resuelva todo: a separar la IA para trabajar («resolvé») de la IA para aprender («enseñame»).",
+          "priority": "essential"
         }
-      ]
-    },
-    "simulacro": {
-      "title": "Simulacro de sesión del Concejo Municipal",
-      "place": "Rosario",
-      "start": "2026-10",
-      "items": [
-        {
-          "id": "conduccion-de-un-bloque",
-          "heading": "Conducción de un bloque",
-          "text": "Coordiné a un equipo de cuatro integrantes: reparto de temas, preparación de argumentos y estrategia de intervención."
-        },
-        {
-          "id": "debate-reglado",
-          "heading": "Debate reglado",
-          "text": "Redacción de proyectos y defensa oral ante el cuerpo, respetando turnos, tiempos y el reglamento de sesiones."
-        }
-      ]
+      ],
+      "priority": "essential"
     },
     "tuia": {
       "title": "Tecnicatura Universitaria en Inteligencia Artificial",
       "place": "Universidad Nacional de Rosario",
-      "note": "En curso · 30,77 % de la carrera aprobada · promedio 8,50"
+      "note": "En curso · 30,77 % de la carrera aprobada · promedio 8,50",
+      "priority": "essential"
     },
     "lcc": {
       "title": "Licenciatura en Ciencias de la Computación",
@@ -220,9 +219,11 @@
       "items": [
         {
           "id": "microprocesadores-automatizacion",
-          "text": "Microprocesadores, automatización, sistemas de control, protocolos de red y electrónica de potencia."
+          "text": "Microprocesadores, automatización, sistemas de control, protocolos de red y electrónica de potencia.",
+          "priority": "essential"
         }
-      ]
+      ],
+      "priority": "essential"
     },
     "mapa-enciclopedico": {
       "title": "Mapa interactivo enciclopédico",
@@ -328,7 +329,8 @@
         "margins": {
           "top": 10,
           "bottom": 10
-        }
+        },
+        "length": "normal"
       }
     },
     "docente-ia": {
@@ -423,7 +425,114 @@
             }
           ]
         }
-      ]
+      ],
+      "summaryShort": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios y trabajo como desarrollador de software en Obrok. Me interesa enseñar a usar la inteligencia artificial en tareas concretas de trabajo.",
+      "layout": {
+        "columns": 1,
+        "photo": "none",
+        "template": "claustro",
+        "length": "short"
+      }
+    },
+    "tecnico-electronico": {
+      "name": "Técnico electrónico",
+      "subtitle": "Técnico electrónico",
+      "contacts": [
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "microcontroladores"
+        ],
+        [
+          "programacion"
+        ],
+        [
+          "idiomas"
+        ]
+      ],
+      "summary": "Soy técnico electrónico y actualmente estudiante de Ciencias de la Computación y de Inteligencia Artificial. Me muevo cómodamente en trabajos que involucren independencia y resolución. Busco una oportunidad de aprender nuevas herramientas laborales (técnicas o humanas) y de aplicar activamente lo que ya conozco.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecso"
+            },
+            {
+              "type": "entry",
+              "entry": "reparacion"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
+            }
+          ]
+        },
+        {
+          "id": "educacion",
+          "title": "Educación",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecnico"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
+          "id": "fortalezas",
+          "title": "Fortalezas",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Resolución",
+              "text": "Puedo encontrar por mí mismo la solución a los problemas y trabajo enfocado en moverme hacia el resultado. Tengo un umbral de estrés alto y puedo apurarme sin perder la tranquilidad. Generalmente, no me quedo \"en blanco\"."
+            },
+            {
+              "type": "item",
+              "heading": "Animosidad",
+              "text": "Suelo trabajar a un ritmo animado, sin frustrarme ante la dificultad y sin perder el hilo de lo que tengo que hacer. Me comunico sin timidez en elevar un problema o en pedir una ayuda. No tengo problemas de humor y no soy alguien sensible ni ofensivo."
+            },
+            {
+              "type": "item",
+              "heading": "Comunicación técnica",
+              "text": "Hablo de manera literal y específica. Puedo explicar o informar una situación sin ambigüedades. Entiendo las instrucciones tal cual como están expresadas. Me es familiar y cotidiano leer documentación técnica."
+            }
+          ]
+        },
+        {
+          "id": "proyecto-personal",
+          "title": "Proyecto personal",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "item",
+              "text": "Más proyectos en **bafif.github.io**."
+            }
+          ]
+        }
+      ],
+      "layout": {
+        "template": "banda",
+        "length": "full",
+        "margins": {
+          "bottom": 10
+        }
+      },
+      "summaryShort": "Soy técnico electrónico y actualmente estudiante de Ciencias de la Computación y de Inteligencia Artificial.",
+      "overrides": {
+        "entries/obrok/items/programacion-con-agentes-de": false
+      }
     }
   }
 }

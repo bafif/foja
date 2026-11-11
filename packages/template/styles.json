@@ -22,20 +22,20 @@
     "name": "Claustro",
     "description": "Al estilo de los CV de Harvard: serif, el nombre centrado con el contacto en una línea, títulos en mayúsculas sobre una raya y la institución arriba del cargo. Una columna, legible para ATS.",
     "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"],
-    "preset": { "columns": 1, "photo": "none" }
+    "preset": { "columns": 1, "photo": "none", "length": "short" }
   },
   {
     "id": "recto",
     "name": "Recto",
     "description": "Moderno y simple, en sans y alineado a la izquierda: títulos en mayúsculas del color de acento sobre una línea fina, el cargo y las fechas en un renglón. Una columna, legible para ATS.",
     "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"],
-    "preset": { "columns": 1, "photo": "none" }
+    "preset": { "columns": 1, "photo": "none", "length": "short" }
   },
   {
     "id": "llano",
     "name": "Llano",
     "description": "El más sobrio y compacto, en sans: títulos en negrita del color de acento y cada entrada en un renglón, con el cargo y la institución. Una columna, legible para ATS.",
     "options": ["photo", "font", "fontSize", "accent", "margins", "density", "paper", "dateFormat", "labels"],
-    "preset": { "columns": 1, "photo": "none" }
+    "preset": { "columns": 1, "photo": "none", "length": "short" }
   }
 ]

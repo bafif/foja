@@ -6,7 +6,7 @@
 // Also the migration from format 2, which had no ids on items and skills as plain strings.
 
 import { slug } from "./project.ts";
-import { FORMAT, type Layout, type Length, type Priority, type Profile, type Skill } from "./types.ts";
+import { FORMAT, type Layout, type Length, type Priority, type Profile, type Project, type Skill } from "./types.ts";
 
 const SHOWN: Record<Length, Priority[]> = { short: ["essential"], normal: ["essential", "normal"], full: ["essential", "normal", "extra"] };
 
@@ -34,6 +34,59 @@ export function usesShortSummary(profile: Profile): boolean {
 
 /** The summary the profile shows. */
 export const summaryOf = (profile: Profile) => (usesShortSummary(profile) ? profile.summaryShort! : profile.summary);
+
+/** The profile with one override changed so that the thing at `key` is `value`: an override only
+ * where `value` differs from what the length says, none where they agree. */
+export function setShown(profile: Profile, key: string, priority: Priority | undefined, value: boolean): Profile {
+  const overrides = { ...profile.overrides };
+  if (value === byLength(lengthOf(profile.layout), priority)) delete overrides[key];
+  else overrides[key] = value;
+  const next = { ...profile, overrides };
+  if (Object.keys(overrides).length === 0) delete next.overrides;
+  return next;
+}
+
+/** Whether the short length would keep at least one of the profile's entries: one marked
+ * essential, or put in by an override. Without one, Corto leaves the CV with no entries at all. */
+export function shortKeepsEntries(project: Project, profileId: string): boolean {
+  const profile = project.profiles[profileId];
+  const short = { ...profile, layout: { ...profile.layout, length: "short" as const } };
+  return profile.sections.some((s) => s.blocks.some((b) => b.type === "entry" && shown(short, entryKey(b.entry), project.entries[b.entry]?.priority)));
+}
+
+/** The bank paths of the extra things the profile still shows, in the order of the CV. */
+function shownExtras(project: Project, profile: Profile): string[] {
+  const keys: string[] = [];
+  for (const row of profile.skills) for (const group of row) {
+    for (const s of project.skills[group]?.items ?? []) if (s.priority === "extra" && shown(profile, skillKey(group, s.id), s.priority)) keys.push(skillKey(group, s.id));
+  }
+  for (const b of profile.sections.flatMap((s) => s.blocks)) {
+    if (b.type !== "entry" || !project.entries[b.entry]) continue;
+    const e = project.entries[b.entry];
+    if (!shown(profile, entryKey(b.entry), e.priority)) continue;
+    if (e.priority === "extra") keys.push(entryKey(b.entry));
+    for (const it of e.items ?? []) if (it.priority === "extra" && shown(profile, itemKey(b.entry, it.id), it.priority)) keys.push(itemKey(b.entry, it.id));
+  }
+  return keys;
+}
+
+export type FitStep = { kind: "length"; length: Length } | { kind: "summary" } | { kind: "extra"; key: string };
+
+/** One step to make the profile shorter, in a fixed order: the length one step down, then the
+ * short summary, then the extra things still shown, the last first. Never down to the short
+ * length when it would leave no entry (see `shortKeepsEntries`). Undefined when nothing is left. */
+export function nextFit(project: Project, profileId: string): { profile: Profile; step: FitStep } | undefined {
+  const profile = project.profiles[profileId];
+  const length = lengthOf(profile.layout);
+  const down: Length | undefined = length === "full" ? "normal" : length === "normal" && shortKeepsEntries(project, profileId) ? "short" : undefined;
+  if (down) return { profile: { ...profile, layout: { ...profile.layout, length: down } }, step: { kind: "length", length: down } };
+  if (!usesShortSummary(profile) && profile.summaryShort?.trim()) {
+    return { profile: { ...profile, layout: { ...profile.layout, summaryLength: "short" } }, step: { kind: "summary" } };
+  }
+  const last = shownExtras(project, profile).at(-1);
+  if (last) return { profile: { ...profile, overrides: { ...profile.overrides, [last]: false } }, step: { kind: "extra", key: last } };
+  return undefined;
+}
 
 /** An id for a new thing: a slug of the first words of `text`, unique among `taken`. */
 export function freshId(text: string, taken: Iterable<string>, fallback = "item"): string {

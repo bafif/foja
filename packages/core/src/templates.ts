@@ -33,10 +33,13 @@ export function styleOf(project: Project, profileId: string): { id: string; cust
 }
 
 /** A profile's layout once style `id` is picked: the style, with the built-in style's preset
- * written over the options it sets. The default style is left implicit. */
-export function pickStyle(layout: Layout | undefined, id: string): Layout {
-  const preset = BUILTIN_STYLES.find((s) => s.id === id)?.preset ?? {};
-  const next: Layout = { ...layout, ...structuredClone(preset), template: id };
+ * written over the options it sets. The default style is left implicit. `shortKeepsEntries`
+ * (select.ts) says whether the short length would leave the profile any entry; when it would
+ * not, a preset's short length is not applied. */
+export function pickStyle(layout: Layout | undefined, id: string, shortKeepsEntries = true): Layout {
+  const preset: Partial<Layout> = structuredClone(BUILTIN_STYLES.find((s) => s.id === id)?.preset ?? {});
+  if (preset.length === "short" && !shortKeepsEntries) delete preset.length;
+  const next: Layout = { ...layout, ...preset, template: id };
   if (id === DEFAULT_STYLE) delete next.template;
   return next;
 }

@@ -6,8 +6,8 @@ test("the example is my CV, with its three profiles, each on one page", async ({
   await expect(page.getByLabel("Subtítulo")).toHaveValue("Programador");
   await expect(page.getByTestId("page-badge")).toContainText("1 página");
   const profile = page.getByRole("combobox", { name: "Perfil" });
-  await expect(profile.locator("option")).toHaveText(["Programador", "Docente de IA"]);
-  for (const [id, subtitle] of [["docente-ia", "Docente de Inteligencia Artificial"]]) {
+  await expect(profile.locator("option")).toHaveText(["Programador", "Docente de IA", "Técnico electrónico"]);
+  for (const [id, subtitle] of [["docente-ia", "Docente de Inteligencia Artificial"], ["tecnico-electronico", "Técnico electrónico"]]) {
     await profile.selectOption(id);
     await expect(page.getByLabel("Subtítulo")).toHaveValue(subtitle);
     await expect(page.getByTestId("page-badge")).toContainText("1 página");

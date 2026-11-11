@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { migrate, resolveProfile, skillsFromLines, validate, type Project, type ResolvedCv } from "../src/index.ts";
+import { migrate, nextFit, resolveProfile, setShown, shortKeepsEntries, skillsFromLines, validate, type FitStep, type Project, type ResolvedCv } from "../src/index.ts";
 import { exportFiles } from "../src/export/index.ts";
 
 const read = (name: string): Project => JSON.parse(readFileSync(new URL(`../../../examples/${name}`, import.meta.url), "utf8"));
@@ -120,6 +120,48 @@ describe("priorities, length and overrides", () => {
     p.profiles.desarrolladora.layout = { ...p.profiles.desarrolladora.layout, length: "full" };
     const md = new TextDecoder().decode((await exportFiles(p, "desarrolladora", "md"))[0].data);
     expect(md).not.toContain("Facturación");
+  });
+});
+
+describe("checkboxes and fitting to a page", () => {
+  test("a checkbox writes an override only where it differs from the length", () => {
+    const profile = structuredClone(fictional.profiles.desarrolladora);
+    const off = setShown(profile, "entries/nube-sur", undefined, false);
+    expect(off.overrides).toEqual({ "entries/nube-sur": false });
+    expect(setShown(off, "entries/nube-sur", undefined, true).overrides).toBeUndefined();
+    expect(setShown(profile, "entries/nube-sur", "extra", true).overrides).toEqual({ "entries/nube-sur": true });
+  });
+
+  test("the steps: length, then the short summary, then the extra things left, the last first", () => {
+    const p = structuredClone(fictional);
+    p.entries["nube-sur"].priority = "essential";
+    p.entries["nube-sur"].items![2].priority = "extra";
+    p.skills.idiomas.items[2].priority = "extra";
+    const profile = p.profiles.desarrolladora;
+    profile.summaryShort = "Corta.";
+    profile.layout = { length: "full" };
+    profile.overrides = { "entries/nube-sur/items/acompanamiento-de-dos-desarrolla": true, "skills/idiomas/portugues-b1": true };
+    const steps: FitStep[] = [];
+    for (let next = nextFit(p, "desarrolladora"); next; next = nextFit(p, "desarrolladora")) {
+      p.profiles.desarrolladora = next.profile;
+      steps.push(next.step);
+    }
+    expect(steps).toEqual([
+      { kind: "length", length: "normal" },
+      { kind: "length", length: "short" },
+      // Short already brings the short summary: no step for it. The extras the overrides kept, from the end.
+      { kind: "extra", key: "entries/nube-sur/items/acompanamiento-de-dos-desarrolla" },
+      { kind: "extra", key: "skills/idiomas/portugues-b1" },
+    ]);
+  });
+
+  test("never down to short when it would leave no entry; the short summary then", () => {
+    const p = structuredClone(fictional);
+    p.profiles.desarrolladora.summaryShort = "Corta.";
+    expect(shortKeepsEntries(p, "desarrolladora")).toBe(false);
+    expect(nextFit(p, "desarrolladora")?.step).toEqual({ kind: "summary" });
+    p.profiles.desarrolladora.overrides = { "entries/nube-sur": true };
+    expect(shortKeepsEntries(p, "desarrolladora")).toBe(true);
   });
 });
 

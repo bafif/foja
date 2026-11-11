@@ -15,7 +15,8 @@ const projects: Record<string, Project> = { curriculum: read("curriculum.project
 /** Every profile in `style`, picked as the editor does (with the style's preset). */
 function inStyle(project: Project, style: string): Project {
   const p = structuredClone(project);
-  for (const profile of Object.values(p.profiles)) profile.layout = pickStyle(profile.layout, style);
+  // At the full length: the fixtures mark nothing essential, and the reading order is checked on everything.
+  for (const profile of Object.values(p.profiles)) profile.layout = { ...pickStyle(profile.layout, style), length: "full" };
   return p;
 }
 

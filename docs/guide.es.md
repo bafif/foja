@@ -39,11 +39,25 @@ Otros tres están hechos para los sistemas de selección (ATS) y los buscadores 
 - **Recto**: moderno y simple, sans-serif y alineado a la izquierda; títulos en mayúsculas del color de acento sobre una línea fina, el cargo y las fechas en un renglón, la institución debajo.
 - **Llano**: el más sobrio y compacto; títulos en negrita del color de acento, cada entrada en un renglón con el cargo y la institución.
 
-Los tres son una sola columna de texto, sin íconos ni texto en imágenes, con el contacto en el cuerpo (nunca en el encabezado ni en el pie de Word), títulos estándar (el resumen bajo «Perfil», las habilidades bajo «Habilidades») y el texto del PDF en el orden en que se ve, cosa que comprueba un test. Al elegir uno, el perfil queda con una columna y sin foto; las dos opciones se escriben en el perfil, así que se ven y se cambian como cualquier otra.
+Los tres son una sola columna de texto, sin íconos ni texto en imágenes, con el contacto en el cuerpo (nunca en el encabezado ni en el pie de Word), títulos estándar (el resumen bajo «Perfil», las habilidades bajo «Habilidades») y el texto del PDF en el orden en que se ve, cosa que comprueba un test. Al elegir uno, el perfil queda con una columna, sin foto y con el largo Corto (ver abajo), salvo que Corto deje el perfil sin entradas; todo se escribe en el perfil, así que se ve y se cambia como cualquier otra opción.
 
 Debajo de los estilos, las opciones que respeta el estilo elegido: una o dos columnas, lado y ancho de la barra lateral, forma de la foto, tipografía, tamaño, color, márgenes, espaciado, papel, formato de fecha y el idioma de las etiquetas fijas (español, inglés, portugués).
 
 **Editar en Typst** copia el estilo del perfil en un estilo propio y abre su código; **Nuevo estilo desde cero** arranca de un esqueleto mínimo. Los errores aparecen arriba de la vista previa, que conserva la última versión que compiló bien. Cómo escribir un estilo: [`templates.es.md`](templates.es.md).
+
+## Qué entra en cada perfil
+
+Cada entrada, ítem y habilidad del banco tiene una prioridad, que se marca una sola vez donde se escribe: **Imprescindible**, **Normal** (la de siempre) o **Extra**. Después, cada perfil tiene un **largo**, en **Qué entra en este perfil**, debajo del texto del perfil:
+
+- **Corto** muestra solo lo imprescindible;
+- **Normal** muestra lo imprescindible y lo normal;
+- **Completo** muestra todo.
+
+Debajo del largo, las **casillas** listan las entradas del perfil con sus ítems, y sus habilidades: tildado, lo que entra. Lo que manda el largo va sin marca; una casilla que cambiás es una excepción de este perfil, marcada como tal, y si la volvés a cambiar vuelve a la regla. El perfil puede tener además un **resumen corto**, que se usa con el largo Corto (o siempre, o nunca, según **Resumen que usa**).
+
+Cada perfil guarda su largo, sus excepciones y su resumen corto, y **Duplicar** los copia. LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que muestra el PDF. El ejemplo trae tres perfiles, cada uno con su estilo y su largo: programador (Legajo, Normal), docente de IA (Claustro, Corto) y técnico electrónico (Banda, Completo).
+
+**Ajustar a una página** compila el perfil y, mientras ocupe más de una página, lo achica de a un paso y en un orden fijo: el largo un paso más abajo, después el resumen corto, después lo extra que las excepciones todavía muestran, empezando por lo último. Nunca baja a Corto si eso deja el perfil sin entradas (primero marcá en el banco qué es imprescindible). El resultado queda escrito en el perfil, y **Deshacer el ajuste** (o Ctrl+Z) lo vuelve atrás de una vez.
 
 ## Una página
 

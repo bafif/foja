@@ -3,6 +3,7 @@ import { t } from "../i18n";
 import { pointer, useEditor, useProblem } from "../store";
 import { Button, Field, Panel, Select, TextArea, TextInput } from "../ui";
 import { ItemsEditor } from "./Items";
+import { PriorityControl, setPriority } from "./Priority";
 import { newId } from "./Skills";
 
 export function profilesUsing(project: Project, entryId: string): string[] {
@@ -177,6 +178,9 @@ export function EntryForm({ id }: { id: string }) {
             }
           />
         )}
+      </Field>
+      <Field label={t.priority.label} hint={t.priority.hint}>
+        {() => <PriorityControl name={entry.title} value={entry.priority} onChange={(v) => edit((e) => setPriority(e, v))} />}
       </Field>
       <Field label={t.items}>
         {() => (

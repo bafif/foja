@@ -60,8 +60,9 @@ recruiters, in the manner of the CVs that Harvard's career office recommends:
 All three are one column of plain text, with no icons and no text in pictures, the contacts in
 the body (never in a Word header or footer), standard titles (the summary under "Profile", the
 skills under "Skills") and the text in the PDF in the order it is seen, which a test checks. Picking
-one of them sets the profile to one column and no photo; both are written into the profile, so
-they show and can be changed like any other option.
+one of them sets the profile to one column, no photo and the Short length (see below), unless
+Short would leave the profile without entries; all of it is written into the profile, so it shows
+and can be changed like any other option.
 
 Below the styles, the options the chosen style honours: one or two columns, sidebar side and
 width, photo shape, typeface, size, colour, margins, spacing, paper, date format and the language
@@ -70,6 +71,32 @@ of fixed labels (Spanish, English, Portuguese).
 **Edit in Typst** copies the profile's style into a style of your own and opens its code; **New
 style from scratch** starts from a small skeleton. Errors show above the preview, which keeps the
 last good version. How to write a style: [`templates.md`](templates.md).
+
+## What goes in each profile
+
+Every entry, item and skill of the bank has a priority, marked once where it is written:
+**Essential**, **Normal** (the default) or **Extra**. Each profile then has a **length**, in
+**What goes in this profile**, below the profile text:
+
+- **Short** shows only the essential;
+- **Normal** shows the essential and the normal;
+- **Full** shows everything.
+
+Below the length, the **checkboxes** list the profile's entries with their items, and its skills:
+ticked, what goes in. What the length says has no mark; a box you change is an exception of this
+profile, marked as such, and clicking it back returns it to the rule. The profile can also have a
+**short summary**, used with the Short length (or always, or never, as **Summary used** says).
+
+Each profile keeps its own length, exceptions and short summary, and **Duplicate** copies them.
+LaTeX, Word, Markdown and JSON pick exactly what the PDF shows. The example comes with three
+profiles, each with its own style and length: programmer (Legajo, Normal), AI teacher (Claustro,
+Short) and electronics technician (Banda, Full).
+
+**Fit to one page** compiles the profile and, while it takes more than one page, makes it shorter
+one step at a time, in a fixed order: the length one step down, then the short summary, then the
+extra things the exceptions still show, the last first. It never goes down to Short when that
+would leave the profile without entries (mark what is essential in the bank first). The result
+is written into the profile, and **Undo the fit** (or Ctrl+Z) takes it back in one go.
 
 ## One page
 

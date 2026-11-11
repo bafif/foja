@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { pageBoxes } from "../../lib/jpg";
 import { cleanSvg } from "../../lib/svg";
 import { renderThumb } from "../preview";
-import { BUILTIN_STYLES, DEFAULT_ACCENT, pickStyle, resolveLayout, styleOf, styleOptions, type Layout } from "@foja/core";
+import { BUILTIN_STYLES, DEFAULT_ACCENT, pickStyle, resolveLayout, shortKeepsEntries, styleOf, styleOptions, type Layout } from "@foja/core";
 import { t } from "../i18n";
 import { useEditor } from "../store";
 import { addStyle } from "../styles";
@@ -75,11 +75,12 @@ export function LayoutForm() {
       if (Object.keys(next).length) profile.layout = next;
       else delete profile.layout;
     });
-  // A built-in style brings its preset (one column and no photo for the ATS ones) into the profile.
+  // A built-in style brings its preset into the profile: one column, no photo and the short length
+  // for the ATS ones, but not the short length when it would leave the profile without entries.
   const pick = (id: string) =>
     update((p) => {
       const profile = p.profiles[profileId];
-      const next = pickStyle(profile.layout, id);
+      const next = pickStyle(profile.layout, id, shortKeepsEntries(p, profileId));
       if (Object.keys(next).length) profile.layout = next;
       else delete profile.layout;
     });

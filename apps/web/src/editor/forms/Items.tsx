@@ -2,6 +2,7 @@ import { freshId, type Item } from "@foja/core";
 import { t } from "../i18n";
 import { useProblem } from "../store";
 import { Button, ListControls, TextArea, TextInput, move } from "../ui";
+import { PriorityControl, setPriority } from "./Priority";
 
 /** A list of `{heading?, text}`; `onChange` receives a new array. `base` is its JSON pointer. */
 export function ItemsEditor({ items, onChange, base }: { items: Item[]; onChange: (items: Item[]) => void; base: string }) {
@@ -13,7 +14,13 @@ export function ItemsEditor({ items, onChange, base }: { items: Item[]; onChange
   return (
     <div className="flex flex-col gap-2">
       {items.map((it, i) => (
-        <ItemRow key={i} item={it} path={`${base}/${i}`} edit={(fn) => edit((l) => fn(l[i]))}>
+        <ItemRow
+          key={it.id}
+          item={it}
+          path={`${base}/${i}`}
+          edit={(fn) => edit((l) => fn(l[i]))}
+          below={<PriorityControl name={it.heading || it.text || t.text} value={it.priority} onChange={(v) => edit((l) => setPriority(l[i], v))} />}
+        >
           <ListControls index={i} length={items.length} move={(a, b) => edit((l) => move(l, a, b))} remove={() => edit((l) => l.splice(i, 1))} labels={t} />
         </ItemRow>
       ))}
@@ -24,7 +31,20 @@ export function ItemsEditor({ items, onChange, base }: { items: Item[]; onChange
   );
 }
 
-export function ItemRow({ item, path, edit, children }: { item: { heading?: string; text: string }; path: string; edit: (fn: (it: { heading?: string; text: string }) => void) => void; children?: React.ReactNode }) {
+/** An item's fields; `below` goes under them (the priority of a bank item), `children` beside. */
+export function ItemRow({
+  item,
+  path,
+  edit,
+  children,
+  below,
+}: {
+  item: { heading?: string; text: string };
+  path: string;
+  edit: (fn: (it: { heading?: string; text: string }) => void) => void;
+  children?: React.ReactNode;
+  below?: React.ReactNode;
+}) {
   const problem = useProblem(`${path}/text`);
   return (
     <div className="flex gap-2 rounded border border-line p-2">
@@ -42,6 +62,7 @@ export function ItemRow({ item, path, edit, children }: { item: { heading?: stri
         />
         <TextArea rows={2} label={t.text} value={item.text} onChange={(v) => edit((it) => (it.text = v))} />
         {problem && <p className="text-xs text-red-700 dark:text-red-400">{problem}</p>}
+        {below}
       </div>
       {children}
     </div>

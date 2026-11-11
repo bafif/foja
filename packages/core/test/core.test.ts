@@ -6,7 +6,9 @@ const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curr
 const clone = (): Project => structuredClone(example);
 
 test("picking a style writes its preset into the profile", () => {
-  expect(pickStyle({ columns: 2, photo: "circle", fontSize: 11 }, "claustro")).toEqual({ columns: 1, photo: "none", fontSize: 11, template: "claustro" });
+  expect(pickStyle({ columns: 2, photo: "circle", fontSize: 11 }, "claustro")).toEqual({ columns: 1, photo: "none", length: "short", fontSize: 11, template: "claustro" });
+  // Not down to the short length when it would leave the profile no entry.
+  expect(pickStyle({ length: "full" }, "claustro", false)).toEqual({ columns: 1, photo: "none", length: "full", template: "claustro" });
   // The preset is copied: changing the profile later does not change the style's.
   const picked = pickStyle(undefined, "recto");
   picked.columns = 2;

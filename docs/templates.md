@@ -91,4 +91,5 @@ summary, `labels.skills` over the skills), no hyphenation, and the dates on thei
 text in the order it is seen. `packages/cli/test/ats.test.ts` checks that order in the PDF.
 
 A built-in style can bring a `preset` in `packages/template/styles.json`: options written into the
-profile when the style is picked (the three above set one column and no photo).
+profile when the style is picked (the three above set one column, no photo and the short length;
+`pickStyle` leaves the short length out when it would leave the profile without entries).

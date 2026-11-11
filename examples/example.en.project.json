@@ -24,11 +24,13 @@
         },
         {
           "id": "javascript",
-          "text": "JavaScript"
+          "text": "JavaScript",
+          "priority": "essential"
         },
         {
           "id": "typescript",
-          "text": "TypeScript"
+          "text": "TypeScript",
+          "priority": "essential"
         }
       ]
     },
@@ -37,15 +39,18 @@
       "items": [
         {
           "id": "c",
-          "text": "C"
+          "text": "C",
+          "priority": "essential"
         },
         {
           "id": "c-2",
-          "text": "C++"
+          "text": "C++",
+          "priority": "essential"
         },
         {
           "id": "python",
-          "text": "Python"
+          "text": "Python",
+          "priority": "essential"
         },
         {
           "id": "racket",
@@ -58,7 +63,8 @@
       "items": [
         {
           "id": "arduino-c",
-          "text": "Arduino (C++)"
+          "text": "Arduino (C++)",
+          "priority": "essential"
         },
         {
           "id": "avr-assembly",
@@ -71,11 +77,13 @@
       "items": [
         {
           "id": "spanish-native",
-          "text": "Spanish (native)"
+          "text": "Spanish (native)",
+          "priority": "essential"
         },
         {
           "id": "english-general-c2",
-          "text": "English, general (C2)"
+          "text": "English, general (C2)",
+          "priority": "essential"
         },
         {
           "id": "english-technical-c1",
@@ -94,13 +102,15 @@
       "items": [
         {
           "id": "full-stack-development-of",
-          "text": "Full stack development of a project, including its servers, cybersecurity and DevOps."
+          "text": "Full stack development of a project, including its servers, cybersecurity and DevOps.",
+          "priority": "essential"
         },
         {
           "id": "programming-with-advanced-ai",
           "text": "Programming with advanced AI agents: prompt, context and loop engineering, and spec-driven development (SDD)."
         }
-      ]
+      ],
+      "priority": "essential"
     },
     "tecso": {
       "title": "Development intern",
@@ -111,7 +121,8 @@
         {
           "id": "attiny85-datalogger",
           "heading": "ATtiny85 datalogger",
-          "text": "Design of a datalogger in C++ based on the ATtiny85 microcontroller."
+          "text": "Design of a datalogger in C++ based on the ATtiny85 microcontroller.",
+          "priority": "essential"
         },
         {
           "id": "charging-station-upgrade",
@@ -135,7 +146,8 @@
         {
           "id": "customer-service",
           "heading": "Customer service",
-          "text": "Talking with customers, diagnosis and quotes."
+          "text": "Talking with customers, diagnosis and quotes.",
+          "priority": "essential"
         },
         {
           "id": "services-for-windows-users",
@@ -178,36 +190,23 @@
         {
           "id": "main-subjects",
           "heading": "Main subjects",
-          "text": "Electronics, algebra, calculus, physics, programming (C, C++, Python, pseudocode, Racket), chemistry and epistemology."
+          "text": "Electronics, algebra, calculus, physics, programming (C, C++, Python, pseudocode, Racket), chemistry and epistemology.",
+          "priority": "essential"
         },
         {
           "id": "ai-for-learning",
           "heading": "AI for learning",
-          "text": "I teach how to study with AI without letting it do all the work: telling AI for working (“solve this”) apart from AI for learning (“teach me”)."
+          "text": "I teach how to study with AI without letting it do all the work: telling AI for working (“solve this”) apart from AI for learning (“teach me”).",
+          "priority": "essential"
         }
-      ]
-    },
-    "council-simulation": {
-      "title": "Simulated City Council session",
-      "place": "Rosario",
-      "start": "2026-10",
-      "items": [
-        {
-          "id": "leading-a-bloc",
-          "heading": "Leading a bloc",
-          "text": "I coordinated a team of four: dividing the topics, preparing the arguments and planning how we would take the floor."
-        },
-        {
-          "id": "formal-debate",
-          "heading": "Formal debate",
-          "text": "Drafting bills and defending them orally before the council, following turns, time limits and the rules of procedure."
-        }
-      ]
+      ],
+      "priority": "essential"
     },
     "tuia": {
       "title": "University Technical Degree in Artificial Intelligence",
       "place": "Universidad Nacional de Rosario",
-      "note": "In progress · 30.77 % of the degree passed · average 8.50"
+      "note": "In progress · 30.77 % of the degree passed · average 8.50",
+      "priority": "essential"
     },
     "lcc": {
       "title": "Degree in Computer Science",
@@ -220,9 +219,11 @@
       "items": [
         {
           "id": "microprocessors-automation-contr",
-          "text": "Microprocessors, automation, control systems, network protocols and power electronics."
+          "text": "Microprocessors, automation, control systems, network protocols and power electronics.",
+          "priority": "essential"
         }
-      ]
+      ],
+      "priority": "essential"
     },
     "encyclopedic-map": {
       "title": "Interactive encyclopedic map",
@@ -328,7 +329,8 @@
         "margins": {
           "top": 10,
           "bottom": 10
-        }
+        },
+        "length": "normal"
       }
     },
     "ai-teacher": {
@@ -423,7 +425,114 @@
             }
           ]
         }
-      ]
+      ],
+      "summaryShort": "I have been tutoring secondary school and university students since 2018, and I work as a software developer at Obrok. I want to teach how to use artificial intelligence in concrete work tasks.",
+      "layout": {
+        "columns": 1,
+        "photo": "none",
+        "template": "claustro",
+        "length": "short"
+      }
+    },
+    "electronics-technician": {
+      "name": "Electronics technician",
+      "subtitle": "Electronics technician",
+      "contacts": [
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "microcontrollers"
+        ],
+        [
+          "programming"
+        ],
+        [
+          "languages"
+        ]
+      ],
+      "summary": "I am an electronics technician, currently studying Computer Science and Artificial Intelligence. I am comfortable in work that calls for independence and problem solving. I am looking for a chance to learn new tools of the trade, technical or human, and to put what I already know to active use.",
+      "sections": [
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecso"
+            },
+            {
+              "type": "entry",
+              "entry": "repair"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "technician"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
+          "id": "strengths",
+          "title": "Strengths",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Problem solving",
+              "text": "I can find the solution to problems on my own and I work focused on moving towards the result. I handle stress well and can hurry without losing my calm. I rarely go blank."
+            },
+            {
+              "type": "item",
+              "heading": "Drive",
+              "text": "I usually work at a lively pace, without getting frustrated by difficulty and without losing track of what I have to do. I am not shy about raising a problem or asking for help. I am even-tempered, neither touchy nor offensive."
+            },
+            {
+              "type": "item",
+              "heading": "Technical communication",
+              "text": "I speak literally and specifically. I can explain or report a situation without ambiguity. I take instructions exactly as they are written. Reading technical documentation is part of my everyday work."
+            }
+          ]
+        },
+        {
+          "id": "personal-project",
+          "title": "Personal project",
+          "compact": true,
+          "blocks": [
+            {
+              "type": "item",
+              "text": "More projects at **bafif.github.io**."
+            }
+          ]
+        }
+      ],
+      "layout": {
+        "template": "banda",
+        "length": "full",
+        "margins": {
+          "bottom": 10
+        }
+      },
+      "summaryShort": "I am an electronics technician, currently studying Computer Science and Artificial Intelligence.",
+      "overrides": {
+        "entries/obrok/items/programming-with-advanced-ai": false
+      }
     }
   }
 }

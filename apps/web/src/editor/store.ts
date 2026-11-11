@@ -36,13 +36,18 @@ export interface EditorState {
 }
 
 // One undo step per burst of edits: a change is recorded only after a pause of 800 ms.
+let lastEdit = 0;
 const burst = <A extends unknown[]>(fn: (...args: A) => void) => {
-  let last = 0;
   return (...args: A) => {
     const now = Date.now();
-    if (now - last > 800) fn(...args);
-    last = now;
+    if (now - lastEdit > 800) fn(...args);
+    lastEdit = now;
   };
+};
+
+/** Makes the next edit an undo step of its own, however soon it comes (fitting to a page). */
+export const newUndoStep = () => {
+  lastEdit = 0;
 };
 
 export const useEditor = create<EditorState>()(

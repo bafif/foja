@@ -2,7 +2,8 @@
 // profile (debounced), plus PDF exports through the same worker.
 
 import { create } from "zustand";
-import type { Mark, Project, StyleGeometry } from "@foja/core";
+import { styleOf, type Mark, type Project, type StyleGeometry } from "@foja/core";
+import { pageBoxes } from "../lib/jpg";
 import type { WorkerReply, WorkerRequest } from "../lib/typst.worker";
 import { t } from "./i18n";
 import { useEditor } from "./store";
@@ -123,4 +124,11 @@ export function renderThumb(project: Project, profile: string, style: string): P
     byKey.set(key, promise);
   }
   return promise;
+}
+
+/** The pages of the profile in its own style, compiled apart from the preview; undefined when it
+ * does not compile. */
+export async function countPages(project: Project, profile: string): Promise<number | undefined> {
+  const svg = await renderThumb(project, profile, styleOf(project, profile).id);
+  return svg ? pageBoxes(svg).length : undefined;
 }
