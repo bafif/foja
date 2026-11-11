@@ -1,0 +1,12 @@
+{
+    "subtitulo": "Técnico electrónico",
+    "perfil": "textos/perfil_tecnico_electronico.md",
+    "contactos": ["telefono", "correo", "linkedin"],
+    "habilidades": ["Microcontroladores", "Programación", "Idiomas"],
+    "secciones": [
+        {"titulo": "Experiencia", "entradas": ["tecso", "reparacion", "obrok"]},
+        {"titulo": "Educación", "entradas": ["tecnico", "tuia", "lcc"]},
+        {"titulo": "Fortalezas", "lateral": true, "items": "textos/fortalezas.md"},
+        {"titulo": "Proyectos personales", "lateral": true, "items": ["Más proyectos en **bafif.github.io**."]}
+    ]
+}

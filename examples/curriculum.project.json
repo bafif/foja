@@ -339,6 +339,104 @@
         }
       ]
     },
+    "docente": {
+      "subtitle": "Docente de matemática, física y electrónica",
+      "contacts": [
+        "phone",
+        "email",
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "programacion"
+        ],
+        [
+          "idiomas"
+        ]
+      ],
+      "summary": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios de álgebra, cálculo, física y electrónica, entre otras materias. Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Busco dar clases de matemática, física o electrónica en un instituto.",
+      "sections": [
+        {
+          "id": "experiencia-docente",
+          "title": "Experiencia docente",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "docencia"
+            }
+          ]
+        },
+        {
+          "id": "educacion",
+          "title": "Educación",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecnico"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
+          "id": "experiencia-laboral",
+          "title": "Experiencia laboral",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecso"
+            },
+            {
+              "type": "entry",
+              "entry": "reparacion"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
+            }
+          ]
+        },
+        {
+          "id": "fortalezas",
+          "title": "Fortalezas",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Comunicación clara",
+              "text": "Explico conceptos técnicos con precisión y sin jerga innecesaria. Años de clases particulares me enseñaron a reformular una idea hasta que se entiende."
+            },
+            {
+              "type": "item",
+              "heading": "Enfoque práctico",
+              "text": "Enseño con ejemplos y ejercicios concretos, para que lo aprendido se aplique enseguida."
+            },
+            {
+              "type": "item",
+              "heading": "Paciencia",
+              "text": "Resuelvo dudas sin apurar a nadie ni perder el ritmo de la clase."
+            }
+          ]
+        },
+        {
+          "id": "proyectos-personales",
+          "title": "Proyectos personales",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "text": "Más proyectos en **bafif.github.io**."
+            }
+          ]
+        }
+      ]
+    },
     "programador": {
       "subtitle": "Programador",
       "contacts": [
@@ -430,6 +528,97 @@
             {
               "type": "item",
               "text": "En **bafif.github.io**"
+            }
+          ]
+        }
+      ]
+    },
+    "tecnico-electronico": {
+      "subtitle": "Técnico electrónico",
+      "contacts": [
+        "phone",
+        "email",
+        "linkedin"
+      ],
+      "skills": [
+        [
+          "microcontroladores"
+        ],
+        [
+          "programacion"
+        ],
+        [
+          "idiomas"
+        ]
+      ],
+      "summary": "Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Programé microcontroladores en C++ (un datalogger con ATtiny85 y una estación de carga para drones con ESP32) y desde 2018 reparo y mantengo equipos informáticos. Me muevo cómodamente en trabajos que involucren independencia y resolución.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecso"
+            },
+            {
+              "type": "entry",
+              "entry": "reparacion"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
+            }
+          ]
+        },
+        {
+          "id": "educacion",
+          "title": "Educación",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecnico"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
+          "id": "fortalezas",
+          "title": "Fortalezas",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "heading": "Resolución",
+              "text": "Puedo encontrar por mí mismo la solución a los problemas y trabajo enfocado en moverme hacia el resultado. Tengo un umbral de estrés alto y puedo apurarme sin perder la tranquilidad. Generalmente, no me quedo \"en blanco\"."
+            },
+            {
+              "type": "item",
+              "heading": "Animosidad",
+              "text": "Suelo trabajar a un ritmo animado, sin frustrarme ante la dificultad y sin perder el hilo de lo que tengo que hacer. Me comunico sin timidez en elevar un problema o en pedir una ayuda. No tengo problemas de humor y no soy alguien sensible ni ofensivo."
+            },
+            {
+              "type": "item",
+              "heading": "Comunicación técnica",
+              "text": "Hablo de manera literal y específica. Puedo explicar o informar una situación sin ambigüedades. Entiendo las instrucciones tal cual como están expresadas. Me es familiar y cotidiano leer documentación técnica."
+            }
+          ]
+        },
+        {
+          "id": "proyectos-personales",
+          "title": "Proyectos personales",
+          "column": "side",
+          "blocks": [
+            {
+              "type": "item",
+              "text": "Más proyectos en **bafif.github.io**."
             }
           ]
         }

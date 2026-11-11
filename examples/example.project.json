@@ -224,10 +224,6 @@
         }
       ],
       "priority": "essential"
-    },
-    "mapa-enciclopedico": {
-      "title": "Mapa interactivo enciclopédico",
-      "place": "GDScript + Python · OpenAI · interfaz de usuario"
     }
   },
   "profiles": {
@@ -333,9 +329,8 @@
         "length": "normal"
       }
     },
-    "docente-ia": {
-      "name": "Docente de IA",
-      "subtitle": "Docente de Inteligencia Artificial",
+    "docente": {
+      "subtitle": "Docente de matemática, física y electrónica",
       "contacts": [
         "linkedin"
       ],
@@ -347,7 +342,7 @@
           "idiomas"
         ]
       ],
-      "summary": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios y trabajo como desarrollador de software en Obrok. Soy estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Me interesa enseñar a usar la inteligencia artificial en tareas concretas de trabajo: qué hace cada herramienta, cuándo conviene usarla y cómo revisar lo que produce.",
+      "summary": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios de álgebra, cálculo, física y electrónica, entre otras materias. Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Busco dar clases de matemática, física o electrónica en un instituto.",
       "sections": [
         {
           "id": "experiencia-docente",
@@ -360,16 +355,38 @@
           ]
         },
         {
+          "id": "educacion",
+          "title": "Educación",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "tecnico"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
           "id": "experiencia-laboral",
           "title": "Experiencia laboral",
           "blocks": [
             {
               "type": "entry",
-              "entry": "obrok"
+              "entry": "tecso"
             },
             {
               "type": "entry",
               "entry": "reparacion"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
             }
           ]
         },
@@ -386,7 +403,7 @@
             {
               "type": "item",
               "heading": "Enfoque práctico",
-              "text": "Enseño con ejemplos y ejercicios concretos, para que lo aprendido se aplique enseguida en el trabajo."
+              "text": "Enseño con ejemplos y ejercicios concretos, para que lo aprendido se aplique enseguida."
             },
             {
               "type": "item",
@@ -396,29 +413,10 @@
           ]
         },
         {
-          "id": "educacion",
-          "title": "Educación",
-          "compact": true,
+          "id": "proyectos-personales",
+          "title": "Proyectos personales",
+          "column": "side",
           "blocks": [
-            {
-              "type": "entry",
-              "entry": "tuia"
-            },
-            {
-              "type": "entry",
-              "entry": "tecnico"
-            }
-          ]
-        },
-        {
-          "id": "proyecto-personal",
-          "title": "Proyecto personal",
-          "compact": true,
-          "blocks": [
-            {
-              "type": "entry",
-              "entry": "mapa-enciclopedico"
-            },
             {
               "type": "item",
               "text": "Más proyectos en **bafif.github.io**."
@@ -426,16 +424,20 @@
           ]
         }
       ],
-      "summaryShort": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios y trabajo como desarrollador de software en Obrok. Me interesa enseñar a usar la inteligencia artificial en tareas concretas de trabajo.",
+      "name": "Docente",
+      "summaryShort": "Doy clases particulares desde 2018 a alumnos secundarios y universitarios de álgebra, cálculo, física y electrónica, entre otras materias. Busco dar clases de matemática, física o electrónica en un instituto.",
       "layout": {
         "columns": 1,
         "photo": "none",
         "template": "claustro",
         "length": "short"
+      },
+      "overrides": {
+        "entries/tecso": true,
+        "entries/docencia/items/rango": true
       }
     },
     "tecnico-electronico": {
-      "name": "Técnico electrónico",
       "subtitle": "Técnico electrónico",
       "contacts": [
         "linkedin"
@@ -451,7 +453,7 @@
           "idiomas"
         ]
       ],
-      "summary": "Soy técnico electrónico y actualmente estudiante de Ciencias de la Computación y de Inteligencia Artificial. Me muevo cómodamente en trabajos que involucren independencia y resolución. Busco una oportunidad de aprender nuevas herramientas laborales (técnicas o humanas) y de aplicar activamente lo que ya conozco.",
+      "summary": "Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Programé microcontroladores en C++ (un datalogger con ATtiny85 y una estación de carga para drones con ESP32) y desde 2018 reparo y mantengo equipos informáticos. Me muevo cómodamente en trabajos que involucren independencia y resolución.",
       "sections": [
         {
           "id": "experiencia",
@@ -492,6 +494,7 @@
         {
           "id": "fortalezas",
           "title": "Fortalezas",
+          "column": "side",
           "blocks": [
             {
               "type": "item",
@@ -511,9 +514,9 @@
           ]
         },
         {
-          "id": "proyecto-personal",
-          "title": "Proyecto personal",
-          "compact": true,
+          "id": "proyectos-personales",
+          "title": "Proyectos personales",
+          "column": "side",
           "blocks": [
             {
               "type": "item",
@@ -522,6 +525,8 @@
           ]
         }
       ],
+      "name": "Técnico electrónico",
+      "summaryShort": "Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Me muevo cómodamente en trabajos que involucren independencia y resolución.",
       "layout": {
         "template": "banda",
         "length": "full",
@@ -529,9 +534,9 @@
           "bottom": 10
         }
       },
-      "summaryShort": "Soy técnico electrónico y actualmente estudiante de Ciencias de la Computación y de Inteligencia Artificial.",
       "overrides": {
-        "entries/obrok/items/programacion-con-agentes-de": false
+        "entries/obrok/items/programacion-con-agentes-de": false,
+        "entries/obrok/items/desarrollo-full-stack-de": false
       }
     }
   }

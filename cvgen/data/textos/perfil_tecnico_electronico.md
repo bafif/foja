@@ -1,0 +1,1 @@
+Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Programé microcontroladores en C++ (un datalogger con ATtiny85 y una estación de carga para drones con ESP32) y desde 2018 reparo y mantengo equipos informáticos. Me muevo cómodamente en trabajos que involucren independencia y resolución.

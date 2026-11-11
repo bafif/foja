@@ -224,10 +224,6 @@
         }
       ],
       "priority": "essential"
-    },
-    "encyclopedic-map": {
-      "title": "Interactive encyclopedic map",
-      "place": "GDScript + Python · OpenAI · user interface"
     }
   },
   "profiles": {
@@ -333,9 +329,9 @@
         "length": "normal"
       }
     },
-    "ai-teacher": {
-      "name": "AI teacher",
-      "subtitle": "Artificial Intelligence teacher",
+    "teacher": {
+      "name": "Teacher",
+      "subtitle": "Mathematics, physics and electronics teacher",
       "contacts": [
         "linkedin"
       ],
@@ -347,7 +343,8 @@
           "languages"
         ]
       ],
-      "summary": "I have been tutoring secondary school and university students since 2018, and I work as a software developer at Obrok. I am an advanced student of the University Technical Degree in Artificial Intelligence at UNR. I want to teach how to use artificial intelligence in concrete work tasks: what each tool does, when it is worth using and how to check what it produces.",
+      "summary": "I have been tutoring secondary school and university students since 2018 in algebra, calculus, physics and electronics, among other subjects. I am an electronics technician and an advanced student of the University Technical Degree in Artificial Intelligence at UNR. I am looking to teach mathematics, physics or electronics at a school.",
+      "summaryShort": "I have been tutoring secondary school and university students since 2018 in algebra, calculus, physics and electronics, among other subjects. I am looking to teach mathematics, physics or electronics at a school.",
       "sections": [
         {
           "id": "teaching-experience",
@@ -360,16 +357,38 @@
           ]
         },
         {
+          "id": "education",
+          "title": "Education",
+          "blocks": [
+            {
+              "type": "entry",
+              "entry": "technician"
+            },
+            {
+              "type": "entry",
+              "entry": "tuia"
+            },
+            {
+              "type": "entry",
+              "entry": "lcc"
+            }
+          ]
+        },
+        {
           "id": "work-experience",
           "title": "Work experience",
           "blocks": [
             {
               "type": "entry",
-              "entry": "obrok"
+              "entry": "tecso"
             },
             {
               "type": "entry",
               "entry": "repair"
+            },
+            {
+              "type": "entry",
+              "entry": "obrok"
             }
           ]
         },
@@ -386,7 +405,7 @@
             {
               "type": "item",
               "heading": "Practical approach",
-              "text": "I teach with concrete examples and exercises, so that what is learned can be put to use at work right away."
+              "text": "I teach with concrete examples and exercises, so that what is learned is put to use right away."
             },
             {
               "type": "item",
@@ -396,29 +415,10 @@
           ]
         },
         {
-          "id": "education",
-          "title": "Education",
-          "compact": true,
+          "id": "personal-projects",
+          "title": "Personal projects",
+          "column": "side",
           "blocks": [
-            {
-              "type": "entry",
-              "entry": "tuia"
-            },
-            {
-              "type": "entry",
-              "entry": "technician"
-            }
-          ]
-        },
-        {
-          "id": "personal-project",
-          "title": "Personal project",
-          "compact": true,
-          "blocks": [
-            {
-              "type": "entry",
-              "entry": "encyclopedic-map"
-            },
             {
               "type": "item",
               "text": "More projects at **bafif.github.io**."
@@ -426,12 +426,15 @@
           ]
         }
       ],
-      "summaryShort": "I have been tutoring secondary school and university students since 2018, and I work as a software developer at Obrok. I want to teach how to use artificial intelligence in concrete work tasks.",
       "layout": {
         "columns": 1,
         "photo": "none",
         "template": "claustro",
         "length": "short"
+      },
+      "overrides": {
+        "entries/tecso": true,
+        "entries/teaching/items/students": true
       }
     },
     "electronics-technician": {
@@ -451,7 +454,8 @@
           "languages"
         ]
       ],
-      "summary": "I am an electronics technician, currently studying Computer Science and Artificial Intelligence. I am comfortable in work that calls for independence and problem solving. I am looking for a chance to learn new tools of the trade, technical or human, and to put what I already know to active use.",
+      "summary": "I am an electronics technician and an advanced student of the University Technical Degree in Artificial Intelligence at UNR. I have programmed microcontrollers in C++ (a datalogger with an ATtiny85 and a charging station for drones with an ESP32), and since 2018 I have been repairing and maintaining computers. I am comfortable in work that calls for independence and problem solving.",
+      "summaryShort": "I am an electronics technician and an advanced student of the University Technical Degree in Artificial Intelligence at UNR. I am comfortable in work that calls for independence and problem solving.",
       "sections": [
         {
           "id": "experience",
@@ -492,6 +496,7 @@
         {
           "id": "strengths",
           "title": "Strengths",
+          "column": "side",
           "blocks": [
             {
               "type": "item",
@@ -511,9 +516,9 @@
           ]
         },
         {
-          "id": "personal-project",
-          "title": "Personal project",
-          "compact": true,
+          "id": "personal-projects",
+          "title": "Personal projects",
+          "column": "side",
           "blocks": [
             {
               "type": "item",
@@ -529,9 +534,9 @@
           "bottom": 10
         }
       },
-      "summaryShort": "I am an electronics technician, currently studying Computer Science and Artificial Intelligence.",
       "overrides": {
-        "entries/obrok/items/programming-with-advanced-ai": false
+        "entries/obrok/items/programming-with-advanced-ai": false,
+        "entries/obrok/items/full-stack-development-of": false
       }
     }
   }

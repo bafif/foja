@@ -1,0 +1,13 @@
+{
+    "subtitulo": "Docente de matemática, física y electrónica",
+    "perfil": "textos/perfil_docente.md",
+    "contactos": ["telefono", "correo", "linkedin"],
+    "habilidades": ["Programación", "Idiomas"],
+    "secciones": [
+        {"titulo": "Experiencia docente", "entradas": ["docencia"]},
+        {"titulo": "Educación", "entradas": ["tecnico", "tuia", "lcc"]},
+        {"titulo": "Experiencia laboral", "entradas": ["tecso", "reparacion", "obrok"]},
+        {"titulo": "Fortalezas", "lateral": true, "items": "textos/fortalezas_docente.md"},
+        {"titulo": "Proyectos personales", "lateral": true, "items": ["Más proyectos en **bafif.github.io**."]}
+    ]
+}

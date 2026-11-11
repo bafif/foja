@@ -1,0 +1,1 @@
+Doy clases particulares desde 2018 a alumnos secundarios y universitarios de álgebra, cálculo, física y electrónica, entre otras materias. Soy técnico en electrónica y estudiante avanzado de la Tecnicatura Universitaria en Inteligencia Artificial en la UNR. Busco dar clases de matemática, física o electrónica en un instituto.

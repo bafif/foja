@@ -77,7 +77,7 @@ export const es = {
     "Foja guarda todo en este navegador: tus datos no salen de este dispositivo. Empezá con el ejemplo, con un proyecto vacío o importando un archivo de Foja.",
   startExample: "Empezar con el ejemplo",
   exampleProfiles:
-    "El ejemplo es un CV real con tres perfiles armados con los mismos datos, cada uno con su estilo y su largo: programador (Legajo, normal), docente de IA (Claustro, corto) y técnico electrónico (Banda, completo). Se pasa de uno a otro en «Perfil», arriba.",
+    "El ejemplo es un CV real con tres perfiles armados con los mismos datos, cada uno con su estilo y su largo: programador (Legajo, normal), docente de matemática, física y electrónica (Claustro, corto) y técnico electrónico (Banda, completo). Se pasa de uno a otro en «Perfil», arriba.",
   startEmpty: "Proyecto vacío",
   importJson: "Importar JSON",
   importFailed: "Ese archivo no es un proyecto de Foja válido.",
@@ -363,7 +363,7 @@ export const en: Strings = {
   welcomeText: "Foja keeps everything in this browser: your data never leaves this device. Start with the example, an empty project, or a Foja file.",
   startExample: "Start with the example",
   exampleProfiles:
-    "The example is a real CV with three profiles built from the same data, each with its own style and length: programmer (Legajo, normal), AI teacher (Claustro, short) and electronics technician (Banda, full). Switch between them with “Profile”, at the top.",
+    "The example is a real CV with three profiles built from the same data, each with its own style and length: programmer (Legajo, normal), mathematics, physics and electronics teacher (Claustro, short) and electronics technician (Banda, full). Switch between them with “Profile”, at the top.",
   startEmpty: "Empty project",
   importJson: "Import JSON",
   importFailed: "That file is not a valid Foja project.",

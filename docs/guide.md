@@ -89,8 +89,8 @@ profile, marked as such, and clicking it back returns it to the rule. The profil
 
 Each profile keeps its own length, exceptions and short summary, and **Duplicate** copies them.
 LaTeX, Word, Markdown and JSON pick exactly what the PDF shows. The example comes with three
-profiles, each with its own style and length: programmer (Legajo, Normal), AI teacher (Claustro,
-Short) and electronics technician (Banda, Full).
+profiles, each with its own style and length: programmer (Legajo, Normal), mathematics, physics
+and electronics teacher (Claustro, Short) and electronics technician (Banda, Full).
 
 **Fit to one page** compiles the profile and, while it takes more than one page, makes it shorter
 one step at a time, in a fixed order: the length one step down, then the short summary, then the

@@ -55,7 +55,7 @@ Cada entrada, ítem y habilidad del banco tiene una prioridad, que se marca una 
 
 Debajo del largo, las **casillas** listan las entradas del perfil con sus ítems, y sus habilidades: tildado, lo que entra. Lo que manda el largo va sin marca; una casilla que cambiás es una excepción de este perfil, marcada como tal, y si la volvés a cambiar vuelve a la regla. El perfil puede tener además un **resumen corto**, que se usa con el largo Corto (o siempre, o nunca, según **Resumen que usa**).
 
-Cada perfil guarda su largo, sus excepciones y su resumen corto, y **Duplicar** los copia. LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que muestra el PDF. El ejemplo trae tres perfiles, cada uno con su estilo y su largo: programador (Legajo, Normal), docente de IA (Claustro, Corto) y técnico electrónico (Banda, Completo).
+Cada perfil guarda su largo, sus excepciones y su resumen corto, y **Duplicar** los copia. LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que muestra el PDF. El ejemplo trae tres perfiles, cada uno con su estilo y su largo: programador (Legajo, Normal), docente de matemática, física y electrónica (Claustro, Corto) y técnico electrónico (Banda, Completo).
 
 **Ajustar a una página** compila el perfil y, mientras ocupe más de una página, lo achica de a un paso y en un orden fijo: el largo un paso más abajo, después el resumen corto, después lo extra que las excepciones todavía muestran, empezando por lo último. Nunca baja a Corto si eso deja el perfil sin entradas (primero marcá en el banco qué es imprescindible). El resultado queda escrito en el perfil, y **Deshacer el ajuste** (o Ctrl+Z) lo vuelve atrás de una vez.
 
