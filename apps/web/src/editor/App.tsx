@@ -17,7 +17,7 @@ import { StyleEditor } from "./forms/StyleEditor";
 import { t, useLanguage } from "./i18n";
 import { connectPreview, usePreview } from "./preview";
 import { overflowingSections } from "./selection";
-import { emptyProject, exampleProject, newProfile } from "./projects";
+import { EXAMPLE_IDS, emptyProject, exampleProject, newProfile } from "./projects";
 import { loadPrevious, loadSaved, save } from "./storage";
 import { redo, undo, useEditor, type Selection } from "./store";
 import { Button, move, useDismiss } from "./ui";
@@ -375,6 +375,11 @@ function TopBar({ onExport }: { onExport: () => void }) {
               <Button variant="ghost" onClick={() => (load(exampleProject()), setProjectMenu(false))}>
                 {t.startExample}
               </Button>
+              {EXAMPLE_IDS.map((id) => (
+                <Button key={id} variant="ghost" onClick={() => (load(exampleProject(id)), setProjectMenu(false))}>
+                  {t.examples[id].name}
+                </Button>
+              ))}
               {hasPrevious && (
                 <Button
                   variant="ghost"

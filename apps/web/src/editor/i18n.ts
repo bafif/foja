@@ -78,6 +78,14 @@ export const es = {
   startExample: "Empezar con el ejemplo",
   exampleProfiles:
     "El ejemplo es un CV real con tres perfiles armados con los mismos datos, cada uno con su estilo y su largo: programador (Legajo, normal), docente de matemática, física y electrónica (Claustro, corto) y técnico electrónico (Banda, completo). Se pasa de uno a otro en «Perfil», arriba.",
+  moreExamples: "Más ejemplos, con personas inventadas",
+  moreExamplesText:
+    "Para quien tiene poca experiencia y pocas cosas para poner: cada uno trae dos perfiles armados, uno vistoso y otro legible para los portales de empleo.",
+  examples: {
+    pasantia: { name: "Camila Ríos, estudiante", description: "Busca su primera pasantía. Portada y Claustro." },
+    cosmetologa: { name: "Julieta Ferraro, cosmetóloga", description: "Recién recibida, con algo de práctica. Arco y Recto." },
+    primerEmpleo: { name: "Tomás Benítez, primer empleo", description: "Terminó el secundario y busca trabajo en comercios. Rótulo y Llano." },
+  },
   startEmpty: "Proyecto vacío",
   importJson: "Importar JSON",
   importFailed: "Ese archivo no es un proyecto de Foja ni un JSON Resume válido.",
@@ -406,6 +414,14 @@ export const en: Strings = {
   startExample: "Start with the example",
   exampleProfiles:
     "The example is a real CV with three profiles built from the same data, each with its own style and length: programmer (Legajo, normal), mathematics, physics and electronics teacher (Claustro, short) and electronics technician (Banda, full). Switch between them with “Profile”, at the top.",
+  moreExamples: "More examples, with made-up people",
+  moreExamplesText:
+    "For those with little experience and not much to put in: each comes with two profiles ready, an eye-catching one and one that job portals read well.",
+  examples: {
+    pasantia: { name: "Camila Ríos, student", description: "Looking for her first internship. Portada and Claustro." },
+    cosmetologa: { name: "Julieta Ferraro, cosmetologist", description: "Newly qualified, with some practice. Arco and Recto." },
+    primerEmpleo: { name: "Tomás Benítez, first job", description: "Finished secondary school, looking for work in shops. Rótulo and Llano." },
+  },
   startEmpty: "Empty project",
   importJson: "Import JSON",
   importFailed: "That file is not a valid Foja project or JSON Resume.",

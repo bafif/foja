@@ -1,0 +1,110 @@
+{
+  "format": "foja/3",
+  "language": "en",
+  "person": { "givenNames": ["Tomás"], "familyNames": ["Benítez"], "photo": null },
+  "contacts": { "phone": "+54 261 555-0123", "email": "tomas.benitez@example.com", "location": "Godoy Cruz, Mendoza, Argentina" },
+  "skills": {
+    "skills": {
+      "title": "Skills",
+      "items": [
+        { "id": "customers", "text": "Customer service" },
+        { "id": "till", "text": "Till and payments" },
+        { "id": "stock", "text": "Restocking and stock control" },
+        { "id": "teamwork", "text": "Teamwork" },
+        { "id": "punctuality", "text": "Punctual and reliable" }
+      ]
+    },
+    "tools": {
+      "title": "Tools",
+      "items": [
+        { "id": "excel", "text": "Basic Excel" },
+        { "id": "point-of-sale", "text": "Point-of-sale systems" },
+        { "id": "social", "text": "Social media for shops" }
+      ]
+    },
+    "languages": {
+      "title": "Languages",
+      "items": [{ "id": "spanish", "text": "Spanish (native)" }, { "id": "english", "text": "English (A2)" }]
+    },
+    "other": {
+      "title": "Other",
+      "items": [{ "id": "licence", "text": "Driving licence" }, { "id": "hours", "text": "Fully flexible hours" }]
+    }
+  },
+  "entries": {
+    "grocery": {
+      "title": "Assistant at the family grocery",
+      "place": "Almacén Don Raúl",
+      "start": "2022-12",
+      "end": "2024-12",
+      "items": [
+        { "id": "counter", "text": "Served at the counter and ran the till at weekends." },
+        { "id": "restocking", "text": "Restocked shelves and checked expiry dates." },
+        { "id": "suppliers", "text": "Received suppliers' deliveries." }
+      ]
+    },
+    "bookshop": {
+      "title": "Seasonal sales assistant, back to school",
+      "place": "Librería Papelito",
+      "start": "2025-02",
+      "end": "2025-03",
+      "items": [
+        { "id": "lists", "text": "Put together school supply lists for more than 200 families." },
+        { "id": "payments", "text": "Took payments in cash, by card and by bank transfer." }
+      ]
+    },
+    "school": {
+      "title": "Technical secondary school, management and administration",
+      "place": "Escuela Técnica N.º 4-112",
+      "start": "2019-03",
+      "end": "2024-12",
+      "note": "Completed"
+    },
+    "sales-course": { "title": "Customer service and sales", "place": "Youth employment programme, 40 hours", "start": "2025-04" },
+    "food-bank": { "title": "Volunteer", "place": "Neighbourhood food bank", "start": "2023-06", "end": "2024-12" }
+  },
+  "profiles": {
+    "sales": {
+      "name": "Sales",
+      "subtitle": "Sales and customer service",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["skills"], ["tools"], ["languages"]],
+      "summary": "I have finished technical secondary school and already have experience at a grocery counter and in a bookshop's back-to-school season. I am punctual, reliable and I enjoy dealing with people. Looking for my first formal job in a shop.",
+      "sections": [
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [{ "type": "entry", "entry": "grocery" }, { "type": "entry", "entry": "bookshop" }]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "blocks": [{ "type": "entry", "entry": "school" }, { "type": "entry", "entry": "sales-course" }]
+        },
+        { "id": "volunteering", "title": "Volunteering", "column": "side", "blocks": [{ "type": "entry", "entry": "food-bank" }] }
+      ],
+      "layout": { "template": "rotulo", "fontSize": 11, "density": "relaxed" }
+    },
+    "warehouse": {
+      "name": "Warehouse",
+      "subtitle": "Warehouse and logistics assistant",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["skills"], ["other"]],
+      "summary": "Technical secondary school completed, with experience in restocking, stock control and receiving goods. I hold a driving licence and my hours are fully flexible.",
+      "sections": [
+        {
+          "id": "experience",
+          "title": "Experience",
+          "blocks": [{ "type": "entry", "entry": "grocery" }, { "type": "entry", "entry": "bookshop" }]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "compact": true,
+          "blocks": [{ "type": "entry", "entry": "school" }, { "type": "entry", "entry": "sales-course" }]
+        }
+      ],
+      "layout": { "template": "llano", "columns": 1, "photo": "none" }
+    }
+  }
+}

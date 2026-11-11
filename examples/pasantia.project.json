@@ -1,0 +1,117 @@
+{
+  "format": "foja/3",
+  "language": "es",
+  "person": { "givenNames": ["Camila"], "familyNames": ["Ríos"], "photo": null },
+  "contacts": {
+    "phone": "+54 341 555-0142",
+    "email": "camila.rios@example.com",
+    "linkedin": "linkedin.com/in/camila-rios-ejemplo",
+    "location": "Rosario, Santa Fe"
+  },
+  "skills": {
+    "idiomas": { "title": "Idiomas", "items": [{ "id": "espanol", "text": "Español (nativo)" }, { "id": "ingles", "text": "Inglés (B2)" }] },
+    "habilidades": {
+      "title": "Habilidades",
+      "items": [
+        { "id": "gestion", "text": "Gestión administrativa" },
+        { "id": "datos", "text": "Análisis de datos" },
+        { "id": "equipo", "text": "Trabajo en equipo" },
+        { "id": "comunicacion", "text": "Comunicación escrita y oral" },
+        { "id": "problemas", "text": "Resolución de problemas" }
+      ]
+    },
+    "herramientas": {
+      "title": "Herramientas",
+      "items": [
+        { "id": "excel", "text": "Excel (intermedio)" },
+        { "id": "workspace", "text": "Google Workspace" },
+        { "id": "power-bi", "text": "Power BI (básico)" },
+        { "id": "tango", "text": "Tango Gestión (básico)" }
+      ]
+    }
+  },
+  "entries": {
+    "licenciatura": {
+      "title": "Licenciatura en Administración de Empresas (en curso)",
+      "place": "Universidad Nacional de Rosario",
+      "start": "2021-03",
+      "end": null,
+      "note": "Cuarto año · Promedio 8,4"
+    },
+    "curso-excel": { "title": "Excel para la gestión", "place": "Curso de extensión universitaria, 30 horas", "start": "2024-08" },
+    "bachiller": {
+      "title": "Bachiller en Economía y Administración",
+      "place": "Escuela Secundaria N.º 512",
+      "start": "2015-03",
+      "end": "2020-12"
+    },
+    "ayudantia": {
+      "title": "Ayudante alumna, Administración General",
+      "place": "Facultad de Ciencias Económicas y Estadística, UNR",
+      "start": "2023-03",
+      "end": null,
+      "items": [
+        { "id": "materiales", "text": "Preparación de materiales de estudio y de trabajos prácticos." },
+        { "id": "consultas", "text": "Consultas de estudiantes antes de los parciales, en grupos de 30." },
+        { "id": "cronogramas", "text": "Seguimiento de la cursada y de los cronogramas de entrega." }
+      ]
+    },
+    "tesoreria": {
+      "title": "Tesorera voluntaria",
+      "place": "Club Social y Deportivo Barrio Norte",
+      "start": "2022-04",
+      "end": "2023-12",
+      "items": [
+        { "id": "cuotas", "text": "Registro de cuotas y pagos en una planilla de Excel que armé desde cero." },
+        { "id": "rendicion", "text": "Rendición mensual de ingresos y gastos ante la comisión directiva." }
+      ]
+    }
+  },
+  "profiles": {
+    "pasantia": {
+      "name": "Pasantía",
+      "subtitle": "Estudiante de Administración",
+      "highlight": { "title": "Busco", "text": "Pasantía en administración o finanzas" },
+      "contacts": ["phone", "email", "linkedin", "location"],
+      "skills": [["idiomas", "habilidades", "herramientas"]],
+      "summary": "Estudiante avanzada de Administración de Empresas, con interés en finanzas y gestión. Soy ordenada, aprendo rápido y me gusta trabajar en equipo. Busco una pasantía donde aplicar lo que estudio y sumar experiencia en una organización.",
+      "sections": [
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "blocks": [{ "type": "entry", "entry": "licenciatura" }, { "type": "entry", "entry": "curso-excel" }]
+        },
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [{ "type": "entry", "entry": "ayudantia" }, { "type": "entry", "entry": "tesoreria" }]
+        }
+      ],
+      "layout": { "template": "portada", "fontSize": 11, "density": "relaxed" }
+    },
+    "portales": {
+      "name": "Portales de empleo",
+      "subtitle": "Estudiante de Administración de Empresas",
+      "contacts": ["phone", "email", "linkedin", "location"],
+      "skills": [["herramientas"], ["idiomas"]],
+      "summary": "Estudiante de cuarto año de Administración de Empresas, con experiencia como ayudante de cátedra y en la tesorería de un club. Busco una pasantía en administración o finanzas.",
+      "sections": [
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "blocks": [
+            { "type": "entry", "entry": "licenciatura" },
+            { "type": "entry", "entry": "bachiller" },
+            { "type": "entry", "entry": "curso-excel" }
+          ]
+        },
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [{ "type": "entry", "entry": "ayudantia" }, { "type": "entry", "entry": "tesoreria" }]
+        }
+      ],
+      "layout": { "template": "claustro", "columns": 1, "photo": "none" }
+    }
+  }
+}

@@ -7,8 +7,11 @@ import { parseMarkdown } from "../src/convert.ts";
 
 const read = (path: string): Project => JSON.parse(readFileSync(new URL(`../../../examples/${path}`, import.meta.url), "utf8"));
 const curriculum = read("curriculum.project.json");
-// The editor's example is my own CV; the fictional project is the fixture the tests shape at will.
-const examples = [read("example.project.json"), read("example.en.project.json")];
+// The editor's examples: my own CV, and made-up people with little experience, each with a profile
+// in an eye-catching style first and one for job portals second. The fictional project is the
+// fixture the tests shape at will.
+const invented = ["pasantia", "cosmetologa", "primer-empleo"].map((name) => [read(`${name}.project.json`), read(`${name}.en.project.json`)]);
+const examples = [read("example.project.json"), read("example.en.project.json"), ...invented.flat()];
 const fictional = read("fictional.project.json");
 const A4 = { width: 595.28, height: 841.89 };
 
@@ -41,6 +44,25 @@ test("the examples fit on one page in the default style", () => {
     const typst = new Typst(project);
     for (const id of Object.keys(project.profiles)) expect(typst.compile(id).numOfPages).toBe(1);
   }
+});
+
+test("the made-up people: valid, the same profiles in both languages, between them every style for a short CV", () => {
+  const styles = (p: Project) => Object.values(p.profiles).map((profile) => profile.layout?.template ?? "legajo");
+  const layouts = (p: Project) => Object.values(p.profiles).map((profile) => profile.layout);
+  const firsts: string[] = [];
+  const seconds: string[] = [];
+  for (const [es, en] of invented) {
+    expect(es.language).toBe("es");
+    expect(en.language).toBe("en");
+    expect(validate(es)).toEqual([]);
+    expect(validate(en)).toEqual([]);
+    expect(layouts(en)).toEqual(layouts(es));
+    const [first, second] = styles(es);
+    firsts.push(first);
+    seconds.push(second);
+  }
+  expect(firsts.sort()).toEqual(["arco", "portada", "rotulo"]);
+  expect(seconds.sort()).toEqual(["claustro", "llano", "recto"]);
 });
 
 describe("click geometry (Legajo)", () => {

@@ -89,6 +89,10 @@ nothing but text, the contacts in the body, a title over every part (`labels.pro
 summary, `labels.skills` over the skills), no hyphenation, and the dates on their entry's line with
 `h(1fr)` rather than in a grid cell beside a block of several lines, so that the PDF carries the
 text in the order it is seen. `packages/cli/test/ats.test.ts` checks that order in the PDF.
+`arco.typ`, `rotulo.typ` and `portada.typ` draw with Typst's own shapes: a panel in the page's
+`background`, the photo clipped by a `box` with rounded corners, `polygon` and `circle` as
+ornaments, and the initials in the photo's place when there is none (`opt("photo", …)` says
+whether the profile wants one).
 
 A built-in style can bring a `preset` in `packages/template/styles.json`: options written into the
 profile when the style is picked (the three above set one column, no photo and the short length;

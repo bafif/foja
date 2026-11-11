@@ -1,0 +1,107 @@
+{
+  "format": "foja/3",
+  "language": "es",
+  "person": { "givenNames": ["Tomás"], "familyNames": ["Benítez"], "photo": null },
+  "contacts": { "phone": "+54 261 555-0123", "email": "tomas.benitez@example.com", "location": "Godoy Cruz, Mendoza" },
+  "skills": {
+    "habilidades": {
+      "title": "Habilidades",
+      "items": [
+        { "id": "publico", "text": "Atención al público" },
+        { "id": "caja", "text": "Manejo de caja y cobros" },
+        { "id": "stock", "text": "Reposición y control de stock" },
+        { "id": "equipo", "text": "Trabajo en equipo" },
+        { "id": "puntualidad", "text": "Puntualidad y responsabilidad" }
+      ]
+    },
+    "herramientas": {
+      "title": "Herramientas",
+      "items": [
+        { "id": "excel", "text": "Excel básico" },
+        { "id": "punto-de-venta", "text": "Sistemas de punto de venta" },
+        { "id": "redes", "text": "Redes sociales para comercios" }
+      ]
+    },
+    "idiomas": { "title": "Idiomas", "items": [{ "id": "espanol", "text": "Español (nativo)" }, { "id": "ingles", "text": "Inglés (A2)" }] },
+    "otros": {
+      "title": "Otros datos",
+      "items": [{ "id": "licencia", "text": "Licencia de conducir (B1)" }, { "id": "horario", "text": "Disponibilidad horaria completa" }]
+    }
+  },
+  "entries": {
+    "almacen": {
+      "title": "Ayudante en almacén familiar",
+      "place": "Almacén Don Raúl",
+      "start": "2022-12",
+      "end": "2024-12",
+      "items": [
+        { "id": "mostrador", "text": "Atención en el mostrador y manejo de caja los fines de semana." },
+        { "id": "reposicion", "text": "Reposición de mercadería y control de vencimientos." },
+        { "id": "proveedores", "text": "Recepción de pedidos de proveedores." }
+      ]
+    },
+    "libreria": {
+      "title": "Vendedor de temporada escolar",
+      "place": "Librería Papelito",
+      "start": "2025-02",
+      "end": "2025-03",
+      "items": [
+        { "id": "listas", "text": "Armado de listas escolares para más de 200 familias." },
+        { "id": "cobros", "text": "Cobros en efectivo, con tarjeta y por transferencia." }
+      ]
+    },
+    "secundario": {
+      "title": "Técnico en Gestión y Administración",
+      "place": "Escuela Técnica N.º 4-112",
+      "start": "2019-03",
+      "end": "2024-12",
+      "note": "Secundario técnico completo"
+    },
+    "curso-ventas": { "title": "Atención al cliente y ventas", "place": "Programa de empleo joven, 40 horas", "start": "2025-04" },
+    "banco-de-alimentos": { "title": "Voluntario", "place": "Banco de alimentos del barrio", "start": "2023-06", "end": "2024-12" }
+  },
+  "profiles": {
+    "ventas": {
+      "name": "Ventas",
+      "subtitle": "Vendedor y atención al público",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["habilidades"], ["herramientas"], ["idiomas"]],
+      "summary": "Terminé el secundario técnico y ya tengo experiencia en el mostrador de un almacén y en la temporada escolar de una librería. Soy puntual, responsable y me gusta tratar con la gente. Busco mi primer empleo formal en un comercio.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [{ "type": "entry", "entry": "almacen" }, { "type": "entry", "entry": "libreria" }]
+        },
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "blocks": [{ "type": "entry", "entry": "secundario" }, { "type": "entry", "entry": "curso-ventas" }]
+        },
+        { "id": "voluntariado", "title": "Voluntariado", "column": "side", "blocks": [{ "type": "entry", "entry": "banco-de-alimentos" }] }
+      ],
+      "layout": { "template": "rotulo", "fontSize": 11, "density": "relaxed" }
+    },
+    "deposito": {
+      "name": "Depósito",
+      "subtitle": "Auxiliar de depósito y logística",
+      "contacts": ["phone", "email", "location"],
+      "skills": [["habilidades"], ["otros"]],
+      "summary": "Secundario técnico completo, con experiencia en reposición, control de stock y recepción de mercadería. Tengo licencia de conducir y disponibilidad horaria completa.",
+      "sections": [
+        {
+          "id": "experiencia",
+          "title": "Experiencia",
+          "blocks": [{ "type": "entry", "entry": "almacen" }, { "type": "entry", "entry": "libreria" }]
+        },
+        {
+          "id": "formacion",
+          "title": "Formación",
+          "compact": true,
+          "blocks": [{ "type": "entry", "entry": "secundario" }, { "type": "entry", "entry": "curso-ventas" }]
+        }
+      ],
+      "layout": { "template": "llano", "columns": 1, "photo": "none" }
+    }
+  }
+}

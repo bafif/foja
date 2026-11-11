@@ -11,6 +11,7 @@ stays on your device. It is at <https://bafif.github.io/foja/>.
 Open the editor and pick one of:
 
 - **Start with the example**: my own CV, with three profiles (programmer, mathematics, physics and electronics teacher, and electronics technician) built from the same data, to see how a real one is put together. Switch between them with **Profile**, at the top.
+- **More examples, with made-up people**: for those with little experience. Camila, a student looking for her first internship (Portada and Claustro); Julieta, a newly qualified cosmetologist (Arco and Recto); and Tomás, who finished secondary school and is looking for a job in shops (Rótulo and Llano). Each has two profiles: an eye-catching one first and one that job portals read well. They are also in the **Project** menu.
 - **Empty project**: a blank CV.
 - **Import JSON**: a `.foja.json` file exported from Foja (yours, or a template someone shared), or a CV in [JSON Resume](https://jsonresume.org), the open format other tools use: its jobs, studies, projects, awards, certificates and publications go to the bank of entries, with a profile that has a section for each; its skills and languages become skill groups. A photo on the web is not downloaded (Foja connects to nothing): add it by hand.
 
@@ -40,7 +41,7 @@ Dates use month pickers; an entry can be *ongoing* or have a *single date*. Text
 
 ## Styles
 
-**Style and layout** shows the six Foja styles, each with a thumbnail of your CV in it:
+**Style and layout** shows the nine Foja styles, each with a thumbnail of your CV in it:
 
 - **Legajo** (default): serif, the name in small caps over a rule, a sidebar card, the dates in a
   column of their own.
@@ -63,6 +64,18 @@ skills under "Skills") and the text in the PDF in the order it is seen, which a 
 one of them sets the profile to one column, no photo and the Short length (see below), unless
 Short would leave the profile without entries; all of it is written into the profile, so it shows
 and can be changed like any other option.
+
+The last three are for a short CV, a first job or an internship: they spread a little over the
+page so that it looks full and catches the eye. Where the photo goes, they show the initials when
+there is no photo.
+
+- **Arco**: a tinted panel down the left with the photo in an arch, the name large in a bold serif,
+  the subtitle and the summary on a soft card, titles over a fine line.
+- **Rótulo**: the photo in a circle with a ring of colour, the name large and light on two lines,
+  every title on a label of colour, a fine rule between the two columns.
+- **Portada**: editorial, as in a magazine: the contacts across the top, the name very large in
+  capitals beside the photo, each part on a row with its title on the left, the skills in columns
+  at the foot.
 
 Below the styles, the options the chosen style honours: one or two columns, sidebar side and
 width, photo shape, typeface, size, colour, margins, spacing, paper, date format and the language
@@ -151,9 +164,9 @@ navigation. Click any part of the preview to edit it.
 | :--- | :--- |
 | PDF | The CV as you see it. |
 | JPG | One image per page, at 72, 150 or 300 dpi. |
-| Word (`.docx`) | In the look of the profile's built-in style, redone in Word, which cannot run Typst. A style of your own comes out as Legajo. Claustro, Recto and Llano are paragraphs only, without tables, the dates on a tab stop at the right margin. Word has no XCharter and uses Georgia, which is wider: a CV that just fits in the PDF can run onto a second page. |
+| Word (`.docx`) | In the look of the profile's built-in style, redone in Word, which cannot run Typst. A style of your own comes out as Legajo; Arco and Rótulo, in the layout of Legajo, and Portada, in that of Minimal, each with its colour. Claustro, Recto and Llano are paragraphs only, without tables, the dates on a tab stop at the right margin. Word has no XCharter and uses Georgia, which is wider: a CV that just fits in the PDF can run onto a second page. |
 | Typst (`.zip`) | The style, the project and the fonts: compiles with `typst compile` and opens in typst.app. The only export that keeps a style of your own as it is. |
-| LaTeX (`.zip`) | In the look of the profile's built-in style; a style of your own comes out as Legajo. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
+| LaTeX (`.zip`) | In the look of the profile's built-in style; a style of your own comes out as Legajo, and Arco, Rótulo and Portada as in Word. LaTeX breaks lines a little differently, so a CV that just fits in the PDF can run a few lines over. |
 | Markdown | A plain CV for a README or a form that takes text. |
 | JSON | The project file, to import it again or move it to another device. |
 | JSON Resume | The profile in [JSON Resume](https://jsonresume.org), for other tools and their themes. Its sections are fixed: each section of the profile goes to the one its name says (experience, education, projects, awards, languages…), and a section of entries that matches none goes to work. What has no place there, like a section of strengths, Foja names when exporting; it stays in the project's JSON. |

@@ -154,6 +154,26 @@ describe("LaTeX", () => {
     expect(tex).toContain(`\\textbf{${escapeLatex(e.place)}}\\\\\\textit{${escapeLatex(e.title)}}\\hfill{${escapeLatex(e.period)}}`);
   });
 
+  test.each([
+    ["arco", "Arco", "Legajo", "B06A5B"],
+    ["rotulo", "Rótulo", "Legajo", "A35A83"],
+    ["portada", "Portada", "Minimal", "1B1B1B"],
+  ])("%s has no LaTeX or Word of its own: it comes out in the nearest layout, with its colour", async (style, name, look, accent) => {
+    const p = structuredClone(example);
+    p.profiles.programador.layout = { template: style };
+    const files = unzip((await exportFiles(p, "programador", "tex"))[0].data);
+    const tex = decoder.decode(files["cv.tex"]);
+    expect(tex).toContain(`${look} style`);
+    expect(tex).toContain(`\\definecolor{accent}{HTML}{${accent}}`);
+    expect(tex).toContain("\\usepackage[sfdefault]{noto}");
+    expect(decoder.decode(files["README.txt"])).toContain(`The Typst export keeps ${name}.`);
+    // The profile's own colour wins over the style's.
+    p.profiles.programador.layout.accent = "#aa3355";
+    expect(decoder.decode(unzip((await exportFiles(p, "programador", "tex"))[0].data)["cv.tex"])).toContain("\\definecolor{accent}{HTML}{AA3355}");
+    const [docx] = await exportFiles(p, "programador", "docx");
+    expect(docx.data.byteLength).toBeGreaterThan(1000);
+  });
+
   test("the bundle carries a JPEG photo", async () => {
     const p = structuredClone(example);
     p.assets = { "photo.jpg": { type: "image/jpeg", data: toBase64(new Uint8Array([0xff, 0xd8, 0xff, 0xd9])) } };
