@@ -2,291 +2,264 @@
 
 *[English](ROADMAP.md) · Español*
 
-Foja es un editor de CV sin código construido sobre [Typst](https://typst.app). En vez de escribir código completás formularios, la vista previa que tenés al lado es la salida real de Typst, y el CV se exporta a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON y JSON Resume. Todo corre en el navegador: no hay cuentas ni servidor, y el CV nunca sale de tu máquina.
+Qué pretende ser Foja, los principios y las decisiones que lo sostienen y su porqué, qué está hecho y qué viene
+después. Cómo se usa el editor está en la [guía de uso](guide.es.md).
 
-En este documento dejo qué pretende ser Foja, qué ya está hecho, qué viene después y por qué tomé las decisiones principales. Cómo se usa el editor está en la
-[guía de uso](guide.es.md).
+## Para qué está
 
-## Por qué lo hago
+Typst tiene un editor online oficial (typst.app), pero ahí escribís código. Lo más parecido que hay son RenderCV (de
+YAML a Typst, como CLI y como app web) y las plantillas de CV de Typst Universe, que también se editan como código. No
+había un generador de CV basado en formularios sobre Typst: ese es el hueco que apunta a llenar Foja, con formularios,
+vista previa en vivo y muchas exportaciones, no otro editor de código.
 
-Mi propio CV era un conjunto de archivos JSON que un generador en Python convertía en PDF pasando por LaTeX (todavía está en [`cvgen/`](../cvgen/README.es.md), junto a un segundo generador en C). Funcionaba, pero cada cambio implicaba editar archivos a mano y esperar a que compilara LaTeX, y nadie más podía usarlo. Quería la misma idea, un único banco de entradas y un CV por cada tipo de trabajo, con una interfaz de verdad arriba y Typst abajo.
-
-Typst ya tiene un editor online oficial (typst.app), pero ahí escribís código. Lo más parecido que hay son RenderCV (de YAML a Typst, como CLI y como app web) y las plantillas de CV de Typst Universe, que también se editan como código. No encontré un generador de CV basado en formularios sobre Typst, así que ese es el hueco que apunta a llenar Foja: formularios, vista previa en vivo y muchas exportaciones, no otro editor de código.
+Foja nació de [cvgen](../cvgen/README.es.md), un generador que convierte un conjunto de archivos JSON en un PDF
+pasando por LaTeX. Conserva su idea, un único banco de entradas y un CV por cada tipo de trabajo, con una interfaz de
+verdad arriba y Typst abajo.
 
 Un solo producto, tres maneras de usarlo, todas desde la misma versión:
 
-1. **Una app web** que cualquiera puede abrir e instalar, y que va creciendo con el tiempo.
+1. **Una app web** que cualquiera puede abrir e instalar.
 2. **Una app de escritorio** que se instala como cualquier otra en Linux, macOS y Windows.
-3. **Una línea de comandos** (`foja`), que reemplaza al viejo generador de mi CV.
+3. **Una línea de comandos** (`foja`), pensada para reemplazar a cvgen.
 
 ## Principios de diseño
 
-- **La plantilla de Typst es el generador.** Los estilos leen el JSON del proyecto y arman el CV
-  por su cuenta, así que el navegador, la app de escritorio y la CLI ejecutan exactamente los mismos archivos `.typ`.
-  Nada genera código Typst por afuera. La única excepción es una plantilla LaTeX importada, cuyo aspecto lo da
-  LaTeX, que también corre en el navegador.
-- **Local primero, sin servidor.** La versión web es el producto: Typst compila a WebAssembly en un
-  worker, los proyectos viven en IndexedDB y la app de escritorio envuelve esa misma versión. Un sitio estático
-  no tiene servidor que pagar ni nada que atacar, y los datos del CV quedan en manos de su dueño.
-- **Costo cero, siempre.** El proyecto nunca paga nada: ni certificados de firma de código, ni
-  cuenta de desarrollador de Apple, ni hosting pago, ni dominio pago. Cada elección es la mejor opción gratuita.
-- **Un único documento de proyecto autocontenido.** Un solo archivo JSON (formato `foja/3`; los anteriores se migran al cargarlos) guarda la
-  persona, los contactos, los grupos de habilidades, el banco compartido de entradas, los perfiles, los estilos propios y la
-  foto. Un JSON Schema es el contrato entre la plantilla, los exportadores, el editor y la CLI.
-- **Dos niveles, bien explícitos.** El banco guarda cada entrada una sola vez; un perfil elige qué entradas
-  van y dónde. Al editar una entrada te avisa en qué otros lugares se usa, y sacarla de un perfil nunca
-  la borra. La prioridad de cada entrada, ítem y habilidad se marca una vez en el banco, y el largo de cada
-  perfil decide qué entra, con sus propias excepciones.
-- **La disposición es un dato.** Columnas, lado y ancho de la barra lateral, forma de la foto, fuente, tamaño, color de acento,
-  márgenes, densidad, tamaño de página, formato de fecha e idioma de las etiquetas son opciones de cada perfil, que leen
-  tanto los estilos de Typst como el exportador de Word.
-- **Bloques con tipo.** Las secciones contienen bloques (una entrada del banco, un ítem, un párrafo) y los
-  estilos los muestran según su tipo, lo que deja lugar para nuevos tipos de bloque más adelante.
-- **Disciplina de una página.** La vista previa siempre te dice si el CV entra en una página y, si no,
-  qué partes se pasan, y «Ajustar a una página» lo achica de a un paso, en un orden fijo, hasta que entra.
-- **Se espera entrada no confiable.** Un proyecto o un estilo puede venir de otra persona, así que la
-  vista previa le saca al SVG los scripts, el HTML embebido y los enlaces, la CLI compila en una raíz temporal
-  vacía y cada exportador escapa lo que escribe. Los detalles están en el
-  [modelo de seguridad](security.es.md).
+- **La plantilla de Typst es el generador.** Los estilos leen el JSON del proyecto y arman el CV por su cuenta, así
+  que el navegador, la app de escritorio y la CLI ejecutan exactamente los mismos archivos `.typ`. Nada genera código
+  Typst por afuera. La única excepción es una plantilla LaTeX importada, cuyo aspecto lo da LaTeX, que también corre
+  en el navegador.
+- **Local primero, sin servidor.** La versión web es el producto: Typst compila a WebAssembly en un worker, los
+  proyectos viven en IndexedDB y la app de escritorio envuelve esa misma versión. Un sitio estático no tiene servidor
+  que pagar ni nada que atacar, y los datos del CV quedan en manos de su dueño.
+- **Costo cero, siempre.** El proyecto nunca paga nada: ni certificados de firma de código, ni cuenta de
+  desarrollador de Apple, ni hosting pago, ni dominio pago. Cada elección es la mejor opción gratuita.
+- **Un único documento de proyecto autocontenido.** Un solo archivo JSON (formato `foja/3`; los anteriores se migran
+  al cargarlos) guarda la persona, los contactos, los grupos de habilidades, el banco compartido de entradas, los
+  perfiles, los estilos propios y la foto. Un JSON Schema es el contrato entre la plantilla, los exportadores, el
+  editor y la CLI.
+- **Dos niveles, bien explícitos.** El banco guarda cada entrada una sola vez; un perfil elige qué entradas van y
+  dónde. Al editar una entrada te avisa en qué otros lugares se usa, y sacarla de un perfil nunca la borra. La
+  prioridad de cada entrada, ítem y habilidad se marca una vez en el banco, y el largo de cada perfil decide qué entra,
+  con sus propias excepciones.
+- **La disposición es un dato.** Columnas, lado y ancho de la barra lateral, forma de la foto, fuente, tamaño, color
+  de acento, márgenes, densidad, tamaño de página, formato de fecha e idioma de las etiquetas son opciones de cada
+  perfil, que leen tanto los estilos de Typst como el exportador de Word.
+- **Bloques con tipo.** Las secciones contienen bloques (una entrada del banco, un ítem, un párrafo) y los estilos
+  los muestran según su tipo, lo que deja lugar para nuevos tipos de bloque más adelante.
+- **Disciplina de una página.** La vista previa siempre te dice si el CV entra en una página y, si no, qué partes se
+  pasan, y «Ajustar a una página» lo achica de a un paso, en un orden fijo, hasta que entra.
+- **Se espera entrada no confiable.** Un proyecto, un estilo o una plantilla pueden venir de otra persona, así que la
+  vista previa le saca al SVG los scripts, el HTML embebido y los enlaces, la CLI compila en una raíz temporal vacía y
+  cada exportador escapa lo que escribe. Los detalles están en el [modelo de seguridad](security.es.md).
 - **Sin acceso al control de versiones.** Ni la app ni sus exportaciones tocan los repositorios de nadie.
 
 ## Decisiones
 
 ### Cómo se distribuye
 
-Comparé tres opciones: una app web local en un contenedor, una app nativa en Tauri con un sidecar en Python,
-y un núcleo web que hace todo el renderizado en el navegador, envuelto con Tauri para el escritorio.
+Se compararon tres opciones: una app web local en un contenedor, una app nativa en Tauri con un sidecar en Python, y
+un núcleo web que hace todo el renderizado en el navegador, envuelto con Tauri para el escritorio.
 
-La tercera ganó en todo lo que importaba. Un runtime de contenedores es una mala instalación para gente
-que no es desarrolladora, sobre todo en macOS y Windows. Un sidecar de Python congelado hace que los instaladores sean pesados
-y que firmarlos sea un dolor de cabeza (el sidecar hay que firmarlo aparte, y el hardened runtime de macOS
-rompe PyInstaller si no le dedicás trabajo extra). El núcleo en el navegador da una app web pública con hosting
-estático y sin servidor, instaladores chicos que usan el webview del sistema y una vista previa sin ida y vuelta
-por la red. LaTeX se exporta como código fuente, porque una distribución de TeX completa en WebAssembly descarga
-unos 120 MB; solo una plantilla LaTeX importada se compila dentro de la app, con pdfTeX o XeTeX y un grupo chico de
-paquetes comunes (unos 9 o 6 MB, que se bajan la primera vez que se usa una; las fuentes que nombra una plantilla
-XeLaTeX las sube el usuario).
+La tercera ganó en todo lo que importaba. Un runtime de contenedores es una mala instalación para gente que no es
+desarrolladora, sobre todo en macOS y Windows. Un sidecar de Python congelado hace que los instaladores sean pesados y
+que firmarlos sea un dolor de cabeza (el sidecar hay que firmarlo aparte, y el hardened runtime de macOS rompe
+PyInstaller si no se le dedica trabajo extra). El núcleo en el navegador da una app web pública con hosting estático y
+sin servidor, instaladores chicos que usan el webview del sistema y una vista previa sin ida y vuelta por la red.
 
-Los contenedores (Podman sin root) quedan solo para desarrollo, con recarga en caliente detrás de nginx.
+Los contenedores (Podman sin root) quedan solo para desarrollo.
+
+### Vista previa en el navegador
+
+typst.ts compila en un Web Worker. En una CPU modesta de cuatro núcleos, un cambio de un carácter tarda unos 50 ms de
+Typst y 4 ms de renderizado del SVG, así que la vista previa sigue cada tecla; además reemplaza solo las páginas que
+cambiaron, y un CV largo no traba la escritura. El compilador ocupa 28 MB de WebAssembly (7 MB con brotli): la
+primera visita muestra un estado de carga y el service worker lo precachea.
+
+### LaTeX: se exporta como código, y se compila solo para las plantillas importadas
+
+Una distribución de TeX completa en WebAssembly descarga unos 120 MB, así que la exportación a LaTeX es código fuente
+(un `cv.tex` autocontenido), no un PDF. Solo una plantilla LaTeX importada se compila en el navegador, con el pdfTeX o
+el XeTeX de SwiftLaTeX y un grupo chico de paquetes comunes: unos 9 MB (6 MB para XeTeX), que arma cada deploy y que se
+bajan la primera vez que se usa una. Las fuentes que nombra una plantilla XeLaTeX, aparte de Latin Modern, las sube el
+usuario.
 
 ### Canales de distribución gratuitos
 
-- **Web**: un sitio estático en GitHub Pages, instalable como PWA desde Chrome, Edge o Safari. Aparece
-  en el menú de aplicaciones del sistema, funciona sin conexión, se actualiza sola y no necesita firma.
-- **Windows**: la Microsoft Store. El registro individual es gratis y la Store firma los paquetes
-  MSIX, así que la PWA empaquetada con PWABuilder evita las advertencias de SmartScreen sin costo.
+- **Web**: un sitio estático en GitHub Pages, instalable como PWA desde Chrome, Edge o Safari. Aparece en el menú de
+  aplicaciones del sistema, funciona sin conexión, se actualiza sola y no necesita firma.
+- **Windows**: la Microsoft Store. El registro individual es gratis y la Store firma los paquetes MSIX, así que la PWA
+  empaquetada con PWABuilder evita las advertencias de SmartScreen sin costo.
 - **Linux**: Flathub. No acepta apps que solo envuelven una página web, así que la app de Linux es un shell de Tauri
-  con integración real con el escritorio: proyectos que se abren y se guardan a través del portal de selección de archivos, su
-  propio tipo de archivo, recursos empaquetados y una compilación desde el código fuente. También AUR y paquetes comunes en GitHub
-  Releases.
-- **macOS**: no hay notarización gratuita, y el repositorio principal de casks de Homebrew ahora rechaza las apps
-  que no pasan Gatekeeper, así que ahí la vía principal es la PWA. Igual se puede ofrecer una versión con firma ad hoc
-  en GitHub Releases, con instrucciones.
+  con integración real con el escritorio: proyectos que se abren y se guardan a través del portal de selección de
+  archivos, su propio tipo de archivo, recursos empaquetados y una compilación desde el código fuente. También AUR y
+  paquetes comunes en GitHub Releases.
+- **macOS**: no hay notarización gratuita, y el repositorio principal de casks de Homebrew rechaza las apps que no
+  pasan Gatekeeper, así que ahí la vía principal es la PWA. El `.dmg` de escritorio va a GitHub Releases sin firmar,
+  con instrucciones para abrirlo.
 - **Instaladores firmados para Windows por fuera de la Store**: SignPath Foundation firma proyectos de código abierto
   gratis una vez que tienen cierta reputación.
-- **Android**: la PWA se instala desde Chrome como una app de verdad (Chrome la empaqueta como WebAPK), con
-  su ícono en el cajón de aplicaciones. Más adelante puede haber un paquete nativo a partir del mismo shell de Tauri 2 que la
-  app de escritorio, que también compila para Android, en GitHub Releases y en F-Droid si cumple sus
-  reglas de compilación. Google Play cobra una tarifa de registro, así que queda afuera.
-- **iPhone y iPad**: la App Store exige el Apple Developer Program, que es pago, así que la app de iOS es la PWA agregada a
-  la pantalla de inicio desde Safari. Una versión instalada con un Apple ID gratuito vence
-  a los siete días, y así no hay forma de dársela a nadie.
+- **Android**: la PWA se instala desde Chrome como una app de verdad (Chrome la empaqueta como WebAPK), con su ícono
+  en el cajón de aplicaciones. Un paquete nativo puede salir del mismo shell de Tauri 2 que la app de escritorio, que
+  también compila para Android, en GitHub Releases y en F-Droid si cumple sus reglas de compilación. Google Play cobra
+  una tarifa de registro, así que queda afuera.
+- **iPhone y iPad**: la App Store exige el Apple Developer Program, que es pago, así que la app de iOS es la PWA
+  agregada a la pantalla de inicio desde Safari. Una versión instalada con un Apple ID gratuito vence a los siete días,
+  y así no hay forma de dársela a nadie.
 - **CLI**: npm.
 
 ### Exportadores en TypeScript
 
-Primero pensé en conservar los exportadores en Python y correrlos en el navegador con Pyodide.
-TypeScript fue mejor en calidad y en velocidad: la biblioteca `docx` soporta de forma nativa el sombreado de tablas,
-las celdas combinadas, las columnas de sección y las imágenes flotantes (con `python-docx` todo eso requiere OOXML
-crudo), y hay un único esquema y un único conjunto de tipos que comparten los formularios, la
-validación, los exportadores y la CLI. Pyodide además habría sumado segundos de arranque en la
-primera exportación y un puente entre dos runtimes.
+La otra opción era conservar los exportadores en Python de cvgen y correrlos en el navegador con Pyodide. TypeScript
+fue mejor en calidad y en velocidad: la biblioteca `docx` soporta de forma nativa el sombreado de tablas, las celdas
+combinadas, las columnas de sección y las imágenes flotantes (con `python-docx` todo eso requiere OOXML crudo), y hay
+un único esquema y un único conjunto de tipos que comparten los formularios, la validación, los exportadores y la CLI.
+Pyodide además habría sumado segundos de arranque en la primera exportación y un puente entre dos runtimes.
+
+Todos los exportadores parten de un mismo perfil resuelto (entradas buscadas, fechas formateadas, etiquetas
+aplicadas), así que cada formato muestra exactamente lo mismo que el PDF. LaTeX y Word reproducen el estilo incluido
+del perfil; un estilo propio es código Typst, así que para él salen como Legajo, y la exportación a Typst es la que lo
+conserva. Word se comprueba abriendo los archivos en LibreOffice, en un contenedor, con Gelasio, que mide igual que
+Georgia: no alcanza con que sean paquetes válidos, y los tests sostienen la disposición igual a la de Typst.
 
 ### Astro en vez de Next.js
 
-El editor es completamente del lado del cliente, y las páginas públicas tienen que cargar rápido. Los puntos fuertes de Next.js
-(renderizado en el servidor, server actions, optimización de imágenes) no sirven en una exportación estática, y su
-configuración de WebAssembly en workers necesita ajustar el bundler. Astro genera páginas estáticas por defecto,
-está construido sobre Vite (que maneja WebAssembly y module workers de forma nativa), no manda nada de JavaScript en
-la página de inicio y tiene una acción oficial para GitHub Pages. El editor es una isla de React adentro,
-con Tailwind, Zustand (más `zundo` para deshacer) y dnd-kit.
+El editor es completamente del lado del cliente, y las páginas públicas tienen que cargar rápido. Los puntos fuertes
+de Next.js (renderizado en el servidor, server actions, optimización de imágenes) no sirven en una exportación
+estática, y su configuración de WebAssembly en workers necesita ajustar el bundler. Astro genera páginas estáticas por
+defecto, está construido sobre Vite (que maneja WebAssembly y module workers de forma nativa), no manda nada de
+JavaScript en la página de inicio y tiene una acción oficial para GitHub Pages. El editor es una isla de React
+adentro, con Tailwind, Zustand (más `zundo` para deshacer) y dnd-kit. El service worker está escrito sin framework,
+porque el plugin de PWA no soportaba la versión de Astro.
 
-### Una estética propia
+### Estilos propios
 
-La primera plantilla reproducía la estética de mi CV en LaTeX, que se basa en la plantilla Wenneker
-(CC BY-NC-SA). Antes de publicar la reemplacé, y con ella las exportaciones a LaTeX y Word, por
-tres estilos propios de Foja: **Legajo** (el predeterminado: XCharter, versalitas, una barra lateral con tinte,
-fechas en una columna propia), **Banda** (una banda de color de lado a lado arriba, Noto Sans) y
-**Minimal** (negro sobre blanco, jerarquía solo con tamaño y peso). La interfaz recibió el mismo
-tratamiento: tres temas, Papel y tinta, Neutro y Vivo, cada uno en claro y oscuro.
+Todos los estilos incluidos son propios de Foja, así que todos están bajo su licencia: el aspecto de cvgen sale de la
+plantilla Wenneker, que tiene licencia CC BY-NC-SA.
 
-Después sumé tres estilos para los sistemas de selección de personal (ATS), que leen un CV antes que una persona:
-**Claustro** (el clásico: serif, el nombre centrado), **Recto** (sans-serif, alineado a la izquierda) y **Llano**
-(el más sobrio y compacto). Son una sola columna de texto, sin íconos, con títulos estándar y el contacto en el
-cuerpo, y un test comprueba que el PDF lleva el texto en el orden en que se ve.
+- **Legajo**, **Banda** y **Minimal** son los generales.
+- **Claustro**, **Recto** y **Llano** son para los sistemas de selección de personal (ATS), que leen un CV antes que
+  una persona. Son una sola columna de texto, sin íconos, con títulos estándar y el contacto en el cuerpo, y un test
+  comprueba que el PDF lleva el texto en el orden en que se ve. Al elegir uno, el perfil queda con una columna, sin
+  foto y con el largo corto.
+- **Arco**, **Rótulo** y **Portada** son para un CV corto, un primer empleo o una pasantía: reparten lo que hay para
+  que la hoja se vea llena, con las iniciales donde va la foto cuando no hay.
+
+### Plantillas importadas, con reglas fijas
+
+Una plantilla de CV escrita en Typst o en LaTeX se lee con reglas fijas, sin IA, y no se manda a ningún lado: su
+contenido de ejemplo pasa a ser entradas del banco y un perfil, y su aspecto un estilo propio, después de un
+formulario donde se revisa qué argumento de cada macro es cada campo. La línea de comandos hace lo mismo con
+`foja import`, y toma la propuesta de las reglas tal como sale.
+
+### JSON Resume
+
+JSON Resume es el formato abierto de currículums que usan otras herramientas, así que Foja lo importa y exporta cada
+perfil en él. Sus secciones son fijas: lo que no tiene lugar ahí se avisa al exportar en vez de perderse sin decirlo.
+
+### Teléfonos
+
+En el teléfono el editor muestra un panel por vez, con una barra abajo, al alcance del pulgar, para cambiar de panel y
+exportar, y un menú que sube desde abajo. Las exportaciones van al menú de compartir del sistema, porque una descarga
+desde una app web instalada en un iPhone muchas veces no hace nada. Los campos usan texto de 16 px en pantallas
+táctiles para que Safari no haga zoom. Foja le pide al navegador que conserve el proyecto cuando se queda sin espacio,
+y en un iPhone muestra cómo instalarla, porque Safari borra los datos de un sitio después de una semana sin usarse. Un
+test recorre todos los paneles en una pantalla de 320 px y falla si algo se sale.
+
+### Dos idiomas
+
+El editor, la página de inicio, la línea de comandos y la documentación están en español y en inglés, y cada uno
+elige según los idiomas del navegador o del sistema. Los tests fallan si a un texto o a un documento le falta su otro
+idioma, así ninguno se queda atrás.
+
+### La app de escritorio
+
+Una ventana de Tauri 2 alrededor del mismo sitio, generado sin el service worker y con los archivos de LaTeX adentro,
+así que funciona sin conexión desde el principio. Un webview no tiene descargas ni pestañas, así que las exportaciones
+pasan por el diálogo de guardar del sistema y los links se abren en el navegador; todo lo demás es el editor web tal
+cual. Un workflow que se corre a mano arma un `.deb`, un `.rpm` y un AppImage para Linux, un `.exe` de instalación
+para Windows y un `.dmg` para los dos tipos de Mac en los runners de GitHub. Ninguno está firmado, para que el
+proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo abrirlos.
 
 ## Qué está hecho
 
-El trabajo hasta ahora, en el orden en que se dio:
-
-- **Una prueba de concepto** (30 de octubre de 2026) para comprobar que la vista previa en vivo sin servidor es viable: una plantilla
-  de Typst que lee el CV como JSON, compilada por typst.ts en un Web Worker sobre una página de Astro pelada. En
-  una CPU modesta de cuatro núcleos, un cambio de un carácter tarda unos 50 ms de Typst y 4 ms de renderizado
-  del SVG, así que la vista previa puede seguir cada tecla. El compilador ocupa 28 MB de WebAssembly (7
-  MB con brotli), lo que significa que la primera visita necesita un estado de carga y que el service worker tiene
-  que precachearlo.
-- **El formato de proyecto y la CLI.** El formato `foja/2` con su JSON Schema y un validador chico
-  (sin dependencias extra) que además revisa referencias que el esquema no puede expresar; las
-  opciones de disposición; un conversor desde la vieja estructura de varios archivos de mi CV; y el comando `foja`,
-  que genera PDF, SVG y un paquete de Typst que compila solo con un simple `typst compile`.
-- **Los exportadores.** Todos parten de un mismo perfil resuelto (entradas buscadas, fechas
-  formateadas, etiquetas aplicadas): LaTeX como un `cv.tex` autocontenido escrito para Foja, Markdown,
-  JSON (el archivo del proyecto y el perfil resuelto), Word con una o dos columnas, JPG desde el
-  navegador y un `.zip` con todo.
-- **El editor.** Paneles para los datos personales, los contactos, los grupos de habilidades y el banco de entradas;
-  perfiles con sus secciones y su disposición; validación en línea ligada a cada campo; guardado automático en
-  IndexedDB; deshacer y rehacer; la vista previa en vivo con el indicador de si entra en la página; y el diálogo de exportación.
-- **Pulido.** Hacer clic en la vista previa para editar lo que está debajo del puntero, la selección marcada
-  en la vista previa, las partes que se pasan de la primera página resaltadas con un tinte, arrastrar y soltar secciones y bloques
-  (con una alternativa por teclado), una paleta de comandos y recorte de la foto.
-- **Sin conexión e instalable.** Un service worker escrito sin framework (el plugin de PWA no
-  soportaba la versión de Astro), un manifiesto, la página de inicio, versiones bajo la ruta base `/foja/`
-  y los workflows de GitHub (tests y compilación en cada push; el despliegue a Pages se corre solo
-  a mano hasta que publique).
-- **Estilos y temas propios.** Los tres estilos de arriba, una biblioteca de Typst compartida para escribir
-  más, «Editar en Typst» para copiar cualquier estilo a uno propio, un editor de estilos con los errores mostrados
-  arriba de la vista previa, y temas de interfaz que se pueden ampliar con un archivo de tema chico y validado
-  o desde un script.
-- **Detalles de la interfaz.** Cada par de texto y fondo cumple el contraste WCAG AA en todos los temas, las
-  tarjetas de estilo muestran el perfil actual en cada estilo, hay una disposición para teléfono con un panel a la vez, y la
-  interfaz está en español y en inglés.
-- **Una revisión antes de lanzar.** Hice revisar todo el código desde cero y arreglé lo que
-  apareció: un estilo podía leer archivos locales a través de la CLI y podía meter enlaces `javascript:` en
-  la vista previa; se podía inyectar LaTeX a través de las URL de los contactos; empezar un proyecto nuevo reemplazaba el
-  anterior para siempre, y dos pestañas se pisaban el guardado automático; un estilo lento podía congelar
-  la vista previa; el service worker podía romper las pestañas abiertas al actualizarse; y había varias falencias de
-  accesibilidad. Mis tres perfiles reales ahora entran en una página con Legajo, y la vista previa reemplaza solo las
-  páginas que cambiaron, así que los CV largos ya no traban la escritura.
-- **En línea** (7 de noviembre de 2026). El sitio está en GitHub Pages en
-  [`bafif.github.io/foja/`](https://bafif.github.io/foja/). El despliegue todavía se corre a mano
-  (Actions → Deploy to GitHub Pages), así que un push a `main` no publica por sí solo.
-- **Teléfonos.** La disposición para teléfono ya estaba; el resto del trabajo fue lo que un teléfono hace
-  distinto. Las exportaciones van al menú de compartir del sistema (Guardar en Archivos, correo, apps de mensajería),
-  porque una descarga desde una app web instalada en un iPhone muchas veces no hace nada. Los campos usan texto de 16 px
-  en pantallas táctiles para que Safari no haga zoom sobre ellos. En teléfonos y en la app instalada,
-  Foja le pide al navegador que conserve el proyecto cuando se queda sin espacio. El menú tiene un botón «Instalar»
-  donde Chrome lo ofrece, y en un iPhone muestra los pasos en su lugar, igual que la pantalla
-  de bienvenida, porque un sitio que queda en una pestaña de Safari pierde sus datos después de una semana sin usarse. iOS además
-  tiene su propio ícono para la pantalla de inicio.
-- **En dos idiomas** (10 de noviembre de 2026). Además del editor, la página de inicio, la línea de comandos y toda
-  la documentación están en español y en inglés: cada una elige según los idiomas del navegador o del sistema, y los
-  tests fallan si a un texto o a un documento le falta su otro idioma. Un link a Foja compartido en X, WhatsApp u
-  otras apps muestra su propia vista previa.
-- **Las exportaciones con el aspecto del estilo.** LaTeX y Word salían siempre como Legajo; ahora reproducen el
-  estilo incluido del perfil. Un estilo propio es código Typst, así que ahí siguen saliendo como Legajo, y la
-  exportación a Typst es la que lo conserva.
-- **Tres estilos para los sistemas de selección**: Claustro, Recto y Llano (ver *Una estética propia*). Al elegir
-  uno, el perfil queda con una columna, sin foto y con el largo corto.
-- **Qué entra en cada perfil** (formato `foja/3`). Una prioridad por entrada, ítem y habilidad (imprescindible,
-  normal o extra), un largo por perfil (corto, normal o completo), excepciones por perfil, un resumen corto y
-  «Ajustar a una página». LaTeX, Word, Markdown y JSON eligen exactamente lo mismo que el PDF. El ejemplo del editor
-  pasó a ser mi CV con tres perfiles, cada uno con su estilo y su largo.
-- **Plantillas importadas** (11 de noviembre de 2026). Una plantilla de CV escrita en Typst o en LaTeX se lee con
-  reglas fijas, sin IA: su contenido de ejemplo pasa a ser entradas del banco y un perfil, y su aspecto un estilo
-  propio, después de un formulario donde se revisa qué argumento de cada macro es cada campo. Una plantilla LaTeX
-  se compila en el navegador con pdfTeX o XeTeX: el motor y los archivos de TeX Live los arma el deploy y se bajan
-  la primera vez que se usan, y las fuentes que nombra una plantilla XeLaTeX las sube el usuario. La línea de
-  comandos suma `foja import`.
-- **Una interfaz para el teléfono** (11 de noviembre de 2026). La primera prueba en un teléfono real mostró que
-  la disposición para teléfono funcionaba pero era incómoda: en un iPhone SE la barra de arriba no entraba y
-  arrastraba la página de costado. Ahora arriba quedan solo el perfil, deshacer, rehacer y un menú; la barra de
-  abajo, al alcance del pulgar, cambia de panel y exporta, y marca con un punto la vista previa si el CV se pasa
-  de una página; el menú es una hoja que sube desde abajo, con botones del tamaño de un dedo; los estilos se
-  eligen de a dos por fila. Un test recorre todos los paneles en una pantalla de 320 px y falla si algo se sale.
-- **JSON Resume** (11 de noviembre de 2026), el formato abierto de currículums que usan otras herramientas. Un
-  archivo de JSON Resume se importa con el mismo botón que un proyecto, y en la línea de comandos con `foja import`:
-  sus entradas pasan al banco y queda un perfil con sus secciones. Un perfil se exporta en JSON Resume tal como sale
-  en el PDF; como sus secciones son fijas, lo que no tiene lugar ahí se avisa en vez de perderse sin decirlo.
-- **Word, abierto en LibreOffice** (11 de noviembre de 2026). Hasta entonces los `.docx` solo se verificaban como
-  paquetes válidos. Abiertos en LibreOffice (en un contenedor, con Gelasio, que mide igual que Georgia) mostraron
-  que el CV de dos columnas empezaba en la segunda página, porque Word y LibreOffice mantienen una fila de tabla con
-  lo que sigue cuando su primer párrafo lo está; que cada espacio entre bloques sumaba un renglón en blanco; que
-  Banda y Minimal ponían las fechas en una columna, cuando en Typst van a la derecha; que los grupos de habilidades
-  lado a lado cortaban palabras; y que el interlineado no era el de Typst. Todo eso se arregló, el texto
-  justificado ahora corta palabras en el idioma del CV, y los tests fijan cada cosa.
-- **Instaladores de escritorio.** La app de escritorio es una ventana de Tauri 2 alrededor
-  del mismo sitio, generado sin el service worker y con los archivos de LaTeX adentro, así que funciona sin conexión
-  desde el principio. Un webview no tiene descargas ni pestañas, así que las exportaciones pasan por el diálogo de
-  guardar del sistema y los links se abren en el navegador; todo lo demás es el editor web tal cual. Un workflow que
-  se corre a mano arma un `.deb`, un `.rpm` y un AppImage para Linux, un `.exe` de instalación para Windows y un
-  `.dmg` para los dos tipos de Mac, en los runners de GitHub, y los deja en un borrador de release. Ninguno está
-  firmado, y las notas de la release y la guía de uso dicen cómo abrirlos. Los paquetes de Linux están probados; los
-  instaladores de Windows y macOS todavía no se probaron.
+- **El editor**: el banco de entradas y los perfiles, la vista previa en vivo con clic para editar y el indicador de
+  una página, validación en línea, guardado automático en IndexedDB que conserva el proyecto anterior cuando se
+  reemplaza y edita en una pestaña por vez, deshacer y rehacer, arrastrar y soltar con alternativa por teclado, una
+  paleta de comandos y recorte de la foto.
+- **Qué entra en cada perfil**: prioridades, largos, excepciones, un resumen corto y «Ajustar a una página».
+- **Nueve estilos**, una biblioteca de Typst compartida, «Editar en Typst» y un editor de estilos; temas de interfaz,
+  ampliables con un archivo JSON chico y validado o desde un script. Cada par de texto y fondo cumple el contraste
+  WCAG AA en todos los temas.
+- **Exportaciones** a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume y un `.zip` con todo.
+- **Plantillas importadas**, de Typst y de LaTeX, y archivos de JSON Resume.
+- **La app web** en línea en [`bafif.github.io/foja/`](https://bafif.github.io/foja/), sin conexión e instalable, con
+  su interfaz para el teléfono. El deploy se corre a mano.
+- **La línea de comandos**, con `build`, `validate` e `import`, y un conversor desde los datos de cvgen.
+- **Los instaladores de escritorio**. Los paquetes de Linux están probados; los instaladores de Windows y macOS
+  todavía no se probaron, y no se publicó ninguna versión.
+- **Español e inglés** en todo.
 
 ## Qué viene después
 
 En este orden:
 
-1. **La prueba completa en teléfonos reales**, con la interfaz nueva: en un Android con Chrome y en un iPhone con
-   Safari, instalarla, editar, exportar a través del menú de compartir y usarla sin conexión. Los tests automáticos
-   emulan un teléfono en Chromium, que no tiene ni las mañas de Safari ni un menú de compartir de verdad.
-2. **Publicar la CLI en npm** como `foja` (el nombre seguía libre a fines de octubre de 2026). El
-   paquete ya se empaqueta solo con `npm pack`; falta una cuenta de npm y
-   `npm publish -w packages/cli`.
-3. **Microsoft Store**: abrir una cuenta individual gratuita de Partner Center y después empaquetar la
-   PWA publicada como MSIX con PWABuilder.
-4. **App de escritorio y Flathub**: los instaladores ya están (ver *Qué está hecho*); falta el acceso nativo a
-   archivos (abrir y guardar proyectos como archivos, con su propio tipo de archivo), que se actualice sola, un
-   Flatpak compilado desde el código fuente y la postulación a Flathub. También AUR, y SignPath Foundation para
-   Windows una vez que el proyecto califique.
-5. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases
-   y, si califica, en F-Droid. En iPhone la app sigue siendo la PWA (ver los canales de
-   distribución más arriba).
+1. **La prueba completa en teléfonos reales**: en un Android con Chrome y en un iPhone con Safari, instalarla, editar,
+   exportar a través del menú de compartir y usarla sin conexión. Los tests automáticos emulan un teléfono en
+   Chromium, que no tiene ni las mañas de Safari ni un menú de compartir de verdad.
+2. **Publicar la CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta
+   solo con `npm pack`.
+3. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
+   Partner Center.
+4. **App de escritorio y Flathub**: probar los instaladores de Windows y macOS y publicar la primera versión; después,
+   el acceso nativo a archivos (abrir y guardar proyectos como archivos, con su propio tipo de archivo), que se
+   actualice sola, un Flatpak compilado desde el código fuente y la postulación a Flathub. También AUR, y SignPath
+   Foundation para Windows una vez que el proyecto califique.
+5. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases y, si
+   califica, en F-Droid. En iPhone la app sigue siendo la PWA (ver los canales de distribución más arriba).
 
 Cosas más chicas que pueden entrar en cualquier momento:
 
-- Abrir la exportación de Word en Word. En LibreOffice ya se abrió (ver *Qué está hecho*); Word no lo tengo.
-- Un botón «Abrir en Overleaf». Overleaf recibe los archivos en un POST a `overleaf.com/docs`, lo que
-  manda el CV a un tercero, así que tiene que ser una acción explícita y probada contra el servicio real.
-- **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con
-  vista previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no
-  un enlace a ningún sistema de control de versiones.
+- Comprobar la exportación de Word en Microsoft Word: hasta ahora solo se comprobó en LibreOffice.
+- Un botón «Abrir en Overleaf». Overleaf recibe los archivos en un POST a `overleaf.com/docs`, lo que manda el CV a un
+  tercero, así que tiene que ser una acción explícita y probada contra el servicio real.
+- **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con vista
+  previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no un enlace
+  a ningún sistema de control de versiones.
 
-Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse
-unas líneas de una página cuando el PDF entra (la guía de uso lo aclara); la de Word también, y más, porque Georgia
-es más ancha que XCharter (mi CV de programador se pasa unos veinte renglones en LibreOffice). Una plantilla LaTeX importada se ve en la
-vista previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se
-importan solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
+Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse unas líneas
+de una página cuando el PDF entra; la de Word también, y más, porque Georgia es más ancha que XCharter (el perfil de
+programador del ejemplo se pasa unos veinte renglones en LibreOffice). Una plantilla LaTeX importada se ve en la vista
+previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se importan
+solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
 
 ### A largo plazo
 
 Un editor de Typst general, gráfico y en vivo, pensado alrededor de la libertad: juntás bloques (texto, listas,
-entradas, imágenes, formas), los acomodás en la página y la plantilla los convierte en Typst. El
-CV es el primer producto montado sobre esa idea. Los bloques con tipo del modelo de datos dejan la puerta
-abierta sin tener que construirlo ahora; hasta entonces todo sigue enfocado en CV.
+entradas, imágenes, formas), los acomodás en la página y la plantilla los convierte en Typst. El CV es el primer
+producto montado sobre esa idea. Los bloques con tipo del modelo de datos dejan la puerta abierta sin tener que
+construirlo ahora; hasta entonces todo sigue enfocado en CV.
 
 ## Nombre y direcciones
 
-El nombre viene de *foja de servicios*, el registro de la trayectoria de alguien. El código vive en mi
-propia cuenta de GitHub.
+El nombre viene de *foja de servicios*, el registro de la trayectoria de alguien.
 
-- Código: [`bafif/foja`](https://github.com/bafif/foja), público, GPL-3.0 (una licencia OSI, como
-  exige SignPath). Los datos de mi propio CV y los primeros generadores viven en `cvgen/`.
-- Web: `bafif.github.io/foja/`. Más adelante un dominio propio puede servir el mismo sitio en su raíz sin
-  ningún otro cambio.
+- Código: [`bafif/foja`](https://github.com/bafif/foja), público, GPL-3.0 (una licencia OSI, como exige SignPath).
+  cvgen y sus datos viven en `cvgen/`.
+- Web: `bafif.github.io/foja/`. Más adelante un dominio propio puede servir el mismo sitio en su raíz sin ningún otro
+  cambio.
 - npm: `foja`. ID de la app en Flathub: `io.github.bafif.Foja`.
 
 ## Dependencias
 
 Todas libres y de código abierto, y todos los paquetes de Node se instalan solo dentro del contenedor de desarrollo:
-Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el
-compilador de Node para la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de
-JSON Schema: las dos cosas son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son
-XCharter, Latin Modern Mono y Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan
-los motores pdfTeX y XeTeX de SwiftLaTeX y archivos de TeX Live 2022, que arma el deploy y no están en el repositorio
-([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma
-Rust, Tauri 2 y sus plugins de diálogo y de apertura, que se compilan solo en su contenedor y en los runners de la
-release; el Flatpak va a sumar `flatpak-builder`.
+Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el compilador de Node
+para la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de JSON Schema: las dos cosas
+son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son XCharter, Latin Modern Mono y
+Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan los motores pdfTeX y XeTeX de
+SwiftLaTeX y archivos de TeX Live 2022, que arma el deploy y no están en el repositorio
+([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma Rust, Tauri 2 y sus plugins
+de diálogo y de apertura, que se compilan solo en su contenedor y en los runners de la release; el Flatpak va a sumar
+`flatpak-builder`.
 
 ## Fuentes
 
