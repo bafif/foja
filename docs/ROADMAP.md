@@ -117,11 +117,11 @@ tests hold the layout to Typst's.
 
 ### Astro instead of Next.js
 
-The editor is entirely client-side, and the public pages should load fast. Next.js's strengths (server rendering,
-server actions, image optimisation) are unusable in a static export, and its WebAssembly-in-workers setup needs
-bundler configuration. Astro outputs static pages by default, is built on Vite (which handles WebAssembly and module
-workers natively), ships no JavaScript on the landing page, and has an official GitHub Pages action. The editor is a
-React island inside it, with Tailwind, Zustand (plus `zundo` for undo) and dnd-kit. The service worker is written
+The editor is entirely client-side, and the public pages should load fast. Next.js's strengths (server rendering, server
+actions, image optimisation) are unusable in a static export, and its WebAssembly-in-workers setup needs bundler
+configuration. Astro outputs static pages by default, is built on Vite (which handles WebAssembly and module workers
+natively), ships no JavaScript on the landing page, and has an official GitHub Pages action. The editor is a React
+island inside it, with Tailwind, Zustand (undo is its own, in the store) and dnd-kit. The service worker is written
 without a framework, because the PWA plugin did not support the Astro version.
 
 ### Styles of its own
@@ -239,13 +239,13 @@ The name comes from *foja de servicios*, the record of someone's career.
 ## Dependencies
 
 All free and open source, and all Node packages installed only inside the development container: Astro, React, Tailwind,
-Zustand and `zundo`, dnd-kit, typst.ts (web compiler, renderer and the Node compiler for the CLI), `docx`, and Vitest
-and Playwright for the tests. There is no ZIP or JSON Schema library: both are small enough to keep in `packages/core`.
-The bundled fonts are XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. Imported LaTeX
-templates use BusyTeX's pdfTeX and XeTeX engines (texlyre-busytex) and TeX Live 2026 files, which the deployment builds
-and the repository does not hold ([details and licences](../apps/web/public/latex/README.md)). The desktop app adds
-Rust, Tauri 2 and its dialog and opener plugins, built only in its container and on the release runners; the Flatpak
-will add `flatpak-builder`.
+Zustand, dnd-kit, typst.ts (web compiler, renderer and the Node compiler for the CLI), `docx`, and Vitest and Playwright
+for the tests. There is no ZIP or JSON Schema library: both are small enough to keep in `packages/core`. The bundled
+fonts are XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. Imported LaTeX templates use
+BusyTeX's pdfTeX and XeTeX engines (texlyre-busytex) and TeX Live 2026 files, which the deployment builds and the
+repository does not hold ([details and licences](../apps/web/public/latex/README.md)). The desktop app adds Rust, Tauri
+2 and its dialog and opener plugins, built only in its container and on the release runners; the Flatpak will add
+`flatpak-builder`.
 
 ## Sources
 

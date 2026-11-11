@@ -123,13 +123,13 @@ Georgia: no alcanza con que sean paquetes válidos, y los tests sostienen la dis
 
 ### Astro en vez de Next.js
 
-El editor es completamente del lado del cliente, y las páginas públicas tienen que cargar rápido. Los puntos fuertes
-de Next.js (renderizado en el servidor, server actions, optimización de imágenes) no sirven en una exportación
-estática, y su configuración de WebAssembly en workers necesita ajustar el bundler. Astro genera páginas estáticas por
-defecto, está construido sobre Vite (que maneja WebAssembly y module workers de forma nativa), no manda nada de
-JavaScript en la página de inicio y tiene una acción oficial para GitHub Pages. El editor es una isla de React
-adentro, con Tailwind, Zustand (más `zundo` para deshacer) y dnd-kit. El service worker está escrito sin framework,
-porque el plugin de PWA no soportaba la versión de Astro.
+El editor es completamente del lado del cliente, y las páginas públicas tienen que cargar rápido. Los puntos fuertes de
+Next.js (renderizado en el servidor, server actions, optimización de imágenes) no sirven en una exportación estática, y
+su configuración de WebAssembly en workers necesita ajustar el bundler. Astro genera páginas estáticas por defecto, está
+construido sobre Vite (que maneja WebAssembly y module workers de forma nativa), no manda nada de JavaScript en la
+página de inicio y tiene una acción oficial para GitHub Pages. El editor es una isla de React adentro, con Tailwind,
+Zustand (el deshacer es propio, en el store) y dnd-kit. El service worker está escrito sin framework, porque el plugin
+de PWA no soportaba la versión de Astro.
 
 ### Estilos propios
 
@@ -252,13 +252,13 @@ El nombre viene de *foja de servicios*, el registro de la trayectoria de alguien
 ## Dependencias
 
 Todas libres y de código abierto, y todos los paquetes de Node se instalan solo dentro del contenedor de desarrollo:
-Astro, React, Tailwind, Zustand y `zundo`, dnd-kit, typst.ts (compilador web, renderizador y el compilador de Node para
-la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de JSON Schema: las dos cosas son lo
-bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son XCharter, Latin Modern Mono y Noto
-Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan los motores pdfTeX y XeTeX de BusyTeX
-(texlyre-busytex) y archivos de TeX Live 2026, que arma el deploy y no están en el repositorio ([detalle y
-licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma Rust, Tauri 2 y sus plugins de diálogo y
-de apertura, que se compilan solo en su contenedor y en los runners de la release; el Flatpak va a sumar
+Astro, React, Tailwind, Zustand, dnd-kit, typst.ts (compilador web, renderizador y el compilador de Node
+para la CLI), `docx`, y Vitest y Playwright para los tests. No hay biblioteca de ZIP ni de JSON Schema: las dos cosas
+son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son XCharter, Latin Modern Mono y
+Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan los motores pdfTeX y XeTeX de
+BusyTeX (texlyre-busytex) y archivos de TeX Live 2026, que arma el deploy y no están en el repositorio
+([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma Rust, Tauri 2 y sus plugins
+de diálogo y de apertura, que se compilan solo en su contenedor y en los runners de la release; el Flatpak va a sumar
 `flatpak-builder`.
 
 ## Fuentes
