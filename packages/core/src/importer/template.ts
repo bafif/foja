@@ -8,7 +8,7 @@
 import { freshId } from "../select.ts";
 import { toBase64 } from "../typst.ts";
 import { CONTACT_KINDS, FORMAT, type Block, type ContactKind, type CustomTemplate, type Entry, type Item, type LatexArg, type Project } from "../types.ts";
-import { parseLatex, type ParsedLatex } from "./latex.ts";
+import { latexEngine, parseLatex, type ParsedLatex } from "./latex.ts";
 import { parseTypst, type Arg, type Call, type ParsedFile } from "./parse.ts";
 
 export type EntryField = "title" | "place" | "period" | "start" | "end" | "note" | "items" | "omit";
@@ -26,6 +26,8 @@ export interface Mapping {
 export interface Template {
   /** A Typst template, or a LaTeX one (a `.tex` with `\begin{document}`). */
   engine: "typst" | "latex";
+  /** For a LaTeX template, the engine it needs. */
+  latexEngine?: "pdftex" | "xetex";
   /** Text files by path (Typst sources, the licence, typst.toml…). */
   texts: Record<string, string>;
   /** Other files by path (pictures), fonts aside. */
@@ -99,7 +101,7 @@ function readLatex(texts: Record<string, string>, binaries: Record<string, Uint8
     .find((c) => c.args.some((a) => EMAIL.test(a.text) || URL_RE.test(a.text) || /linkedin|github/i.test(a.text)));
   const macros: Record<string, Call[]> = {};
   for (const b of [...parsed.preamble, ...parsed.sections.flatMap((s) => s.blocks)]) if (b.kind === "call" && b.call !== header) (macros[b.call.fn] ??= []).push(b.call);
-  return { engine: "latex", texts, binaries, main, parsed, header, headerShows: false, macros, packages: {}, missing: [], fonts, license };
+  return { engine: "latex", latexEngine: latexEngine(texts), texts, binaries, main, parsed, header, headerShows: false, macros, packages: {}, missing: [], fonts, license };
 }
 
 const dirname = (p: string) => (p.includes("/") ? p.slice(0, p.lastIndexOf("/")) : "");
@@ -520,6 +522,7 @@ function importLatexStyle(t: Template, mapping: Mapping, id: string, name: strin
     ...(t.license ? { license: t.license } : {}),
     latex: {
       main: t.main,
+      ...(t.latexEngine === "xetex" ? { engine: "xetex" as const } : {}),
       ...(header ? { header } : {}),
       entries,
       sections,

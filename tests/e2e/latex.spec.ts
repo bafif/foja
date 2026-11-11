@@ -29,3 +29,18 @@ test("a LaTeX template is imported, compiled with LaTeX in the browser and shown
   await expect.poll(() => previewMarkup(page), { timeout: 20_000 }).not.toBe(before);
   expect(errors).toEqual([]);
 });
+
+test("a XeLaTeX template, with fonts picked by name, compiles through XeTeX and dvipdfmx", async ({ page, errors }) => {
+  test.setTimeout(240_000);
+  await startFictional(page);
+  await page.getByRole("button", { name: "Estilo y diseño" }).click();
+  await page.getByRole("button", { name: "Importar una plantilla Typst o LaTeX" }).click();
+  await page.getByLabel("Archivo de la plantilla").setInputFiles("packages/core/test/fixtures/latex/modern.tex");
+  await expect(page.getByRole("region", { name: "Lo que va a entrar" })).toContainText("Data engineer · Example Labs");
+  await page.getByRole("button", { name: "Importar", exact: true }).click();
+  await expect(page.getByRole("combobox", { name: "Perfil" })).toHaveValue("modern");
+  await expect(page.locator(".foja-page image")).toHaveCount(1, { timeout: 180_000 });
+  await expect(page.getByTestId("page-badge")).toContainText("1 página");
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

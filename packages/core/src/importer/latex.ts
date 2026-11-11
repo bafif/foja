@@ -147,6 +147,15 @@ export function latexDefinitions(src: string): { commands: Record<string, Defini
   return { commands, environments };
 }
 
+/** The engine a template needs: XeLaTeX when it picks fonts by name (fontspec, polyglossia…) or
+ * says so (`% !TEX program = xelatex`), pdfLaTeX otherwise. */
+export function latexEngine(texts: Record<string, string>): "pdftex" | "xetex" {
+  const byPackage = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]*\b(?:fontspec|unicode-math|polyglossia|xltxtra|xunicode|mathspec)\b/;
+  const bySaying = /%\s*!\s*TEX\s+(?:TS-)?program\s*=\s*(?:xe|lua)latex/i;
+  const xetex = Object.entries(texts).some(([path, text]) => /\.(tex|cls|sty)$/.test(path) && (byPackage.test(stripComments(text)) || bySaying.test(text)));
+  return xetex ? "xetex" : "pdftex";
+}
+
 const opensList = (body: string) => /\\begin\s*\{(itemize|enumerate|description)\}/.test(body);
 const closesList = (body: string) => /\\end\s*\{(itemize|enumerate|description)\}/.test(body);
 
@@ -157,7 +166,10 @@ export function parseLatex(source: string): ParsedLatex {
   const definitions = Object.fromEntries(Object.entries(commands).map(([name, d]) => [name, Array.from({ length: d.params }, (_, k) => `#${k + 1}`)]));
   const isListEnv = (env: string) => LIST_ENVS.test(env) || (environments[env] !== undefined && opensList(environments[env].begin));
   const itemMacro = (name: string) => commands[name]?.params === 1 && /\\item\b/.test(commands[name].body);
-  const sectionMacro = (name: string) => commands[name]?.params === 1 && /\\(section|subsection|chapter)\*?\s*\{\s*#1\s*\}/.test(commands[name].body);
+  // A section title is written with \section, or with a one-argument macro that calls it or whose
+  // name says so (\cvsection, \sectionTitle), as templates that draw their own titles do.
+  const sectionMacro = (name: string) =>
+    commands[name]?.params === 1 && (/\\(section|subsection|chapter)\*?\s*\{\s*#1\s*\}/.test(commands[name].body) || /section$|^section|heading$/i.test(name));
   const listStart = (name: string) => commands[name]?.params === 0 && opensList(commands[name].body) && !closesList(commands[name].body);
   const listEnd = (name: string) => commands[name]?.params === 0 && closesList(commands[name].body) && !opensList(commands[name].body);
   const structural = Object.keys(commands).filter((n) => commands[n].params >= 2 || itemMacro(n) || sectionMacro(n) || listStart(n) || listEnd(n));

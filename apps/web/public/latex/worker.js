@@ -1,15 +1,22 @@
-// Foja's LaTeX worker, for styles imported from LaTeX templates. It runs the pdfTeX engine of
-// SwiftLaTeX (WebAssembly, AGPL-3.0, https://github.com/SwiftLaTeX/SwiftLaTeX, release 20-02-2022,
-// unchanged) on the TeX Live files of texlive.tar.gz. Both come from this site, next to this file,
-// and stay in Cache Storage after the first time; the format LaTeX starts from is made here the
-// first time and kept there too. While compiling, the engine reaches no network: every file it may
-// ask for was put in its memory file system first, and a file that is not there is not found.
-// There is no shell either: \write18 and the like have nothing to run in WebAssembly.
-// scripts/latex-assets.sh makes texlive.tar.gz, fetches the engine and writes version.txt.
+// Foja's LaTeX worker, for styles imported from LaTeX templates. It runs one engine of SwiftLaTeX
+// (WebAssembly, AGPL-3.0, https://github.com/SwiftLaTeX/SwiftLaTeX, release 20-02-2022, unchanged),
+// picked with ?engine=: pdftex for pdfLaTeX, xetex for XeLaTeX (it writes an .xdv) and dvipdfm,
+// which turns that .xdv into a PDF. Their files (texlive.tar.gz, xetex.tar.gz) come from this site,
+// next to this file, and stay in Cache Storage after the first time; the format LaTeX starts from
+// is made here the first time and kept there too. While compiling, the engine reaches no network:
+// every file it may ask for was put in its memory file system first, and a file that is not there
+// is not found. There is no shell either: \write18 and the like have nothing to run in WebAssembly.
+// scripts/latex-assets.sh fetches the engines, makes the .tar.gz files and writes version.txt.
 "use strict";
 
 const BASE = new URL("./", self.location.href).href;
-const FMT = BASE + "swiftlatexpdftex.fmt.gz";
+const ENGINE = new URL(self.location.href).searchParams.get("engine") || "pdftex";
+const SETUP = {
+  pdftex: { files: "texlive.tar.gz", format: "swiftlatexpdftex.fmt", run: "compileLaTeXRoutine" },
+  xetex: { files: "xetex.tar.gz", format: "swiftlatexxetex.fmt", run: "compileLaTeXRoutine" },
+  dvipdfm: { files: "xetex.tar.gz", run: "compilePDFRoutine" },
+}[ENGINE];
+const SCRIPT = BASE + `swiftlatex${ENGINE}.js`;
 
 // The engine answers through postMessage: its answer to the call in progress is caught here.
 const post = self.postMessage.bind(self);
@@ -39,7 +46,7 @@ self.XMLHttpRequest = class {
 
 const engine = (routine) => new Promise((resolve) => {
   answer = resolve;
-  routine();
+  self[routine]();
 });
 
 async function cached(cache, url) {
@@ -74,13 +81,13 @@ function* untar(data) {
 }
 
 // What the engine asks for: kpathsea's format number and the name, sometimes without its extension.
-const FORMATS = { tfm: [3], pfb: [32], enc: [44], map: [11], vf: [33], fmt: [10] };
+const FORMATS = { tfm: [3], pfb: [32], enc: [44], map: [11], vf: [33], fmt: [10], otf: [47], ttf: [36], tec: [41] };
 function register(name) {
   const path = "/tex/" + name;
   const ext = name.split(".").pop();
-  for (const format of FORMATS[ext] || [26]) texlive200_cache[`${format}/${name}`] = path;
-  if (ext === "tfm") texlive200_cache["3/" + name.slice(0, -4)] = path;
-  if (ext === "tex") texlive200_cache["26/" + name.slice(0, -4)] = path;
+  const formats = FORMATS[ext] || [26];
+  for (const format of formats) texlive200_cache[`${format}/${name}`] = path;
+  if (["tfm", "tex", "otf", "ttf"].includes(ext)) texlive200_cache[`${formats[0]}/${name.slice(0, -ext.length - 1)}`] = path;
 }
 
 /** The name of the files on the site now (a hash of them), or offline the newest ones kept. */
@@ -101,26 +108,28 @@ function prepare() {
     for (const key of await caches.keys()) if (key.startsWith("foja-latex-") && key !== name) await caches.delete(key);
     const cache = await caches.open(name);
     // In the cache, the engine's own requests find them offline (through the service worker).
-    await cached(cache, BASE + "swiftlatexpdftex.wasm");
-    await cached(cache, BASE + "swiftlatexpdftex.js");
-    importScripts(BASE + "swiftlatexpdftex.js");
+    await cached(cache, SCRIPT.replace(/\.js$/, ".wasm"));
+    await cached(cache, SCRIPT);
+    importScripts(SCRIPT);
     self.onmessage = receive;
     await loaded;
-    for (const [name, data] of untar(await gunzip(await cached(cache, BASE + "texlive.tar.gz")))) {
-      if (name.includes("/")) continue;
-      FS.writeFile("/tex/" + name, data);
-      register(name);
+    for (const [file, data] of untar(await gunzip(await cached(cache, BASE + SETUP.files)))) {
+      if (file.includes("/")) continue;
+      FS.writeFile("/tex/" + file, data);
+      register(file);
     }
-    let format = await cache.match(FMT);
+    if (!SETUP.format) return;
+    const key = BASE + SETUP.format + ".gz";
+    let format = await cache.match(key);
     if (format) format = await gunzip(format);
     else {
-      const made = await engine(compileFormatRoutine);
+      const made = await engine("compileFormatRoutine");
       if (made.status !== 0) throw new Error("the LaTeX format: " + made.log.slice(-800));
       format = new Uint8Array(made.pdf);
-      await cache.put(FMT, new Response(new Blob([format]).stream().pipeThrough(new CompressionStream("gzip"))));
+      await cache.put(key, new Response(new Blob([format]).stream().pipeThrough(new CompressionStream("gzip"))));
     }
-    FS.writeFile("/tex/swiftlatexpdftex.fmt", format);
-    register("swiftlatexpdftex.fmt");
+    FS.writeFile("/tex/" + SETUP.format, format);
+    register(SETUP.format);
   })();
   ready.catch(() => (ready = undefined));
   return ready;
@@ -140,7 +149,8 @@ async function compile({ files, main }) {
     FS.writeFile(WORKROOT + "/" + path, content);
   }
   self.mainfile = main;
-  const made = await engine(compileLaTeXRoutine);
+  // pdftex answers with the PDF, xetex with the .xdv, dvipdfm with the PDF of that .xdv.
+  const made = await engine(SETUP.run);
   return { status: made.status, log: made.log, pdf: made.pdf ? new Uint8Array(made.pdf) : undefined };
 }
 

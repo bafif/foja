@@ -145,6 +145,8 @@ export interface LatexArg {
 export interface LatexFill {
   /** The main .tex file among the template's files: its preamble is kept as it is. */
   main: string;
+  /** XeLaTeX, for a template that picks its fonts by name; pdfLaTeX when absent. */
+  engine?: "xetex";
   header?: { macro: string; args: LatexArg[] };
   /** Entry macros: what goes in each argument. */
   entries: Record<string, LatexArg[]>;

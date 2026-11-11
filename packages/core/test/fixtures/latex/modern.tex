@@ -1,0 +1,40 @@
+% A one-page CV template for XeLaTeX, written for Foja's tests, in the manner of the common modern
+% résumés that pick their fonts by name. MIT No Attribution: use it for anything, no credit needed.
+\documentclass[10pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Lato}
+\newfontfamily\headingfont{Roboto}
+\usepackage[margin=16mm]{geometry}
+\usepackage{xcolor}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{0B6E4F}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+\newcommand{\header}[4]{%
+  {\headingfont\fontsize{26}{30}\selectfont\bfseries #1}\par\medskip
+  \faEnvelope\ \href{mailto:#2}{#2}\quad \faGithub\ #3\quad \faMapMarker*\ #4\par\bigskip}
+\newcommand{\cvsection}[1]{{\headingfont\color{accent}\large\bfseries\MakeUppercase{#1}}\par\smallskip}
+\newcommand{\job}[4]{\textbf{#1}, #2 \hfill {\color{accent}#3}\\\textit{#4}\par}
+\newcommand{\point}[1]{\item #1}
+
+\begin{document}
+\header{Jo Example}{jo@example.com}{github.com/jo-example}{Córdoba, Argentina}
+
+\cvsection{Experience}
+\job{Data engineer}{Example Labs}{2022 -- Present}{Córdoba}
+\begin{itemize}[leftmargin=12pt,nosep]
+  \point{Moved the reports to a warehouse that answers in seconds.}
+  \point{Wrote the team's guide to testing pipelines.}
+\end{itemize}
+\job{Analyst}{City Office}{2019 -- 2022}{Córdoba}
+\begin{itemize}[leftmargin=12pt,nosep]
+  \point{Built the dashboards the council reads every week.}
+\end{itemize}
+
+\cvsection{Education}
+\job{Statistics degree}{National University}{2014 -- 2019}{Córdoba}
+\end{document}

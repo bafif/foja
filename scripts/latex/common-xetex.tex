@@ -1,0 +1,46 @@
+% The packages Foja's XeLaTeX brings (scripts/latex-assets.sh): what common CV templates for
+% XeLaTeX load. Compiled with -recorder, it lists the files to pack; the fonts are added by family.
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{spanish}
+\setotherlanguage{english}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{ragged2e}
+\usepackage{parskip}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{ifthen}
+\usepackage{etoolbox}
+\usepackage{calc}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\setmainfont{Roboto}
+Muestra \textbf{negrita} \textit{itálica} \textsc{Versalitas} 0123 áéíóú ñ.
+{\fontspec{Lato}Lato \textbf{bold}} {\fontspec{Open Sans}Open Sans} {\fontspec{TeX Gyre Heros}Heros}
+{\fontspec{Latin Modern Roman}Latin Modern \textit{italic}} \texttt{mono}
+\faEnvelope{} \faGithub{} \faLinkedin{} \faPhone{}
+$x^2 + \alpha$
+\begin{tikzpicture}\draw (0,0) circle (2pt);\end{tikzpicture}
+\begin{itemize}[leftmargin=*]\item uno\end{itemize}
+\begin{tabularx}{\linewidth}{lX}\toprule a & b\\\bottomrule\end{tabularx}
+\url{https://example.com}
+\end{document}

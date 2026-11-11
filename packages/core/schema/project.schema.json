@@ -652,6 +652,12 @@
           "$ref": "#/$defs/filePath",
           "description": "The main .tex file among the template's files."
         },
+        "engine": {
+          "enum": [
+            "xetex"
+          ],
+          "description": "XeLaTeX, for a template that picks its fonts by name; pdfLaTeX when absent."
+        },
         "header": {
           "type": "object",
           "required": [

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { importData, importStyle, latexText, parseLatex, proposeMapping, readTemplate, validate, type Project } from "../src/index.ts";
+import { importData, importStyle, latexEngine, latexText, parseLatex, proposeMapping, readTemplate, validate, type Project } from "../src/index.ts";
 import { fillLatex, latexBundle } from "../src/export/index.ts";
 
 const resume = readFileSync(new URL("./fixtures/latex/resume.tex", import.meta.url));
@@ -93,6 +93,22 @@ describe("LaTeX templates", () => {
     const bundle = latexBundle(p, profileId);
     expect(Object.keys(bundle).sort()).toEqual(["README-foja.txt", "resume.tex"]);
     expect(bundle["resume.tex"]).toBe(tex);
+  });
+
+  test("a template that picks its fonts by name needs XeLaTeX", () => {
+    const modern = readFileSync(new URL("./fixtures/latex/modern.tex", import.meta.url));
+    const t = readTemplate({ "modern.tex": new Uint8Array(modern) });
+    expect(t.latexEngine).toBe("xetex");
+    expect(readTemplate(files).latexEngine).toBe("pdftex");
+    expect(latexEngine({ "cv.tex": "% !TEX program = xelatex\n\\documentclass{article}" })).toBe("xetex");
+    expect(latexEngine({ "cv.tex": "% \\usepackage{fontspec}\n\\documentclass{article}" })).toBe("pdftex");
+    // \cvsection draws its own title: a section by its name.
+    expect(t.parsed.sections.map((s) => s.title)).toEqual(["Experience", "Education"]);
+    expect(t.header?.fn).toBe("header");
+    const mapping = proposeMapping(t);
+    expect(mapping.header).toEqual({ "#1": "name", "#2": "email", "#3": "github", "#4": "location" });
+    const style = importStyle(t, mapping, "modern", "Modern");
+    expect(style.latex).toMatchObject({ engine: "xetex", section: "\\cvsection", entry: "job" });
   });
 
   test("a list-based template keeps its lists when filled", () => {

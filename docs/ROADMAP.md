@@ -71,8 +71,9 @@ and signing painful (the sidecar has to be signed on its own, and the macOS hard
 breaks PyInstaller without extra work). The in-browser core gives a public web app with static
 hosting and no server, small installers that use the system webview, and a preview with no
 network round trip. LaTeX is exported as source, since a full TeX distribution in WebAssembly
-downloads about 120 MB; only an imported LaTeX template is compiled in the app, by pdfTeX with a
-small set of common packages (about 7 MB, downloaded the first time one is used).
+downloads about 120 MB; only an imported LaTeX template is compiled in the app, by pdfTeX or XeTeX
+with a small set of common packages and free fonts (about 9 or 12 MB, downloaded the first time
+one is used).
 
 Containers (rootless Podman) stay for development only, with hot reload behind nginx.
 

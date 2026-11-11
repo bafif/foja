@@ -8,7 +8,8 @@ deploy a Pages; no está en el repositorio. Cómo corre: `docs/security.es.md`.
 
 | Archivo | Qué es | Licencia |
 | :--- | :--- | :--- |
-| `swiftlatexpdftex.js`, `swiftlatexpdftex.wasm` | El motor pdfTeX de [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), versión [20-02-2022](https://github.com/SwiftLaTeX/SwiftLaTeX/releases/tag/v20022022), sin cambios. Su código fuente está en ese repositorio. | AGPL-3.0 |
+| `swiftlatex{pdftex,xetex,dvipdfm}.js` y `.wasm` | Los motores pdfTeX, XeTeX y dvipdfmx de [SwiftLaTeX](https://github.com/SwiftLaTeX/SwiftLaTeX), versión [20-02-2022](https://github.com/SwiftLaTeX/SwiftLaTeX/releases/tag/v20022022), sin cambios. Su código fuente está en ese repositorio. | AGPL-3.0 |
 | `texlive.tar.gz` | Archivos de TeX Live 2022 tal como los empaqueta Debian bookworm: el núcleo de LaTeX y las fuentes de su formato, los paquetes de `scripts/latex/common.tex` y las tipografías que usan, y FontAwesome 5 del archivo final de TeX Live 2022. Sus nombres están en `texlive-files.txt`. | Cada archivo conserva la suya: casi todos la LaTeX Project Public License, y algunos la GUST Font License, la SIL Open Font License, la GPL o dominio público; ver el encabezado de cada uno y [las licencias de TeX Live](https://tug.org/texlive/LICENSE.TL). |
-| `version.txt` | Un hash de los tres archivos de arriba: el nombre con el que se guardan en el navegador. | — |
+| `xetex.tar.gz` | Lo mismo para XeLaTeX (`scripts/latex/common-xetex.tex`), con fuentes OpenType libres (Latin Modern, TeX Gyre, Roboto, Lato, Open Sans, FontAwesome 5) y `xetexfontlist.txt`, la lista de ellas que lee el motor XeTeX en lugar de fontconfig. Sus nombres están en `xetex-files.txt`. | Como arriba; las fuentes, con la GUST Font License, la SIL Open Font License o Apache-2.0 (Roboto, Open Sans). |
+| `version.txt` | Un hash de los archivos de arriba: el nombre con el que se guardan en el navegador. | — |
 | `worker.js` | El worker de Foja alrededor del motor. | GPL-3.0, como Foja |

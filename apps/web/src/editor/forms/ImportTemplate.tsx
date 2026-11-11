@@ -49,7 +49,7 @@ export function ImportTemplate() {
       setName(file.name.replace(/\.(typ|tex|zip|tar\.gz|tgz)$/i, ""));
       setLook(next.missing.length === 0);
       // LaTeX's first start downloads the engine and makes its format: begin while the form is read.
-      if (next.engine === "latex") warmLatex();
+      if (next.engine === "latex") warmLatex(next.latexEngine);
     } catch (e) {
       setTemplate(undefined);
       setError(T.failed((e as Error).message));
@@ -101,7 +101,7 @@ export function ImportTemplate() {
       )}
       {template && mapping && (
         <>
-          {template.engine === "latex" && <p className="rounded bg-surface-2 p-2 text-sm">{T.latex}</p>}
+          {template.engine === "latex" && <p className="rounded bg-surface-2 p-2 text-sm">{T.latex(template.latexEngine === "xetex")}</p>}
           {template.missing.length > 0 && <p className="rounded bg-surface-2 p-2 text-sm">{T.missing(template.missing.join(", "))}</p>}
           {template.fonts.length > 0 && <p className="text-xs text-muted">{T.fonts(template.fonts.join(", "))}</p>}
           <p className="text-xs text-muted">{template.license ? T.license(template.license) : T.noLicense}</p>
