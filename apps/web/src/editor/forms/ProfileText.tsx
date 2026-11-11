@@ -42,7 +42,7 @@ export function ProfileTextForm() {
         checked={!!profile.highlight}
         onChange={(v) =>
           edit((p) => {
-            if (v) p.highlight = { title: "Postulación", text: "" };
+            if (v) p.highlight = { title: t.defaults.highlight, text: "" };
             else delete p.highlight;
           })
         }
@@ -144,7 +144,7 @@ export function addSection(update: ReturnType<typeof useEditor.getState>["update
     const sections = p.profiles[profileId].sections;
     let id = "seccion";
     for (let n = 2; sections.some((s) => s.id === id); n++) id = `seccion-${n}`;
-    sections.push({ id, title: "Nueva sección", blocks: [] });
+    sections.push({ id, title: t.defaults.newSection, blocks: [] });
     index = sections.length - 1;
   });
   return index;

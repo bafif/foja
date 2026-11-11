@@ -52,6 +52,7 @@ export const es = {
     code: "Código Typst",
     codeHint: "El estilo importa /lib.typ y arma la página con `cv`. Los errores aparecen arriba de la vista previa, que mantiene la última versión buena. Tab indenta; para salir del editor, Escape y después Tab.",
     docs: "Cómo escribir un estilo",
+    docsUrl: "https://github.com/bafif/foja/blob/main/docs/templates.es.md",
     useHere: "Usar en este perfil",
     inUse: "En uso en este perfil",
     usedBy: (names: string[]) => (names.length ? `Lo usan: ${names.join(", ")}.` : "Ningún perfil lo usa."),
@@ -75,6 +76,8 @@ export const es = {
   welcomeText:
     "Foja guarda todo en este navegador: tus datos no salen de este dispositivo. Empezá con el ejemplo, con un proyecto vacío o importando un archivo de Foja.",
   startExample: "Empezar con el ejemplo",
+  exampleProfiles:
+    "El ejemplo es un CV real con dos perfiles armados con los mismos datos: programador y docente de IA. Se pasa de uno a otro en «Perfil», arriba.",
   startEmpty: "Proyecto vacío",
   importJson: "Importar JSON",
   importFailed: "Ese archivo no es un proyecto de Foja válido.",
@@ -189,7 +192,6 @@ export const es = {
   },
   themes: {
     menu: "Apariencia",
-    uiLanguage: "Idioma de la interfaz",
     title: "Tema",
     mode: "Modo",
     auto: "Automático",
@@ -199,6 +201,7 @@ export const es = {
     importFailed: "No es un tema válido:",
     exportCurrent: "Descargar este tema como base",
     docs: "Cómo hacer un tema",
+    docsUrl: "https://github.com/bafif/foja/blob/main/docs/themes.es.md",
   },
   panes: { label: "Paneles", nav: "Secciones", edit: "Editar", preview: "Vista previa" },
   exportTitle: "Exportar",
@@ -222,6 +225,35 @@ export const es = {
   exportFailed: "No se pudo exportar:",
   close: "Cerrar",
   sectionKinds: { entry: "Entrada", item: "Ítem", paragraph: "Párrafo" },
+  uiLanguage: "Idioma de la interfaz",
+  /** What a new project, profile, section, group, entry or style starts with. */
+  defaults: {
+    givenName: "Nombre",
+    familyName: "Apellido",
+    email: "nombre@example.com",
+    subtitle: "Puesto que buscás",
+    experience: "Experiencia",
+    highlight: "Postulación",
+    newSection: "Nueva sección",
+    newGroup: "Nuevo grupo",
+    newEntry: "Nueva entrada",
+    newStyle: "Estilo nuevo",
+    mine: (name: string) => `${name} (mío)`,
+    copy: (name: string) => `${name} (copia)`,
+  },
+  jpgFailed: "No se pudo generar la imagen JPG.",
+  pdfFailed: "No se pudo generar el PDF.",
+  themeErrors: {
+    notObject: "un tema es un objeto JSON",
+    id: "«id» lleva solo minúsculas, dígitos y guiones",
+    name: "falta «name» (hasta 60 caracteres)",
+    palette: (key: string) => `«${key}» tiene que ser un objeto de colores`,
+    token: (key: string, tokens: string) => `«${key}» no es un color de un tema (${tokens})`,
+    colour: (key: string) => `«${key}» no es un color`,
+    radius: "«radius» tiene que ser una longitud, como 6px",
+    fonts: (key: string) => `«fonts.${key}» tiene que ser una lista de nombres de fuentes`,
+    builtin: (id: string) => `«${id}» es un tema de Foja; elegí otro id`,
+  },
 };
 
 export type Strings = typeof es;
@@ -275,6 +307,7 @@ export const en: Strings = {
     code: "Typst code",
     codeHint: "The style imports /lib.typ and lays out the page with `cv`. Errors show above the preview, which keeps the last good version. Tab indents; to leave the editor, Escape then Tab.",
     docs: "How to write a style",
+    docsUrl: "https://github.com/bafif/foja/blob/main/docs/templates.md",
     useHere: "Use in this profile",
     inUse: "In use in this profile",
     usedBy: (names: string[]) => (names.length ? `Used by: ${names.join(", ")}.` : "No profile uses it."),
@@ -297,6 +330,8 @@ export const en: Strings = {
   welcomeTitle: "Your CV in Typst, without writing code",
   welcomeText: "Foja keeps everything in this browser: your data never leaves this device. Start with the example, an empty project, or a Foja file.",
   startExample: "Start with the example",
+  exampleProfiles:
+    "The example is a real CV with two profiles built from the same data: programmer and AI teacher. Switch between them with “Profile”, at the top.",
   startEmpty: "Empty project",
   importJson: "Import JSON",
   importFailed: "That file is not a valid Foja project.",
@@ -398,7 +433,6 @@ export const en: Strings = {
   crop: { title: "Crop the photo", zoom: "Zoom", aspect: "Aspect", hint: "Drag the photo (or use the arrow keys) to frame it.", use: "Use this photo" },
   themes: {
     menu: "Appearance",
-    uiLanguage: "Interface language",
     title: "Theme",
     mode: "Mode",
     auto: "Automatic",
@@ -408,6 +442,7 @@ export const en: Strings = {
     importFailed: "Not a valid theme:",
     exportCurrent: "Download this theme as a starting point",
     docs: "How to make a theme",
+    docsUrl: "https://github.com/bafif/foja/blob/main/docs/themes.md",
   },
   panes: { label: "Panes", nav: "Sections", edit: "Edit", preview: "Preview" },
   exportTitle: "Export",
@@ -431,11 +466,53 @@ export const en: Strings = {
   exportFailed: "Could not export:",
   close: "Close",
   sectionKinds: { entry: "Entry", item: "Item", paragraph: "Paragraph" },
+  uiLanguage: "Interface language",
+  defaults: {
+    givenName: "Name",
+    familyName: "Surname",
+    email: "name@example.com",
+    subtitle: "The job you are after",
+    experience: "Experience",
+    highlight: "Applying for",
+    newSection: "New section",
+    newGroup: "New group",
+    newEntry: "New entry",
+    newStyle: "New style",
+    mine: (name: string) => `${name} (mine)`,
+    copy: (name: string) => `${name} (copy)`,
+  },
+  jpgFailed: "Could not make the JPG image.",
+  pdfFailed: "Could not make the PDF.",
+  themeErrors: {
+    notObject: "a theme is a JSON object",
+    id: '"id" must be lowercase letters, digits and dashes',
+    name: '"name" is required (up to 60 characters)',
+    palette: (key: string) => `"${key}" must be an object of colours`,
+    token: (key: string, tokens: string) => `"${key}" is not a colour of a theme (${tokens})`,
+    colour: (key: string) => `"${key}" is not a colour`,
+    radius: '"radius" must be a length like 6px',
+    fonts: (key: string) => `"fonts.${key}" must be a list of font names`,
+    builtin: (id: string) => `"${id}" is a built-in theme; pick another id`,
+  },
 };
 
 export const LANGUAGES = { es: { name: "Español", strings: es }, en: { name: "English", strings: en } };
 export type Language = keyof typeof LANGUAGES;
 
+/**
+ * Spanish when any of the preferred languages is Spanish (es, es-AR, es-419…), English otherwise.
+ * The pages apply the same rule before they load, in layouts/Base.astro.
+ */
+export function detectLanguage(preferred: readonly string[]): Language {
+  return preferred.some((l) => /^es(-|$)/i.test(l)) ? "es" : "en";
+}
+
+function preferred(): readonly string[] {
+  if (typeof navigator === "undefined") return [];
+  return navigator.languages?.length ? navigator.languages : [navigator.language ?? ""];
+}
+
+/** The language chosen in the selector wins; without one, the browser's preferences decide. */
 function initial(): Language {
   try {
     const saved = JSON.parse(localStorage.getItem("foja.language") ?? "null");
@@ -443,7 +520,7 @@ function initial(): Language {
   } catch {
     // No storage: follow the browser.
   }
-  return typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("es") ? "es" : "en";
+  return detectLanguage(preferred());
 }
 
 export const useLanguage = create<{ lang: Language }>()(() => ({ lang: initial() }));

@@ -1,0 +1,26 @@
+# foja
+
+*[English](https://github.com/bafif/foja/blob/main/packages/cli/README.md) · Español*
+
+La línea de comandos de [Foja](https://github.com/bafif/foja), un editor de CV sobre Typst: arma
+CV a partir de un proyecto de Foja (`.foja.json`, hecho en el editor o a mano) con los mismos estilos de
+Typst que usa el editor web.
+
+```sh
+npx foja build my.foja.json                       # un PDF por perfil
+npx foja build my.foja.json --profile dev --format pdf --format docx --out out
+npx foja build my.foja.json --format all          # todos los formatos en un solo .zip
+npx foja validate my.foja.json
+```
+
+Formatos: `pdf`, `svg`, `typ` (un `.zip` que compila con `typst compile` a secas), `tex`
+(LaTeX), `md`, `json`, `docx` (Word), `all`. Necesita Node 24 o posterior. Los mensajes y `--help`
+salen en español si el sistema está en español, y en inglés si no; `--lang es` o `--lang en` elige uno.
+
+El formato del proyecto está descrito en su JSON Schema
+([`project.schema.json`](https://github.com/bafif/foja/blob/main/packages/core/schema/project.schema.json));
+los estilos propios, escritos en Typst, se explican en
+[`docs/templates.es.md`](https://github.com/bafif/foja/blob/main/docs/templates.es.md).
+
+Licencia: GPL-3.0. Las fuentes incluidas conservan sus propias licencias (archivos al lado de ellas en
+`dist/template/fonts`).

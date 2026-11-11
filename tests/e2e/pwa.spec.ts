@@ -32,11 +32,31 @@ test.describe("production build", () => {
     expect(errors).toEqual([]);
   });
 
-  test("the manifest is installable", async ({ page }) => {
-    const response = await page.request.get(`${url}manifest.webmanifest`);
-    const manifest = await response.json();
-    expect(manifest.start_url).toBe("./editor/");
-    for (const icon of manifest.icons) expect((await page.request.get(new URL(icon.src, `${url}manifest.webmanifest`).href)).ok()).toBe(true);
+  test.describe("in English", () => {
+    test.use({ locale: "en-US" });
+
+    test("the landing page sends an English browser to its English twin, under the policy", async ({ page, errors }) => {
+      const violations: string[] = [];
+      page.on("console", (m) => /Content.Security.Policy|Refused to/i.test(m.text()) && violations.push(m.text()));
+      await page.goto(url!);
+      await expect(page).toHaveURL(`${url}en/`);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your CV in Typst, without writing code");
+      await page.getByRole("link", { name: "Open the editor" }).click();
+      await expect(page).toHaveURL(`${url}editor/`);
+      await expect(page.getByRole("button", { name: "Start with the example" })).toBeVisible();
+      expect(await page.locator('link[rel="manifest"]').getAttribute("href")).toBe(`${new URL(url!).pathname}manifest.en.webmanifest`);
+      expect(violations).toEqual([]);
+      expect(errors).toEqual([]);
+    });
+  });
+
+  test("the manifest is installable, in both languages", async ({ page }) => {
+    for (const file of ["manifest.webmanifest", "manifest.en.webmanifest"]) {
+      const response = await page.request.get(`${url}${file}`);
+      const manifest = await response.json();
+      expect(manifest.start_url).toBe("./editor/");
+      for (const icon of manifest.icons) expect((await page.request.get(new URL(icon.src, `${url}${file}`).href)).ok()).toBe(true);
+    }
   });
 
   test("after the first visit the editor works offline", async ({ page, context }) => {

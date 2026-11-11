@@ -13,6 +13,8 @@ const typstPackages = [
 export default defineConfig({
   // GitHub Pages serves the site under /foja/; the dev server and a custom domain use /.
   base: process.env.FOJA_BASE ?? "/",
+  // For the absolute links between the Spanish and English landing pages.
+  site: "https://bafif.github.io",
   // csp first: the service worker caches the pages as they end up.
   integrations: [react(), csp(), serviceWorker()],
   devToolbar: { enabled: false },

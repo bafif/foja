@@ -5,13 +5,11 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { validate, type Project } from "@foja/core";
+import { detectLanguage, MESSAGES, systemLanguages, takeLanguage, type Language } from "./messages.ts";
 
-const USAGE = `usage:
-  foja build <project.json> [--profile <id>]... [--format <format>]... [--out <dir>]
-      formats: pdf (default), svg, typ, tex, md, json, docx, all (every one in a .zip);
-      every profile unless --profile is given
-  foja validate <project.json>
-  foja convert-curriculum <cvgen/data> <out.json> [--public]`;
+const { lang, rest: argv } = takeLanguage(process.argv.slice(2));
+const m = MESSAGES[lang && lang in MESSAGES ? (lang as Language) : detectLanguage(systemLanguages())];
+const USAGE = m.usage;
 
 function fail(message: string, code = 1): never {
   console.error(message);
@@ -27,7 +25,7 @@ function loadProject(path: string): Project {
   }
   const problems = validate(value);
   for (const p of problems) console.error(`${path}${p.path}: ${p.message}`);
-  if (problems.some((p) => p.severity === "error")) fail(`${path}: not a valid Foja project`);
+  if (problems.some((p) => p.severity === "error")) fail(`${path}: ${m.invalidProject}`);
   return value as Project;
 }
 
@@ -47,9 +45,9 @@ async function build(args: string[]) {
   if (positionals.length !== 1) fail(USAGE, 2);
   const project = loadProject(positionals[0]);
   const formats = (values.format ?? ["pdf"]) as Format[];
-  for (const f of formats) if (!FORMATS.includes(f)) fail(`unknown format "${f}"\n${USAGE}`, 2);
+  for (const f of formats) if (!FORMATS.includes(f)) fail(`${m.unknownFormat(f)}\n${USAGE}`, 2);
   const profiles = values.profile ?? Object.keys(project.profiles);
-  for (const id of profiles) if (!(id in project.profiles)) fail(`no profile "${id}"`);
+  for (const id of profiles) if (!(id in project.profiles)) fail(m.noProfile(id));
 
   const { Typst, templateFiles } = await import("./typst.ts");
   const { bundleExports, exportFiles, exportStem } = await import("@foja/core/export");
@@ -63,7 +61,7 @@ async function build(args: string[]) {
   };
   for (const id of profiles) {
     const doc = formats.some((f) => f === "pdf" || f === "svg" || f === "all") ? typst.compile(id) : undefined;
-    const pages = doc ? ` (${doc.numOfPages} page${doc.numOfPages === 1 ? "" : "s"})` : "";
+    const pages = doc ? m.pages(doc.numOfPages) : "";
     const stem = exportStem(project, id);
     for (const format of formats) {
       if (format === "pdf") write(`${stem}.pdf`, typst.pdf(doc!), pages);
@@ -80,11 +78,13 @@ async function build(args: string[]) {
 
 async function main(argv: string[]) {
   const [command, ...rest] = argv;
+  if (lang !== undefined && !(lang in MESSAGES)) fail(`${m.badLanguage(lang)}\n${USAGE}`, 2);
+  if (command === "-h" || command === "--help" || command === "help") return console.log(USAGE);
   if (command === "build") return build(rest);
   if (command === "validate") {
     if (rest.length !== 1) fail(USAGE, 2);
     const project = loadProject(rest[0]);
-    console.log(`${rest[0]}: valid, ${Object.keys(project.profiles).length} profile(s)`);
+    console.log(`${rest[0]}: ${m.valid(Object.keys(project.profiles).length)}`);
     return;
   }
   if (command === "convert-curriculum") {
@@ -95,10 +95,14 @@ async function main(argv: string[]) {
     const problems = validate(project);
     for (const p of problems) console.error(`converted${p.path}: ${p.message}`);
     writeFileSync(positionals[1], JSON.stringify(project, null, 2) + "\n");
-    console.log(`${positionals[1]}: ${Object.keys(project.profiles).length} profile(s)`);
+    console.log(`${positionals[1]}: ${m.profiles(Object.keys(project.profiles).length)}`);
     return;
   }
   fail(USAGE, command ? 2 : 0);
 }
 
-main(process.argv.slice(2)).catch((e) => fail(e instanceof Error ? e.message : String(e)));
+main(argv).catch((e) => {
+  // A bad option: Node's own message (in English), then the usage.
+  if (String(e?.code).startsWith("ERR_PARSE_ARGS")) fail(`${e.message}\n${USAGE}`, 2);
+  fail(e instanceof Error ? e.message : String(e));
+});

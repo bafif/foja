@@ -1,6 +1,7 @@
 // JPG export in the browser: the Typst SVG drawn on a canvas, one JPEG per page. The Node addon
 // has no raster output, so this exists only here.
 
+import { t } from "../editor/i18n";
 import { cleanSvg } from "./svg";
 
 export interface PageBox {
@@ -36,7 +37,7 @@ export async function svgToJpegs(svg: string, dpi = 150, quality = 0.92): Promis
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, -page.y * scale, total.width * scale, total.height * scale);
         const blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("JPEG encoding failed"))), "image/jpeg", quality),
+          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t.jpgFailed))), "image/jpeg", quality),
         );
         return new Uint8Array(await blob.arrayBuffer());
       }),

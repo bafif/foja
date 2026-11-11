@@ -12,7 +12,7 @@ export function profilesUsing(project: Project, entryId: string): string[] {
 }
 
 /** Adds a blank entry to the bank and returns its id. */
-export function createEntry(p: Project, title = "Nueva entrada"): string {
+export function createEntry(p: Project, title = t.defaults.newEntry): string {
   const id = newId(title, p.entries);
   p.entries[id] = { title };
   return id;

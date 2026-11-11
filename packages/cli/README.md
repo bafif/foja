@@ -1,5 +1,7 @@
 # foja
 
+*English · [Español](https://github.com/bafif/foja/blob/main/packages/cli/README.es.md)*
+
 The command line of [Foja](https://github.com/bafif/foja), a CV editor on Typst: builds CVs
 from a Foja project (`.foja.json`, made in the editor or by hand) with the same Typst styles the
 web editor uses.
@@ -12,7 +14,9 @@ npx foja validate my.foja.json
 ```
 
 Formats: `pdf`, `svg`, `typ` (a `.zip` that compiles with plain `typst compile`), `tex`
-(LaTeX), `md`, `json`, `docx` (Word), `all`. Needs Node 24 or later.
+(LaTeX), `md`, `json`, `docx` (Word), `all`. Needs Node 24 or later. Messages and `--help` come
+in Spanish when the system's language is Spanish and in English otherwise; `--lang es` or
+`--lang en` picks one.
 
 The project format is described by its JSON Schema
 ([`project.schema.json`](https://github.com/bafif/foja/blob/main/packages/core/schema/project.schema.json));

@@ -1,0 +1,162 @@
+<!doctype html>
+<!--
+  Source of the link preview images (apps/web/public/og.jpg and og.en.jpg): what X, WhatsApp, Telegram and
+  LinkedIn show when a link to Foja is shared. ?lang=en gives the English one. scripts/og-image.sh renders both
+  at 1200x630; run it again whenever the landing page's heading or its picture of the editor changes.
+-->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Foja: vista previa</title>
+    <style>
+      @font-face {
+        font-family: XCharter;
+        font-weight: 700;
+        src: url("../packages/template/fonts/XCharter-Bold.otf") format("opentype");
+      }
+      @font-face {
+        font-family: "Noto Sans";
+        font-weight: 400;
+        src: url("../packages/template/fonts/NotoSans-Regular.ttf") format("truetype");
+      }
+      @font-face {
+        font-family: "Noto Sans";
+        font-weight: 500;
+        src: url("../packages/template/fonts/NotoSans-Medium.ttf") format("truetype");
+      }
+      @font-face {
+        font-family: "Latin Modern Mono";
+        src: url("../packages/template/fonts/lmmono9-regular.otf") format("opentype");
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+
+      /* "Papel y tinta", the landing page's theme (apps/web/src/styles/global.css). */
+      body {
+        position: relative;
+        background:
+          radial-gradient(ellipse 55% 75% at 0% 0%, #dcebe8 0%, transparent 70%),
+          #f6f1e7;
+        color: #1f2a2e;
+        font-family: "Noto Sans", sans-serif;
+      }
+
+      .texto {
+        position: absolute;
+        top: 64px;
+        bottom: 60px;
+        left: 64px;
+        width: 448px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .marca {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-family: XCharter, serif;
+        font-weight: 700;
+        font-size: 38px;
+        color: #1f5f5b;
+      }
+
+      .marca img {
+        width: 46px;
+        height: 46px;
+      }
+
+      h1 {
+        margin-top: 30px;
+        font-family: XCharter, serif;
+        font-weight: 700;
+        font-size: 62px;
+        line-height: 1.06;
+        letter-spacing: -0.01em;
+      }
+
+      .bajada {
+        margin-top: 24px;
+        font-size: 24px;
+        line-height: 1.35;
+        color: #5f6b6e;
+        text-wrap: balance;
+      }
+
+      .pie {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .rasgos {
+        font-weight: 500;
+        font-size: 20px;
+        color: #123c39;
+      }
+
+      .url {
+        font-family: "Latin Modern Mono", monospace;
+        font-size: 23px;
+        color: #1f5f5b;
+      }
+
+      /* The landing page's picture of the editor without its toolbar, from the forms to the preview, running off the
+         right edge. */
+      .captura {
+        position: absolute;
+        top: 65px;
+        left: 556px;
+        width: 700px;
+        height: 500px;
+        overflow: hidden;
+        border: 1px solid #ddd3c0;
+        border-radius: 14px;
+        background: #fffdf8;
+        box-shadow:
+          0 34px 60px -28px rgb(31 42 46 / 0.45),
+          0 2px 6px rgb(31 42 46 / 0.08);
+      }
+
+      .captura img {
+        display: block;
+        width: 890px;
+        height: 534px;
+        margin-top: -34px;
+        margin-left: -154px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="texto">
+      <p class="marca"><img src="../apps/web/public/favicon.svg" alt="" />Foja</p>
+      <h1 data-es="Tu CV en Typst, sin escribir código" data-en="Your CV in Typst, without writing code"></h1>
+      <p
+        class="bajada"
+        data-es="Formularios, vista previa en vivo y exportación a PDF, Word, LaTeX y más."
+        data-en="Forms, a live preview and exports to PDF, Word, LaTeX and more."
+      ></p>
+      <div class="pie">
+        <p class="rasgos" data-es="Gratis · sin cuentas · en tu navegador" data-en="Free · no accounts · in your browser"></p>
+        <p class="url">bafif.github.io/foja</p>
+      </div>
+    </div>
+    <div class="captura"><img src="../apps/web/public/screenshot.jpg" alt="" /></div>
+    <script>
+      const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "es";
+      document.documentElement.lang = lang;
+      for (const el of document.querySelectorAll("[data-es]")) el.textContent = el.dataset[lang];
+    </script>
+  </body>
+</html>

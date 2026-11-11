@@ -4,6 +4,7 @@
 // look, never the CV.
 
 import { create } from "zustand";
+import { t } from "./i18n";
 
 export const TOKENS = ["bg", "surface", "surface2", "ink", "muted", "line", "accent", "accentSoft", "accentInk", "onAccent", "danger", "desk"] as const;
 export type Token = (typeof TOKENS)[number];
@@ -140,37 +141,37 @@ const LENGTH = /^\d+(\.\d+)?(px|rem|em)$/;
 const FONTS = /^[\w\s,"'.-]{1,200}$/;
 
 export function parseTheme(value: unknown): Theme {
-  if (!value || typeof value !== "object") throw new Error("a theme is a JSON object");
+  if (!value || typeof value !== "object") throw new Error(t.themeErrors.notObject);
   const v = value as Record<string, unknown>;
   const fail = (m: string): never => {
     throw new Error(m);
   };
-  const id = typeof v.id === "string" && /^[a-z0-9][a-z0-9-]{0,40}$/.test(v.id) ? v.id : fail('"id" must be lowercase letters, digits and dashes');
-  const name = typeof v.name === "string" && v.name.trim() && v.name.length <= 60 ? v.name.trim() : fail('"name" is required (up to 60 characters)');
+  const id = typeof v.id === "string" && /^[a-z0-9][a-z0-9-]{0,40}$/.test(v.id) ? v.id : fail(t.themeErrors.id);
+  const name = typeof v.name === "string" && v.name.trim() && v.name.length <= 60 ? v.name.trim() : fail(t.themeErrors.name);
   const palette = (p: unknown, key: string): Partial<Palette> => {
     if (p === undefined) return {};
-    if (!p || typeof p !== "object") fail(`"${key}" must be an object of colours`);
+    if (!p || typeof p !== "object") fail(t.themeErrors.palette(key));
     const out: Partial<Palette> = {};
     for (const [token, color] of Object.entries(p as Record<string, unknown>)) {
-      if (!(TOKENS as readonly string[]).includes(token)) fail(`"${key}.${token}" is not a colour of a theme (${TOKENS.join(", ")})`);
-      if (typeof color !== "string" || !COLOR.test(color.trim())) fail(`"${key}.${token}" is not a colour`);
+      if (!(TOKENS as readonly string[]).includes(token)) fail(t.themeErrors.token(`${key}.${token}`, TOKENS.join(", ")));
+      if (typeof color !== "string" || !COLOR.test(color.trim())) fail(t.themeErrors.colour(`${key}.${token}`));
       out[token as Token] = (color as string).trim();
     }
     return out;
   };
   const theme: Theme = { id, name, light: palette(v.light, "light") };
   if (v.dark !== undefined) theme.dark = palette(v.dark, "dark");
-  if (v.radius !== undefined) theme.radius = typeof v.radius === "string" && LENGTH.test(v.radius) ? v.radius : fail('"radius" must be a length like 6px');
+  if (v.radius !== undefined) theme.radius = typeof v.radius === "string" && LENGTH.test(v.radius) ? v.radius : fail(t.themeErrors.radius);
   if (v.fonts !== undefined) {
     const f = v.fonts as Record<string, unknown>;
     theme.fonts = {};
     for (const key of ["ui", "heading"] as const) {
       if (f?.[key] === undefined) continue;
-      if (typeof f[key] !== "string" || !FONTS.test(f[key] as string)) fail(`"fonts.${key}" must be a list of font names`);
+      if (typeof f[key] !== "string" || !FONTS.test(f[key] as string)) fail(t.themeErrors.fonts(key));
       theme.fonts[key] = f[key] as string;
     }
   }
-  if (BUILTIN_THEMES.some((t) => t.id === theme.id)) fail(`"${theme.id}" is a built-in theme; pick another id`);
+  if (BUILTIN_THEMES.some((t) => t.id === theme.id)) fail(t.themeErrors.builtin(theme.id));
   return theme;
 }
 

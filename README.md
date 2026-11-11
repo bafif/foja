@@ -1,5 +1,7 @@
 # Foja
 
+*English · [Español](README.es.md)*
+
 A no-code CV editor built on [Typst](https://typst.app): forms instead of code, a live preview
 that is the real Typst output, and exports to Typst, PDF, JPG, LaTeX, Markdown, JSON and Word.
 Everything runs in the browser; your CV never leaves your machine.
@@ -30,10 +32,10 @@ Status: the editor, the exporters and the CLI work, and the editor is online at
 
 ```
 packages/core      project format (JSON Schema + types), validation, shared helpers
-packages/template  the Typst styles (Legajo, Banda, Minimal), their library, labels and fonts
+packages/template  the six built-in Typst styles, their library, labels and fonts
 packages/cli       `foja` on Node: build PDF/SVG/Typst bundles from a project
 apps/web           the Astro site and editor
-examples/          the editor's example, my CV as a programmer (Spanish, English); test fixtures: a
+examples/          the editor's example, my CV with its three profiles (Spanish, English); test fixtures: a
                    fictional CV and my full CV (fake phone)
 cvgen/             the first version: my CV data and the Python (LaTeX) and C generators
 ```
@@ -59,7 +61,8 @@ offline use included. `scripts/e2e.sh` runs the end-to-end tests against the run
 headless Chromium in a container that shares the stack's network; nothing on the host is reachable from it.
 `scripts/screenshot.sh` uses the same container to retake the landing page's picture of the editor
 (`apps/web/public/screenshot.jpg`) from the example; it needs retaking whenever the example or the editor's look
-changes.
+changes. After that, `scripts/og-image.sh` renders again the link preview images that X, WhatsApp and others show
+(`apps/web/public/og.jpg` and `og.en.jpg`, from `scripts/og-image.html`), with Chrome and ImageMagick on the host.
 
 ## Licence
 

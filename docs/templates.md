@@ -1,5 +1,7 @@
 # Writing a CV style
 
+*English · [Español](templates.es.md)*
+
 A Foja style is one Typst file. It imports Foja's library and lays out `cv`, the profile being
 built, already resolved:
 

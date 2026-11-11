@@ -1,5 +1,7 @@
 # Security model
 
+*English · [Español](security.es.md)*
+
 Foja opens files made by other people: projects (`.foja.json`), which can carry **styles
 written in Typst**, and interface themes (`.foja-theme.json`). This page says what such a file
 can and cannot do.

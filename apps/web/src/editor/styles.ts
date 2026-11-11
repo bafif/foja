@@ -2,6 +2,7 @@
 
 import { BUILTIN_STYLES, STYLE_SKELETON, type Project } from "@foja/core";
 import { newId } from "./forms/Skills";
+import { t } from "./i18n";
 
 const sources = import.meta.glob<string>("../../../../packages/template/styles/*.typ", { query: "?raw", import: "default", eager: true });
 
@@ -14,7 +15,7 @@ export function builtinSource(id: string): string {
 export function addStyle(p: Project, from?: string): string {
   const base = from ? BUILTIN_STYLES.find((s) => s.id === from) : undefined;
   const custom = from ? p.templates?.[from] : undefined;
-  const name = base ? `${base.name} (mío)` : custom ? `${custom.name} (copia)` : "Estilo nuevo";
+  const name = base ? t.defaults.mine(base.name) : custom ? t.defaults.copy(custom.name) : t.defaults.newStyle;
   const id = newId(name, { ...BUILTIN_STYLES.reduce((o, s) => ({ ...o, [s.id]: 1 }), {}), ...p.templates });
   p.templates = { ...p.templates, [id]: { name, source: custom?.source ?? (base ? builtinSource(base.id) : STYLE_SKELETON) } };
   return id;

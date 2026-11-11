@@ -103,7 +103,7 @@ export function compilePdf(project: Project, profile: string): Promise<Uint8Arra
   const id = nextId++;
   post({ type: "pdf", id, project, profile });
   return new Promise((resolve, reject) =>
-    pdfWaiting.set(id, (reply) => (reply.pdf ? resolve(reply.pdf) : reject(new Error((reply.errors ?? ["PDF failed"]).join("\n"))))),
+    pdfWaiting.set(id, (reply) => (reply.pdf ? resolve(reply.pdf) : reject(new Error((reply.errors ?? [t.pdfFailed]).join("\n"))))),
   );
 }
 

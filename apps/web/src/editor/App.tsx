@@ -23,6 +23,7 @@ import { SortableItem, SortableList } from "./Sortable";
 import { ImportButton, Welcome } from "./Welcome";
 import { Preview } from "./Preview";
 import { Palette } from "./Palette";
+import { LanguageSelect } from "./LanguageSelect";
 import { ThemeMenu } from "./ThemeMenu";
 import { startThemes } from "./themes";
 import { install, installed, ios, keepStorage, useInstall } from "./device";
@@ -354,6 +355,7 @@ function TopBar({ onExport }: { onExport: () => void }) {
         <span className="contents lg:hidden">
           <InstallControl />
         </span>
+        <LanguageSelect />
         <ThemeMenu />
         <Button variant="ghost" title="Ctrl+K" onClick={() => (setMore(false), openEvent("foja:palette")())}>
           ⌘ {t.palette.title}

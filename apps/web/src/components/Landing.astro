@@ -1,0 +1,75 @@
+---
+// The landing page, once per language: pages/index.astro (Spanish) and pages/en/index.astro (English).
+import Base from "../layouts/Base.astro";
+import { landing, type PageLanguage } from "../landing";
+
+interface Props {
+  lang: PageLanguage;
+}
+const { lang } = Astro.props;
+const s = landing[lang];
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const pages = { es: base, en: `${base}en/` };
+const names = { es: "Español", en: "English" };
+---
+
+<Base title={s.title} description={s.description} lang={lang}>
+  <div class="min-h-full bg-bg">
+    <nav aria-label={s.languages} class="mx-auto flex max-w-5xl justify-end gap-3 px-6 pt-5 text-sm">
+      {
+        (Object.keys(pages) as PageLanguage[]).map((l) =>
+          l === lang ? (
+            <span aria-current="page" class="font-medium" lang={l}>
+              {names[l]}
+            </span>
+          ) : (
+            <a class="text-muted underline hover:text-ink" href={pages[l]} hreflang={l} lang={l} data-lang={l}>
+              {names[l]}
+            </a>
+          ),
+        )
+      }
+    </nav>
+    <main class="mx-auto flex max-w-5xl flex-col gap-16 px-6 pt-10 pb-16">
+      <section class="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+        <div class="flex flex-col gap-6">
+          <p class="font-heading text-2xl font-semibold tracking-wide text-accent">Foja</p>
+          <h1 class="font-heading text-5xl leading-tight font-semibold">{s.heading}</h1>
+          <p class="text-lg text-muted" set:html={s.intro} />
+          <div class="flex flex-wrap gap-3">
+            <a class="rounded bg-accent px-5 py-2.5 font-medium text-on-accent hover:opacity-90" href={`${base}editor/`}>{s.open}</a>
+            <a class="rounded border border-line px-5 py-2.5 hover:bg-surface-2" href="https://github.com/bafif/foja">{s.source}</a>
+          </div>
+          <p class="text-sm text-muted">{s.note}</p>
+        </div>
+        <img src={`${base}screenshot.jpg`} width="1200" height="720" alt={s.screenshot} class="rounded-lg border border-line shadow-xl" />
+      </section>
+
+      <section class="grid gap-8 sm:grid-cols-3">
+        {
+          s.features.map(([title, text]) => (
+            <div>
+              <h2 class="mb-2 font-semibold">{title}</h2>
+              <p class="text-sm text-muted">{text}</p>
+            </div>
+          ))
+        }
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="text-2xl font-semibold">{s.exportHeading}</h2>
+        <ul class="grid gap-2 sm:grid-cols-2">
+          {
+            s.formats.map(([name, what]) => (
+              <li class="rounded border border-line bg-surface px-4 py-2">
+                <span class="font-medium">{name}</span>: <span class="text-muted">{what}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <footer class="border-t border-line pt-6 text-sm text-muted" set:html={s.footer} />
+    </main>
+  </div>
+</Base>
