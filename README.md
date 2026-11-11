@@ -62,7 +62,9 @@ podman volume export foja_out | tar -x -C .out      # copies what the CLI wrote 
 ```
 
 `scripts/e2e-pwa.sh` builds the site as GitHub Pages serves it (under `/foja/`) and checks it,
-offline use included. `scripts/e2e.sh` runs the end-to-end tests against the running dev stack, with Playwright and a
+offline use included. `scripts/latex-assets.sh` makes the LaTeX engine and TeX Live files that imported LaTeX
+templates use (`apps/web/public/latex/`, not versioned): the Pages deploy runs it, and the LaTeX tests need it run
+once. `scripts/e2e.sh` runs the end-to-end tests against the running dev stack, with Playwright and a
 headless Chromium in a container that shares the stack's network; nothing on the host is reachable from it.
 `scripts/screenshot.sh` uses the same container to retake the landing page's picture of the editor
 (`apps/web/public/screenshot.jpg`) from the example; it needs retaking whenever the example or the editor's look

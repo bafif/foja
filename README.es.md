@@ -63,7 +63,9 @@ podman volume export foja_out | tar -x -C .out      # copia a .out/ lo que escri
 ```
 
 `scripts/e2e-pwa.sh` genera el sitio como lo sirve GitHub Pages (bajo `/foja/`) y lo verifica, uso sin conexión
-incluido. `scripts/e2e.sh` corre los tests de punta a punta contra el stack de desarrollo en marcha, con Playwright y
+incluido. `scripts/latex-assets.sh` arma el motor de LaTeX y los archivos de TeX Live que usan las plantillas LaTeX
+importadas (`apps/web/public/latex/`, sin versionar): lo corre el deploy a Pages, y los tests de LaTeX necesitan que se
+haya corrido una vez. `scripts/e2e.sh` corre los tests de punta a punta contra el stack de desarrollo en marcha, con Playwright y
 un Chromium headless en un contenedor que comparte la red del stack; desde ahí no se llega a nada del host.
 `scripts/screenshot.sh` usa el mismo contenedor para volver a sacar, a partir del ejemplo, la captura del editor que
 aparece en la página de inicio (`apps/web/public/screenshot.jpg`); hay que volver a sacarla cada vez que cambian el

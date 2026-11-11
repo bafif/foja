@@ -4,9 +4,10 @@
 #    checked against a fixed SHA-256;
 #  - texlive.tar.gz: the TeX Live 2022 files (Debian bookworm) that LaTeX's format and a set of
 #    common CV packages need, found by compiling scripts/latex/common.tex and the test templates
-#    with -recorder (scripts/latex/collect.sh, in a container).
-# Needs podman and the network. After running it, bump VERSION in apps/web/public/latex/worker.js
-# so that browsers fetch the new files.
+#    with -recorder (scripts/latex/collect.sh, in a container), and FontAwesome 5;
+#  - version.txt: a hash of the three. The worker keeps what it downloads under that name, so new
+#    files replace the old ones by themselves. None of this is in the repository: the Pages deploy runs
+# this script, and the end-to-end tests of LaTeX need it run once. Needs podman and the network.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 out=apps/web/public/latex
@@ -25,4 +26,5 @@ podman run --rm -v foja_latex_assets:/out -v "$PWD/scripts/latex":/in:ro -v "$PW
 podman volume export foja_latex_assets | tar -xO texlive.tar.gz > "$out/texlive.tar.gz"
 podman volume export foja_latex_assets | tar -xO files.txt > "$out/texlive-files.txt"
 podman volume rm -f foja_latex_assets >/dev/null
+cat "$out/swiftlatexpdftex.js" "$out/swiftlatexpdftex.wasm" "$out/texlive.tar.gz" | sha256sum | cut -c1-16 > "$out/version.txt"
 ls -l "$out"

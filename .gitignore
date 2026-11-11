@@ -4,3 +4,9 @@ dist/
 .out/
 test-results/
 playwright-report/
+
+# Made by scripts/latex-assets.sh, which the Pages deploy runs: not in the repository.
+apps/web/public/latex/swiftlatexpdftex.*
+apps/web/public/latex/texlive.tar.gz
+apps/web/public/latex/texlive-files.txt
+apps/web/public/latex/version.txt

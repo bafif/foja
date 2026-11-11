@@ -7,6 +7,7 @@
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{xcolor}
+\usepackage{fontawesome5}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{accent}{HTML}{1F4E79}
@@ -18,7 +19,7 @@
 \newcommand{\cvheader}[4]{%
   \begin{center}
     {\Huge\bfseries #1}\\[4pt]
-    #2 \quad\textbar\quad \href{mailto:#3}{#3} \quad\textbar\quad \href{https://#4}{#4}
+    \faMapMarker*\ #2 \quad \faEnvelope\ \href{mailto:#3}{#3} \quad \faGlobe\ \href{https://#4}{#4}
   \end{center}}
 \newcommand{\cventry}[4]{%
   \textbf{#1} \hfill #3\\

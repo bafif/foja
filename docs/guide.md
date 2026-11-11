@@ -100,7 +100,7 @@ call before the first section (the header). Its look is the template itself: Foj
 `.tex` with the CV in place of the sample content, through the template's own macros, and
 compiles it with LaTeX (pdfTeX) in the browser. The first time, that downloads about 7 MB and
 takes a few seconds; after that a change shows in under a second, still slower than with Typst.
-Only pdfLaTeX and a set of common packages are there (no XeLaTeX or LuaLaTeX, no system fonts), so
+Only pdfLaTeX and a set of common packages (FontAwesome 5's icons among them) are there (no XeLaTeX or LuaLaTeX, no system fonts), so
 some templates import their data but not their look. The preview shows LaTeX's pages without
 click-to-edit or the red marks of what spills over; the PDF export is LaTeX's own PDF, and the
 LaTeX export is the template's `.tex`, filled, with its files. The command line has no LaTeX: it

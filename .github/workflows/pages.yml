@@ -23,6 +23,8 @@ jobs:
           cache: npm
       - run: npm ci --no-fund --no-audit
       - run: npm test
+      # The LaTeX engine and TeX Live files for imported LaTeX templates: made here, not versioned.
+      - run: scripts/latex-assets.sh
       - run: npm run build -w apps/web
         env:
           FOJA_BASE: /foja

@@ -5,11 +5,9 @@
 // first time and kept there too. While compiling, the engine reaches no network: every file it may
 // ask for was put in its memory file system first, and a file that is not there is not found.
 // There is no shell either: \write18 and the like have nothing to run in WebAssembly.
-// scripts/latex-assets.sh makes texlive.tar.gz and fetches the engine.
+// scripts/latex-assets.sh makes texlive.tar.gz, fetches the engine and writes version.txt.
 "use strict";
 
-const VERSION = "2022-1";
-const CACHE = "foja-latex-" + VERSION;
 const BASE = new URL("./", self.location.href).href;
 const FMT = BASE + "swiftlatexpdftex.fmt.gz";
 
@@ -85,11 +83,23 @@ function register(name) {
   if (ext === "tex") texlive200_cache["26/" + name.slice(0, -4)] = path;
 }
 
+/** The name of the files on the site now (a hash of them), or offline the newest ones kept. */
+async function version() {
+  try {
+    const response = await fetch(BASE + "version.txt", { cache: "no-cache" });
+    if (response.ok) return (await response.text()).trim();
+  } catch {}
+  const kept = (await caches.keys()).filter((key) => key.startsWith("foja-latex-"));
+  if (kept.length) return kept[kept.length - 1].slice("foja-latex-".length);
+  throw new Error("LaTeX has to be downloaded once, online");
+}
+
 let ready;
 function prepare() {
   ready ??= (async () => {
-    for (const key of await caches.keys()) if (key.startsWith("foja-latex-") && key !== CACHE) await caches.delete(key);
-    const cache = await caches.open(CACHE);
+    const name = "foja-latex-" + (await version());
+    for (const key of await caches.keys()) if (key.startsWith("foja-latex-") && key !== name) await caches.delete(key);
+    const cache = await caches.open(name);
     // In the cache, the engine's own requests find them offline (through the service worker).
     await cached(cache, BASE + "swiftlatexpdftex.wasm");
     await cached(cache, BASE + "swiftlatexpdftex.js");
