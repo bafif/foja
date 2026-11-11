@@ -1,4 +1,4 @@
 # The browser for the end-to-end tests: Alpine's Chromium, which Playwright attaches to over CDP, and DejaVu for the
 # interface's symbols (▾, ✓, the undo arrows), which Alpine's default fonts lack.
-FROM docker.io/library/node:24-alpine
+FROM docker.io/library/node:26-alpine
 RUN apk add --no-cache chromium font-dejavu

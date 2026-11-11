@@ -8,7 +8,7 @@ x-podman:
   in_pod: false
 services:
   web:
-    image: docker.io/library/node:24-alpine
+    image: docker.io/library/node:26-alpine
     user: "1000:1000"
     working_dir: /app
     environment:
