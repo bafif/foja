@@ -1,87 +1,92 @@
+<div align="center">
+
+<img src="apps/web/public/favicon.svg" alt="" width="72">
+
 # Foja
 
-*[English](README.md) · Español*
+**Tu CV en Typst, sin escribir código.**<br>
+[English](README.md) · [Abrir el editor](https://bafif.github.io/foja/) · [Instalar](#instalar) ·
+[Guía de uso](docs/guide.es.md)
 
-Un editor de CV sin código hecho sobre [Typst](https://typst.app): formularios en vez de código, una vista previa
-en vivo que es la salida real de Typst, y exportación a Typst, PDF, JPG, LaTeX, Markdown, JSON y Word.
-Todo corre en el navegador; tu CV nunca sale de tu máquina.
+</div>
 
-- **Perfiles a partir de un solo banco de entradas**: un CV por tipo de trabajo, con las entradas escritas una sola
-  vez.
-- **Nueve estilos propios** (Legajo, Banda, Minimal; Claustro, Recto y Llano, hechos para los sistemas de
-  selección; Arco, Rótulo y Portada, para un CV corto) con opciones de diseño, y **estilos que escribís vos en Typst**
-  («Editar en Typst» copia cualquier estilo en uno tuyo).
-- **Plantillas de Typst y de LaTeX importadas** con reglas fijas, sin IA: su contenido de ejemplo como perfil y
-  su aspecto como estilo propio, después de un formulario donde revisás qué argumento es cada campo (una plantilla
-  LaTeX la compila LaTeX en el navegador).
-- **Qué entra en cada perfil**: prioridades marcadas una vez en el banco, un largo por perfil (corto, normal,
-  completo), excepciones, y un botón que ajusta el CV a una página.
-- **Disciplina de una página**: la vista previa te dice si el CV entra y qué se pasa; hacé clic en una parte de la
-  vista previa para editarla.
-- **Exportación**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON y [JSON Resume](https://jsonresume.org), que también
-  se importa.
-- **Privado y sin conexión**: sin cuentas, sin servidor; se instala como app en computadoras y en Android y iPhone;
-  en español y en inglés.
+Completás formularios y al lado ves la salida real de [Typst](https://typst.app), que se actualiza mientras escribís.
+Un mismo banco de entradas alimenta varios perfiles: el CV para un puesto de programación y el de docencia salen de
+los mismos datos. Todo corre en tu navegador, sin cuentas y sin servidor.
 
-Guía de uso: [`docs/guide.es.md`](docs/guide.es.md). Cómo escribir un estilo: [`docs/templates.es.md`](docs/templates.es.md).
-Temas de la interfaz: [`docs/themes.es.md`](docs/themes.es.md). Modelo de seguridad: [`docs/security.es.md`](docs/security.es.md).
-Línea de comandos: [`packages/cli/README.es.md`](packages/cli/README.es.md).
+<p align="center"><img src="apps/web/public/screenshot.jpg" width="720" alt="El editor de Foja: a la izquierda los
+paneles, en el medio el formulario de una entrada y a la derecha la vista previa del CV, con esa entrada remarcada y
+el indicador que dice que el CV entra en una página."></p>
 
-Foja empezó como cvgen, el generador que escribí para mi propio CV: archivos JSON convertidos en PDF por un
-generador en Python a través de LaTeX y por otro en C. Sigue viviendo acá, en
-[`cvgen/`](cvgen/README.es.md), con los datos de mi CV, y en su historia empieza la de este repositorio.
+## Por qué Foja
 
-Estado: el editor, los exportadores y la CLI funcionan, y el editor está en línea en
-<https://bafif.github.io/foja/>, también en celulares. Qué está hecho, qué viene después y por qué:
-[`docs/ROADMAP.es.md`](docs/ROADMAP.es.md).
+- **Un banco, un CV por tipo de trabajo.** Cada entrada se escribe una vez y se marca como imprescindible, normal o
+  extra; cada perfil elige sus secciones del banco, y su largo (corto, normal, completo) decide qué entra.
+- **Una página, sin adivinar.** La vista previa dice si el CV entra y tiñe lo que se pasa. «Ajustar a una página»
+  achica el perfil de a un paso, en un orden fijo, y un solo deshacer lo vuelve atrás.
+- **Nueve estilos, y los tuyos en Typst.** Legajo, Banda y Minimal; Claustro, Recto y Llano para los sistemas de
+  selección, una columna de texto en el orden en que se lee, que un test comprueba en el PDF; Arco, Rótulo y Portada
+  para un CV corto. «Editar en Typst» copia cualquiera en un estilo tuyo.
+- **Traé la plantilla que te guste.** Una plantilla de CV en Typst o en LaTeX se lee con reglas fijas, sin IA: su
+  contenido de ejemplo pasa a ser un perfil y su aspecto un estilo, después de un formulario donde revisás qué
+  argumento es cada campo.
+- **Exportá a lo que te pidan.** PDF, JPG, Word, Typst, LaTeX, Markdown, JSON y JSON Resume, cada uno con exactamente
+  lo que muestra el PDF. JSON Resume también se importa.
+- **Tu CV queda con vos.** Typst compila en tu navegador, el proyecto vive ahí y en los archivos que exportás, y el
+  sitio no se conecta a nada más que a sí mismo. Funciona sin conexión, se instala como app y está en español y en
+  inglés.
 
-## Estructura
+## Instalar
 
-```
-packages/core      formato de proyecto (JSON Schema + tipos), validación, utilidades compartidas
-packages/template  los nueve estilos de Typst incluidos, su biblioteca, etiquetas y fuentes
-packages/cli       `foja` sobre Node: genera PDF/SVG/paquetes de Typst a partir de un proyecto
-apps/web           el sitio y el editor en Astro
-apps/desktop       la app de escritorio: el mismo editor en una ventana de Tauri, para Linux, Windows y macOS
-examples/          los ejemplos del editor (español, inglés): mi CV con sus tres perfiles y tres personas
-                   inventadas con poca experiencia; fixtures de prueba: un CV ficticio y mi CV completo
-                   (teléfono falso)
-cvgen/             la primera versión: los datos de mi CV y los generadores en Python (LaTeX) y C
-```
+No hace falta instalar nada: abrí [bafif.github.io/foja](https://bafif.github.io/foja/). Para tenerlo como app, con
+su ícono y sin conexión:
 
+- **En la computadora**, instalalo con el botón de instalar de Chrome o de Edge.
+- **En Android**, en Chrome: «⋯ → Instalar como app» en el menú de Foja.
+- **En iPhone y iPad**, en Safari o Chrome: «Compartir → Agregar a inicio». Si tu CV vive en un iPhone, instalalo:
+  iOS borra lo que guardó un sitio cuando pasa una semana sin abrirse, salvo que esté en la pantalla de inicio.
 
-## Desarrollo
+También hay una app de escritorio y una línea de comandos, todavía sin publicar (ver [Estado](#estado)): las
+describen la [guía de uso](docs/guide.es.md#la-app-de-escritorio) y el
+[README de la línea de comandos](packages/cli/README.es.md).
 
-Las dependencias de Node viven solo dentro de contenedores de Podman sin root, y el repositorio se monta ahí en solo
-lectura: nada de lo que corre en un contenedor puede cambiar las fuentes ni `.git`. Las dependencias y la salida
-viven en volúmenes; la caché de Astro es un tmpfs, nuevo en cada contenedor (Astro 7 detiene el pid que encuentra en
-`.astro/dev.json`, que en un contenedor nuevo puede ser el propio servidor nuevo).
+## Cómo se usa
 
-```sh
-mkdir -p node_modules apps/web/node_modules apps/web/.astro apps/web/dist .out   # una sola vez: sus puntos de montaje
-podman compose up                                   # servidor de desarrollo de Astro con recarga en caliente detrás de nginx
-podman compose run --rm web npm test                # tests
-podman compose run --rm web npm run foja -- build examples/curriculum.project.json --out .out
-podman volume export foja_out | tar -x -C .out      # copia a .out/ lo que escribió la CLI
-```
+1. **Abrí el editor** y empezá con el ejemplo (un CV real con tres perfiles), con una de las personas inventadas, con
+   un proyecto vacío o con un archivo de Foja o de JSON Resume.
+2. **Cargá tus entradas** en «Datos»: datos personales, contactos, habilidades y el banco de trabajos, estudios y
+   proyectos.
+3. **Armá un perfil por tipo de trabajo**: su texto, sus secciones, su estilo y su largo, hasta que el indicador diga
+   que entra en una página.
+4. **Exportá** (Ctrl+E) al formato que te pidan, y cada tanto exportá el proyecto como JSON para tener una copia fuera
+   del navegador.
 
-`scripts/e2e-pwa.sh` genera el sitio como lo sirve GitHub Pages (bajo `/foja/`) y lo verifica, uso sin conexión
-incluido. `scripts/latex-assets.sh` arma el motor de LaTeX y los archivos de TeX Live que usan las plantillas LaTeX
-importadas (`apps/web/public/latex/`, sin versionar): lo corre el deploy a Pages, y los tests de LaTeX necesitan que se
-haya corrido una vez. `scripts/e2e.sh` corre los tests de punta a punta contra el stack de desarrollo en marcha, con Playwright y
-un Chromium headless en un contenedor que comparte la red del stack; desde ahí no se llega a nada del host.
-`scripts/screenshot.sh` usa el mismo contenedor para volver a sacar, a partir del ejemplo, la captura del editor que
-aparece en la página de inicio (`apps/web/public/screenshot.jpg`); hay que volver a sacarla cada vez que cambian el
-ejemplo o el aspecto del editor. Después, `scripts/og-image.sh` vuelve a generar las imágenes de vista previa que
-muestran X, WhatsApp y otras apps al compartir el link (`apps/web/public/og.jpg` y `og.en.jpg`, a partir de
-`scripts/og-image.html`), con Chrome e ImageMagick del host.
+Todo el editor, paso a paso, está en la [guía de uso](docs/guide.es.md).
 
-La app de escritorio (`apps/desktop`) es una ventana de Tauri 2 alrededor del sitio generado con `FOJA_DESKTOP=1`,
-que deja afuera el service worker. `scripts/desktop.sh` la compila para Linux en un contenedor (un `.deb`, un `.rpm`
-y un AppImage, en `.out/desktop/`). Los instaladores de todos los sistemas salen del workflow *Desktop installers*,
-que se corre a mano desde Actions: los arma en los runners de Linux, Windows y macOS de GitHub y los deja en un
-borrador de release de la versión de `apps/desktop/package.json` (que `src-tauri/Cargo.toml` repite). Al publicar esa
-release se crea su tag.
+## Estado
+
+- **Editor web:** en línea, en computadoras y celulares. En el celular se prueba con un teléfono emulado en Chromium;
+  falta la prueba completa en un Android y un iPhone de verdad.
+- **Exportaciones:** Word se comprueba abriéndolo en LibreOffice, todavía no en Microsoft Word. Word y LaTeX
+  acomodan el texto un poco distinto que Typst, así que un CV que entra justo en el PDF puede pasarse unas líneas.
+- **App de escritorio:** los paquetes de Linux se arman y están probados; los instaladores de Windows y macOS se arman,
+  pero todavía no se probaron. Todavía no se publicó ninguna versión.
+- **Línea de comandos:** funciona desde una copia del repositorio; todavía no está en npm.
+
+## Más documentación
+
+- [Guía de uso](docs/guide.es.md): perfiles, estilos, plantillas importadas, exportaciones, celulares y la app de
+  escritorio.
+- [Cómo escribir un estilo](docs/templates.es.md): qué recibe un estilo de Typst y qué funciones auxiliares tiene.
+- [Temas de la interfaz](docs/themes.es.md): un tema propio, como archivo JSON o desde un script.
+- [Modelo de seguridad](docs/security.es.md): qué puede hacer un proyecto, un estilo, una plantilla o un tema de otra
+  persona.
+- [Línea de comandos](packages/cli/README.es.md): `foja build`, `validate` e `import`.
+- [Desarrollo](docs/development.es.md): la estructura del repositorio, los contenedores, los tests, el deploy y las
+  versiones de escritorio.
+- [Hoja de ruta](docs/ROADMAP.es.md): principios, decisiones y su porqué, y qué viene después.
+- [cvgen](cvgen/README.es.md): donde empezó Foja, el CV de su autor como datos y sus generadores en Python (a través
+  de LaTeX) y en C.
 
 ## Licencia
 
