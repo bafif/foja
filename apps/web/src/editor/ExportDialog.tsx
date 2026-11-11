@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ExportFormat, ExportedFile } from "@foja/core/export";
 import { svgToJpegs } from "../lib/jpg";
 import { canShareFiles, shareable } from "./device";
+import { desktop } from "./desktop";
 import { download } from "./download";
 import { t } from "./i18n";
 import { styleOf } from "@foja/core";
@@ -101,7 +102,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
         setReady({ built, file });
         return;
       }
-      download(built.name, built.data, built.mime);
+      await download(built.name, built.data, built.mime);
       if (!note) onClose();
     } catch (e) {
       setError(`${t.exportFailed} ${(e as Error).message}`);
@@ -166,7 +167,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 className="rounded border border-line px-3 py-1 text-sm"
-                onClick={() => (download(ready.built.name, ready.built.data, ready.built.mime), onClose())}
+                onClick={() => (void download(ready.built.name, ready.built.data, ready.built.mime), onClose())}
               >
                 {t.downloadButton}
               </button>
@@ -176,7 +177,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
             </>
           ) : (
             <button type="submit" disabled={busy} className="rounded bg-accent px-3 py-1 text-sm text-on-accent disabled:opacity-50">
-              {busy ? t.exporting : sharing ? t.prepareButton : t.downloadButton}
+              {busy ? t.exporting : sharing ? t.prepareButton : desktop() ? t.saveAsButton : t.downloadButton}
             </button>
           )}
         </div>

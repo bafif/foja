@@ -41,6 +41,7 @@ packages/core      project format (JSON Schema + types), validation, shared help
 packages/template  the six built-in Typst styles, their library, labels and fonts
 packages/cli       `foja` on Node: build PDF/SVG/Typst bundles from a project
 apps/web           the Astro site and editor
+apps/desktop       the desktop app: the same editor in a Tauri window, for Linux, Windows and macOS
 examples/          the editor's example, my CV with its three profiles (Spanish, English); test fixtures: a
                    fictional CV and my full CV (fake phone)
 cvgen/             the first version: my CV data and the Python (LaTeX) and C generators
@@ -71,6 +72,13 @@ headless Chromium in a container that shares the stack's network; nothing on the
 (`apps/web/public/screenshot.jpg`) from the example; it needs retaking whenever the example or the editor's look
 changes. After that, `scripts/og-image.sh` renders again the link preview images that X, WhatsApp and others show
 (`apps/web/public/og.jpg` and `og.en.jpg`, from `scripts/og-image.html`), with Chrome and ImageMagick on the host.
+
+The desktop app (`apps/desktop`) is a Tauri 2 window around the site built with `FOJA_DESKTOP=1`, which leaves out
+the service worker. `scripts/desktop.sh` builds it for Linux in a container (a `.deb`, an `.rpm` and an AppImage, in
+`.out/desktop/`). The installers for every system come from the *Desktop installers* workflow, run by hand from
+Actions: it builds them on GitHub's Linux, Windows and macOS runners and leaves them on a draft release of the
+version in `apps/desktop/package.json` (which `src-tauri/Cargo.toml` repeats). Publishing that release creates its
+tag.
 
 ## Licence
 

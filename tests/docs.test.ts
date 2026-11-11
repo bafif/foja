@@ -9,7 +9,7 @@ import { expect, test } from "vitest";
 const root = join(import.meta.dirname, "..");
 // Not documentation of the project: hidden folders (.git, .github, caches, local checkouts), build output,
 // dependencies, and the CV's own texts (data, in Spanish).
-const SKIP_DIRS = new Set(["node_modules", "dist", "test-results", "playwright-report"]);
+const SKIP_DIRS = new Set(["node_modules", "dist", "target", "test-results", "playwright-report"]);
 const SKIP_PATHS = ["cvgen/data/textos/"];
 const SKIP_FILES = /^(CLAUDE|LICENSE.*|CHANGELOG.*|README\.upstream)\.md$/;
 

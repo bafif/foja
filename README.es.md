@@ -42,6 +42,7 @@ packages/core      formato de proyecto (JSON Schema + tipos), validación, utili
 packages/template  los seis estilos de Typst incluidos, su biblioteca, etiquetas y fuentes
 packages/cli       `foja` sobre Node: genera PDF/SVG/paquetes de Typst a partir de un proyecto
 apps/web           el sitio y el editor en Astro
+apps/desktop       la app de escritorio: el mismo editor en una ventana de Tauri, para Linux, Windows y macOS
 examples/          el ejemplo del editor, mi CV con sus tres perfiles (español, inglés); fixtures de prueba: un
                    CV ficticio y mi CV completo (teléfono falso)
 cvgen/             la primera versión: los datos de mi CV y los generadores en Python (LaTeX) y C
@@ -73,6 +74,13 @@ aparece en la página de inicio (`apps/web/public/screenshot.jpg`); hay que volv
 ejemplo o el aspecto del editor. Después, `scripts/og-image.sh` vuelve a generar las imágenes de vista previa que
 muestran X, WhatsApp y otras apps al compartir el link (`apps/web/public/og.jpg` y `og.en.jpg`, a partir de
 `scripts/og-image.html`), con Chrome e ImageMagick del host.
+
+La app de escritorio (`apps/desktop`) es una ventana de Tauri 2 alrededor del sitio generado con `FOJA_DESKTOP=1`,
+que deja afuera el service worker. `scripts/desktop.sh` la compila para Linux en un contenedor (un `.deb`, un `.rpm`
+y un AppImage, en `.out/desktop/`). Los instaladores de todos los sistemas salen del workflow *Desktop installers*,
+que se corre a mano desde Actions: los arma en los runners de Linux, Windows y macOS de GitHub y los deja en un
+borrador de release de la versión de `apps/desktop/package.json` (que `src-tauri/Cargo.toml` repite). Al publicar esa
+release se crea su tag.
 
 ## Licencia
 

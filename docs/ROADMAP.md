@@ -227,6 +227,12 @@ The work so far, in the order it happened:
   in a column, where Typst has them on the right; that skill groups side by side cut words in two; and that the
   line spacing was not Typst's. All of that is fixed, justified text now breaks words in the CV's language, and
   the tests hold each one in place.
+- **Desktop installers** (November 11, 2026). The desktop app is a Tauri 2 window around the same site, built
+  without the service worker and with the LaTeX files inside, so it works offline from the start. A webview has no
+  downloads and no tabs, so exports go through the system's save dialog and links open in the browser; everything
+  else is the web editor as it is. A workflow run by hand builds a `.deb`, an `.rpm` and an AppImage for Linux, a
+  setup `.exe` for Windows and a `.dmg` for both kinds of Mac, on GitHub's runners, and leaves them on a draft
+  release. None is signed, and the release notes and the user guide say how to open them.
 
 ## What comes next
 
@@ -240,9 +246,9 @@ In this order:
    `npm publish -w packages/cli`.
 3. **Microsoft Store**: open a free individual Partner Center account, then package the
    published PWA as MSIX with PWABuilder.
-4. **Desktop app and Flathub**: the Tauri 2 shell with native file access, a Flatpak built from
-   source, and the Flathub submission. Also AUR and unsigned builds for macOS and Windows on
-   GitHub Releases, and SignPath Foundation for Windows once the project qualifies.
+4. **Desktop app and Flathub**: the installers are done (see *What is built*); what is left is native file access
+   (projects opened and saved as files, with a file type of their own), updating itself, a Flatpak built from
+   source, and the Flathub submission. Also AUR, and SignPath Foundation for Windows once the project qualifies.
 5. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases
    and, if it qualifies, on F-Droid. On iPhone the PWA remains the app (see the distribution
    channels above).
@@ -291,8 +297,9 @@ JSON Schema library: both are small enough to keep in `packages/core`. The bundl
 XCharter, Latin Modern Mono and Noto Sans, each with its licence next to it. Imported LaTeX
 templates use SwiftLaTeX's pdfTeX and XeTeX engines and TeX Live 2022 files, which the deployment
 builds and the repository does not hold ([details and licences](../apps/web/public/latex/README.md)).
-The desktop app will
-add the Rust toolchain, Tauri 2 and `flatpak-builder`.
+The desktop app adds
+Rust, Tauri 2 and its dialog and opener plugins, built only in its container and on the release runners; the Flatpak
+will add `flatpak-builder`.
 
 ## Sources
 

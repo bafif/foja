@@ -78,7 +78,7 @@ export function ThemeMenu() {
               onClick={() => {
                 const { id, name, ...rest } = current;
                 const starter = { id: `${id}-mio`, name: `${name} (mío)`, ...rest };
-                download(`${starter.id}.foja-theme.json`, JSON.stringify(starter, null, 2) + "\n", "application/json");
+                void download(`${starter.id}.foja-theme.json`, JSON.stringify(starter, null, 2) + "\n", "application/json");
               }}
             >
               {t.themes.exportCurrent}

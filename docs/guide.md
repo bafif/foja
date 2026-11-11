@@ -182,6 +182,24 @@ and the command palette.
   Files, mail and messaging apps. What the system cannot share (on Android, Word files and
   `.zip`s) downloads as usual.
 
+## The desktop app
+
+Foja also comes as an app for Linux, Windows and macOS, on the
+[releases page](https://github.com/bafif/foja/releases). It is the same editor in a window of its own: it works
+offline from the start, exports open the system's **Save as** dialog, and links open in your browser.
+
+- **Linux:** the `.deb` for Debian, Ubuntu and their derivatives (`sudo apt install ./Foja_*.deb`), the `.rpm` for
+  Fedora and openSUSE (`sudo dnf install ./Foja-*.rpm`), or the AppImage, which runs without installing: make it
+  executable (`chmod +x Foja_*.AppImage`) and open it.
+- **Windows:** `Foja_…_x64-setup.exe` installs it for your user, without asking for an administrator. The installer
+  is not signed, so Windows says it does not know it: **More info → Run anyway**.
+- **macOS:** open the `.dmg` and drag Foja to Applications; it runs on Apple silicon and Intel Macs with macOS 11 or
+  later. Apple has not notarised it (that costs money), so the first time macOS will not open it: go to **System
+  Settings → Privacy & Security** and click **Open Anyway** next to the message about Foja.
+
+The app keeps its projects apart from the browser's: to take a project from one to the other, export it as JSON and
+import it. It does not update itself yet: install the new version over the old one, and your projects stay.
+
 ## Privacy and storage
 
 - Nothing is sent anywhere: the project lives in this browser (IndexedDB) and in the files you

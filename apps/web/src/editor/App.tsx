@@ -29,8 +29,10 @@ import { LanguageSelect } from "./LanguageSelect";
 import { ThemeMenu } from "./ThemeMenu";
 import { startThemes } from "./themes";
 import { install, installed, ios, keepStorage, useInstall } from "./device";
+import { openLinksOutside } from "./desktop";
 
 startThemes();
+openLinksOutside();
 
 async function saveNow() {
   const { project, profileId, setSaveState } = useEditor.getState();

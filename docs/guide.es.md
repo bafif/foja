@@ -102,6 +102,16 @@ Foja también funciona en el navegador del celular, de a un panel por vez: **Sec
 - **En el iPhone, instalala si tu CV vive ahí.** iOS borra lo que un sitio guardó cuando pasa una semana sin abrirse, salvo que esté en la pantalla de inicio. La app de la pantalla de inicio tiene su propio almacenamiento, separado del del navegador: para llevarte un proyecto que empezaste en el navegador, exportalo como JSON e importalo en la app. Exportar el JSON cada tanto te deja una copia en cualquier caso.
 - **Las exportaciones van a la hoja de compartir:** **Exportar → Preparar el archivo → Compartir o guardar…** ofrece Guardar en Archivos y apps de correo y mensajería. Lo que el sistema no puede compartir (en Android, los archivos de Word y los `.zip`) se descarga como siempre.
 
+## La app de escritorio
+
+Foja también viene como app para Linux, Windows y macOS, en la [página de releases](https://github.com/bafif/foja/releases). Es el mismo editor en una ventana propia: funciona sin conexión desde el principio, las exportaciones abren el diálogo **Guardar como** del sistema y los links se abren en tu navegador.
+
+- **Linux:** el `.deb` para Debian, Ubuntu y sus derivadas (`sudo apt install ./Foja_*.deb`), el `.rpm` para Fedora y openSUSE (`sudo dnf install ./Foja-*.rpm`), o el AppImage, que anda sin instalar: hacelo ejecutable (`chmod +x Foja_*.AppImage`) y abrilo.
+- **Windows:** `Foja_…_x64-setup.exe` la instala para tu usuario, sin pedir administrador. El instalador no está firmado, así que Windows dice que no lo conoce: **Más información → Ejecutar de todas formas**.
+- **macOS:** abrí el `.dmg` y arrastrá Foja a Aplicaciones; anda en Macs con Apple silicon o Intel y macOS 11 o posterior. Apple no la certificó (eso cuesta plata), así que la primera vez macOS no la abre: andá a **Ajustes del Sistema → Privacidad y seguridad** y tocá **Abrir igualmente** al lado del aviso sobre Foja.
+
+La app guarda sus proyectos aparte de los del navegador: para pasar un proyecto de uno al otro, exportalo como JSON e importalo. Todavía no se actualiza sola: instalá la versión nueva encima de la vieja, y tus proyectos quedan.
+
 ## Privacidad y almacenamiento
 
 - No se manda nada a ningún lado: el proyecto vive en este navegador (IndexedDB) y en los archivos que exportás. No hay cuentas.

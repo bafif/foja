@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The editor's window: Tauri's core only. Saving an export and opening a link are the app's own commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

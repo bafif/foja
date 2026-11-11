@@ -214,6 +214,13 @@ El trabajo hasta ahora, en el orden en que se dio:
   Banda y Minimal ponían las fechas en una columna, cuando en Typst van a la derecha; que los grupos de habilidades
   lado a lado cortaban palabras; y que el interlineado no era el de Typst. Todo eso se arregló, el texto
   justificado ahora corta palabras en el idioma del CV, y los tests fijan cada cosa.
+- **Instaladores de escritorio** (11 de noviembre de 2026). La app de escritorio es una ventana de Tauri 2 alrededor
+  del mismo sitio, generado sin el service worker y con los archivos de LaTeX adentro, así que funciona sin conexión
+  desde el principio. Un webview no tiene descargas ni pestañas, así que las exportaciones pasan por el diálogo de
+  guardar del sistema y los links se abren en el navegador; todo lo demás es el editor web tal cual. Un workflow que
+  se corre a mano arma un `.deb`, un `.rpm` y un AppImage para Linux, un `.exe` de instalación para Windows y un
+  `.dmg` para los dos tipos de Mac, en los runners de GitHub, y los deja en un borrador de release. Ninguno está
+  firmado, y las notas de la release y la guía de uso dicen cómo abrirlos.
 
 ## Qué viene después
 
@@ -227,9 +234,10 @@ En este orden:
    `npm publish -w packages/cli`.
 3. **Microsoft Store**: abrir una cuenta individual gratuita de Partner Center y después empaquetar la
    PWA publicada como MSIX con PWABuilder.
-4. **App de escritorio y Flathub**: el shell de Tauri 2 con acceso nativo a archivos, un Flatpak compilado desde
-   el código fuente y la postulación a Flathub. También AUR y versiones sin firmar para macOS y Windows en
-   GitHub Releases, y SignPath Foundation para Windows una vez que el proyecto califique.
+4. **App de escritorio y Flathub**: los instaladores ya están (ver *Qué está hecho*); falta el acceso nativo a
+   archivos (abrir y guardar proyectos como archivos, con su propio tipo de archivo), que se actualice sola, un
+   Flatpak compilado desde el código fuente y la postulación a Flathub. También AUR, y SignPath Foundation para
+   Windows una vez que el proyecto califique.
 5. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases
    y, si califica, en F-Droid. En iPhone la app sigue siendo la PWA (ver los canales de
    distribución más arriba).
@@ -275,8 +283,9 @@ compilador de Node para la CLI), `docx`, y Vitest y Playwright para los tests. N
 JSON Schema: las dos cosas son lo bastante chicas como para tenerlas en `packages/core`. Las fuentes incluidas son
 XCharter, Latin Modern Mono y Noto Sans, cada una con su licencia al lado. Las plantillas LaTeX importadas usan
 los motores pdfTeX y XeTeX de SwiftLaTeX y archivos de TeX Live 2022, que arma el deploy y no están en el repositorio
-([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio va a
-sumar el toolchain de Rust, Tauri 2 y `flatpak-builder`.
+([detalle y licencias](../apps/web/public/latex/README.es.md)). La app de escritorio suma
+Rust, Tauri 2 y sus plugins de diálogo y de apertura, que se compilan solo en su contenedor y en los runners de la
+release; el Flatpak va a sumar `flatpak-builder`.
 
 ## Fuentes
 

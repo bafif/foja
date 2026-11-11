@@ -1,0 +1,5 @@
+# Cargo's output, the icons that `npm run icons` makes from apps/web/public/favicon.svg, and the schemas tauri-build
+# writes on every build.
+/target/
+/icons/
+/gen/

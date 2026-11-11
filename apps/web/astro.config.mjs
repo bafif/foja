@@ -10,13 +10,17 @@ const typstPackages = [
   "@myriaddreamin/typst-ts-renderer",
 ];
 
+// The build that the desktop app (apps/desktop) wraps: no service worker, since the app already has every file and
+// updates with its installer, and a CSP that lets the page talk to the app.
+const desktop = process.env.FOJA_DESKTOP === "1";
+
 export default defineConfig({
-  // GitHub Pages serves the site under /foja/; the dev server and a custom domain use /.
+  // GitHub Pages serves the site under /foja/; the dev server, the desktop app and a custom domain use /.
   base: process.env.FOJA_BASE ?? "/",
   // For the absolute links between the Spanish and English landing pages.
   site: "https://bafif.github.io",
   // csp first: the service worker caches the pages as they end up.
-  integrations: [react(), csp(), serviceWorker()],
+  integrations: [react(), csp({ desktop }), ...(desktop ? [] : [serviceWorker()])],
   devToolbar: { enabled: false },
   vite: {
     // A production build next to a running dev server uses its own cache, or it would leave the

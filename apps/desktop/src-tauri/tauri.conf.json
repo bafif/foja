@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Foja",
+  "version": "../package.json",
+  "identifier": "io.github.bafif.Foja",
+  "build": {
+    "frontendDist": "../../web/dist",
+    "devUrl": "http://127.0.0.1:8090/editor/",
+    "beforeBuildCommand": "npm run icons",
+    "beforeDevCommand": "npm run icons"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Foja",
+        "url": "editor/",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 360,
+        "minHeight": 480,
+        "zoomHotkeysEnabled": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "category": "Productivity",
+    "shortDescription": "No-code CV editor built on Typst",
+    "longDescription": "Foja is a CV editor built on Typst: forms instead of code, a live preview that is the real Typst output, and exports to PDF, JPG, Word, Typst, LaTeX, Markdown, JSON and JSON Resume. Everything runs on your computer and your CV never leaves it.",
+    "publisher": "Bautista D. Fiori",
+    "copyright": "© 2026 Bautista D. Fiori",
+    "license": "GPL-3.0-only",
+    "licenseFile": "../../../LICENSE",
+    "homepage": "https://bafif.github.io/foja/",
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "11.0"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English", "Spanish"]
+      }
+    }
+  }
+}

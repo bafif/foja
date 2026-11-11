@@ -110,7 +110,7 @@ const ogImage = new URL(`${base}${preview.image}`, site).href;
     {
       import.meta.env.PROD && (
         <script is:inline define:vars={{ base }}>
-          if ("serviceWorker" in navigator) navigator.serviceWorker.register(base + "sw.js", {scope: base});
+          if ("serviceWorker" in navigator && !window.__TAURI__) navigator.serviceWorker.register(base + "sw.js", {scope: base});
         </script>
       )
     }

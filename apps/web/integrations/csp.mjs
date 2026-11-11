@@ -15,15 +15,16 @@ function htmlFiles(dir) {
   });
 }
 
-export function policy(scriptHashes) {
+export function policy(scriptHashes, { desktop = false } = {}) {
   return [
     "default-src 'self'",
     `script-src 'self' 'wasm-unsafe-eval' ${scriptHashes.map((h) => `'${h}'`).join(" ")}`.trim(),
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    // data: too: Vite inlines small files (the font licences) as data: URLs, fetched for exports.
-    "connect-src 'self' data:",
+    // data: too: Vite inlines small files (the font licences) as data: URLs, fetched for exports. In the desktop app,
+    // also the address of Tauri's calls to the app (ipc: on Linux and macOS, http://ipc.localhost on Windows).
+    `connect-src 'self' data:${desktop ? " ipc: http://ipc.localhost" : ""}`,
     "worker-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",
@@ -32,7 +33,7 @@ export function policy(scriptHashes) {
   ].join("; ");
 }
 
-export default function csp() {
+export default function csp({ desktop = false } = {}) {
   return {
     name: "foja-csp",
     hooks: {
@@ -44,7 +45,7 @@ export default function csp() {
             .map((m) => m[1])
             .filter((body) => body.trim())
             .map((body) => `sha256-${createHash("sha256").update(body).digest("base64")}`);
-          const meta = `<meta http-equiv="Content-Security-Policy" content="${policy([...new Set(hashes)])}">`;
+          const meta = `<meta http-equiv="Content-Security-Policy" content="${policy([...new Set(hashes)], { desktop })}">`;
           html = html.replace(/<head>/, `<head>${meta}`);
           writeFileSync(file, html);
         }

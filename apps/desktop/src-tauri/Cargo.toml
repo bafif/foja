@@ -1,0 +1,27 @@
+[package]
+name = "foja-desktop"
+# The same as apps/desktop/package.json, which the installers take theirs from (a test checks it).
+version = "0.1.0"
+description = "Foja, the no-code CV editor built on Typst, as a desktop app"
+authors = ["Bautista D. Fiori"]
+license = "GPL-3.0-only"
+repository = "https://github.com/bafif/foja"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = [] }
+tauri-plugin-dialog = "2.8"
+tauri-plugin-opener = "2.7"
+percent-encoding = "2.3"
+
+# Small installers: the app is a window around a webview, with nothing in Rust that needs speed.
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
