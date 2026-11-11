@@ -121,6 +121,12 @@ export interface CustomTemplate {
   name: string;
   /** Typst source; it starts with `#import "/lib.typ": *`. */
   source: string;
+  /** The files of an imported template, by relative path: the compiler sees them under
+   * `/custom/<id>/`. Text files here, pictures in `binaries` (base64). */
+  files?: Record<string, string>;
+  binaries?: Record<string, string>;
+  /** The path, among `files`, of the imported template's licence. */
+  license?: string;
 }
 
 export interface Project {

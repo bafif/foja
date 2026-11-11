@@ -131,6 +131,9 @@ export function LayoutForm() {
           <Button variant="ghost" onClick={fromScratch}>
             {t.styles.newFromScratch}
           </Button>
+          <Button variant="ghost" onClick={() => select({ kind: "import" })}>
+            {t.importer.open}
+          </Button>
           <span className="text-xs text-muted">{t.styles.editInTypstHint}</span>
         </div>
       </section>

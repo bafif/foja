@@ -26,6 +26,16 @@ y solo lee archivos dentro de la raíz de su proyecto.
   (probado y compilado).
 - Un estilo que tarda demasiado (un bucle infinito) se corta a los 20 segundos y el editor lo avisa.
 
+## Plantillas importadas
+
+Una plantilla de Typst que escribió otra persona es un dato hasta que Typst la compila:
+
+- Foja la lee con reglas fijas (`packages/core/src/importer/`): recorre el código, nunca lo ejecuta, y no llama a ningún modelo ni servicio.
+- Un `.zip` o un `.tar.gz` se descomprime con el descompresor propio de la plataforma, con topes: como mucho 400 archivos y 20 MB descomprimidos, contados mientras se descomprime, así que un archivo chico que se inflaría a gigas se corta enseguida. Se rechazan las rutas absolutas, las que tienen `..`, las barras invertidas y los enlaces.
+- Sus archivos van al proyecto, con el estilo, y el compilador los ve bajo `/custom/<id>/`, en el mismo encierro que cualquier estilo: no se puede leer nada fuera del proyecto (probado).
+- Los paquetes `@preview` no se bajan nunca: se usan los que vinieron en el archivo, y el editor nombra los que faltan. Las fuentes que traiga se dejan afuera.
+- La licencia de la plantilla, si la tiene, queda guardada con el estilo.
+
 ## La app web
 
 Las páginas de producción llevan una Content Security Policy: scripts solo del propio sitio (y

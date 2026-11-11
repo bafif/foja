@@ -1,0 +1,5 @@
+[package]
+name = "tiny-cv"
+version = "0.1.0"
+entrypoint = "lib.typ"
+license = "MIT-0"

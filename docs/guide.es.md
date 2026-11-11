@@ -45,6 +45,17 @@ Debajo de los estilos, las opciones que respeta el estilo elegido: una o dos col
 
 **Editar en Typst** copia el estilo del perfil en un estilo propio y abre su código; **Nuevo estilo desde cero** arranca de un esqueleto mínimo. Los errores aparecen arriba de la vista previa, que conserva la última versión que compiló bien. Cómo escribir un estilo: [`templates.es.md`](templates.es.md).
 
+## Importar una plantilla de Typst
+
+**Estilo y diseño → Importar una plantilla Typst** toma una plantilla de CV escrita en Typst: un `.typ`, o un `.zip` o `.tar.gz` con sus archivos. Foja la lee con reglas fijas, sin IA: las funciones que define, las que su contenido de ejemplo llama una y otra vez (cada llamada es una entrada), sus títulos (las secciones), las viñetas debajo de cada llamada (los ítems) y su `#show: x.with(...)` (el encabezado). Después propone qué argumento de cada macro es el cargo, el lugar, las fechas, una nota o los ítems, por el nombre del argumento (`title`, `company`, `dates`, `institución`…) y por cómo es su valor (una fecha, un correo, una URL).
+
+El formulario muestra cada argumento con su valor de ejemplo y el campo al que va, que podés cambiar; debajo, lo que va a entrar. La misma correspondencia se usa dos veces:
+
+- **los datos**: el contenido de ejemplo pasa a ser entradas del banco y un perfil nuevo, en el proyecto abierto o en uno nuevo;
+- **el aspecto**: un estilo propio que guarda los archivos de la plantilla y llama a sus macros con los datos del CV; el perfil nuevo lo usa.
+
+Los paquetes `@preview` no se bajan: si la plantilla usa alguno, subí un `.zip` que traiga su carpeta (con su `typst.toml`), o importá solo los datos. La licencia de la plantilla queda junto al estilo. La línea de comandos hace lo mismo con `foja import`.
+
 ## Qué entra en cada perfil
 
 Cada entrada, ítem y habilidad del banco tiene una prioridad, que se marca una sola vez donde se escribe: **Imprescindible**, **Normal** (la de siempre) o **Extra**. Después, cada perfil tiene un **largo**, en **Qué entra en este perfil**, debajo del texto del perfil:

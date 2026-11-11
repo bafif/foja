@@ -10,6 +10,10 @@ Everything runs in the browser; your CV never leaves your machine.
 - **Six styles of its own** (Legajo, Banda, Minimal, and Claustro, Recto and Llano, made for
   applicant tracking systems) with layout options, and **styles you write in Typst** ("Edit in
   Typst" copies any style into one of your own).
+- **Typst templates imported** with fixed rules, no AI: their sample content as a profile and
+  their look as a style of your own, after a form where you check which argument is which field.
+- **What goes in each profile**: priorities marked once in the bank, a length per profile
+  (short, normal, full), exceptions, and a button that fits the CV on one page.
 - **One-page discipline**: the preview says whether the CV fits and what spills over; click a
   part of the preview to edit it.
 - **Exports**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.

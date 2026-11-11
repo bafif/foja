@@ -15,6 +15,7 @@ export type Selection =
   | { kind: "profile" }
   | { kind: "layout" }
   | { kind: "style"; id: string }
+  | { kind: "import" }
   | { kind: "section"; index: number };
 
 export interface EditorState {

@@ -8,6 +8,8 @@ const en = {
       every profile unless --profile is given
   foja validate <project.json>
   foja convert-curriculum <cvgen/data> <out.json> [--public]
+  foja import <template.typ|.zip|.tar.gz> <out.json> [--into <project.json>] [--name <name>] [--no-style]
+      reads a Typst template with fixed rules: its sample content as a profile, its look as a style
 
 options:
   --lang <es|en>   the language of these messages (by default, the system's)
@@ -19,6 +21,8 @@ options:
   valid: (n: number) => `valid, ${n} profile${n === 1 ? "" : "s"}`,
   profiles: (n: number) => `${n} profile${n === 1 ? "" : "s"}`,
   badLanguage: (lang: string) => `unknown language "${lang}" (es or en)`,
+  imported: (entries: number, profile: string, style: string) => `${entries} entr${entries === 1 ? "y" : "ies"} in profile "${profile}"${style ? `, in the style "${style}"` : ""}`,
+  missingPackages: (list: string) => `the look is not imported: the template uses packages that are not in the file (${list})`,
 };
 
 export type Messages = typeof en;
@@ -30,6 +34,8 @@ const es: Messages = {
       todos los perfiles, salvo que se indique --profile
   foja validate <proyecto.json>
   foja convert-curriculum <cvgen/data> <salida.json> [--public]
+  foja import <plantilla.typ|.zip|.tar.gz> <salida.json> [--into <proyecto.json>] [--name <nombre>] [--no-style]
+      lee una plantilla de Typst con reglas fijas: su contenido de ejemplo como perfil, su aspecto como estilo
 
 opciones:
   --lang <es|en>   el idioma de estos mensajes (por defecto, el del sistema)
@@ -41,6 +47,8 @@ opciones:
   valid: (n: number) => `válido, ${n} ${n === 1 ? "perfil" : "perfiles"}`,
   profiles: (n: number) => `${n} ${n === 1 ? "perfil" : "perfiles"}`,
   badLanguage: (lang: string) => `idioma desconocido: "${lang}" (es o en)`,
+  imported: (entries: number, profile: string, style: string) => `${entries} ${entries === 1 ? "entrada" : "entradas"} en el perfil "${profile}"${style ? `, con el estilo "${style}"` : ""}`,
+  missingPackages: (list: string) => `el aspecto no se importa: la plantilla usa paquetes que no vinieron en el archivo (${list})`,
 };
 
 export const MESSAGES = { en, es };

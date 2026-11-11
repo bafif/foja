@@ -93,3 +93,15 @@ text in the order it is seen. `packages/cli/test/ats.test.ts` checks that order 
 A built-in style can bring a `preset` in `packages/template/styles.json`: options written into the
 profile when the style is picked (the three above set one column, no photo and the short length;
 `pickStyle` leaves the short length out when it would leave the profile without entries).
+
+## Imported templates
+
+A style made by **Import a Typst template** keeps the template's files in the project
+(`templates.<id>.files`, pictures in `binaries`, the licence's path in `license`); the compiler
+sees them under `/custom/<id>/`. Its source, `/custom/<id>.typ`, imports them (the main file's
+own definitions go to `foja-defs.typ`, without the sample content), copies the main file's `#set`
+and `#show` rules, opens with the template's header filled with `cv.name`, `cv.subtitle` and the
+contacts, and lays out each section calling, for each entry, the macro its section used in the
+template (`foja-section-macro`) through `foja-entry`, with the arguments the review form mapped:
+`b.title`, `b.place`, `b.period`, `foja-start(b)`, `foja-end(b)`, the note, and the items as a
+list. It is an ordinary style of your own after that: edit it in **Edit in Typst** like any other.

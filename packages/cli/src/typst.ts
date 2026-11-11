@@ -12,7 +12,9 @@ import {
   PROJECT_PATH,
   assetFiles,
   builtinStylePath,
+  customStyleBinaries,
   customStyleSources,
+  fromBase64,
   projectForTypst,
   styleOf,
   typstInputs,
@@ -72,6 +74,7 @@ export class Typst {
     this.compiler.mapShadow(at(LABELS_PATH), Buffer.from(files["labels.json"]));
     this.compiler.mapShadow(at(PROJECT_PATH), Buffer.from(projectForTypst(project)));
     for (const [path, bytes] of assetFiles(project)) this.compiler.mapShadow(at(path), Buffer.from(bytes));
+    for (const [path, data] of customStyleBinaries(project)) this.compiler.mapShadow(at(path), Buffer.from(fromBase64(data)));
   }
 
   compile(profileId: string): Doc {

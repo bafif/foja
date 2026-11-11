@@ -2,7 +2,7 @@
 // foja: build CVs from a Foja project.
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { parseArgs } from "node:util";
 import { migrate, validate, type Project } from "@foja/core";
 import { detectLanguage, MESSAGES, systemLanguages, takeLanguage, type Language } from "./messages.ts";
@@ -96,6 +96,28 @@ async function main(argv: string[]) {
     for (const p of problems) console.error(`converted${p.path}: ${p.message}`);
     writeFileSync(positionals[1], JSON.stringify(project, null, 2) + "\n");
     console.log(`${positionals[1]}: ${m.profiles(Object.keys(project.profiles).length)}`);
+    return;
+  }
+  if (command === "import") {
+    // The editor's importer without its review form: the rules' proposal, as is.
+    const { values, positionals } = parseArgs({ args: rest, allowPositionals: true, options: { into: { type: "string" }, name: { type: "string" }, "no-style": { type: "boolean" } } });
+    if (positionals.length !== 2) fail(USAGE, 2);
+    const core = await import("@foja/core");
+    const [source, out] = positionals;
+    const template = core.readTemplate(await core.readUpload(source, new Uint8Array(readFileSync(source))));
+    const mapping = core.proposeMapping(template);
+    const name = values.name ?? basename(source).replace(/\.(typ|zip|tar\.gz|tgz)$/i, "");
+    const into = values.into ? loadProject(values.into) : undefined;
+    const { project, profileId, entries } = core.importData(template, mapping, { name, language: into?.language ?? (m === MESSAGES.es ? "es" : "en"), into });
+    let style = "";
+    if (template.missing.length) console.error(m.missingPackages(template.missing.join(", ")));
+    else if (!values["no-style"]) {
+      style = core.freshId(name, [...core.BUILTIN_STYLES.map((s) => s.id), ...Object.keys(project.templates ?? {})], "estilo");
+      project.templates = { ...project.templates, [style]: core.importStyle(template, mapping, style, name) };
+      project.profiles[profileId].layout = { template: style };
+    }
+    writeFileSync(out, JSON.stringify(project, null, 2) + "\n");
+    console.log(`${out}: ${m.imported(entries, profileId, style)}`);
     return;
   }
   fail(USAGE, command ? 2 : 0);

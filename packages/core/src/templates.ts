@@ -52,7 +52,16 @@ export function stylePath(project: Project, id: string): string {
 
 /** `[path, source]` of the user's styles, for the compiler. */
 export function customStyleSources(project: Project): [string, string][] {
-  return Object.entries(project.templates ?? {}).map(([id, t]) => [customStylePath(id), t.source]);
+  return Object.entries(project.templates ?? {}).flatMap(([id, t]): [string, string][] => [
+    [customStylePath(id), t.source],
+    // An imported template's own files, next to the style.
+    ...Object.entries(t.files ?? {}).map(([path, text]): [string, string] => [`/custom/${id}/${path}`, text]),
+  ]);
+}
+
+/** `[path, base64]` of the pictures of the user's imported templates, for the compiler. */
+export function customStyleBinaries(project: Project): [string, string][] {
+  return Object.entries(project.templates ?? {}).flatMap(([id, t]) => Object.entries(t.binaries ?? {}).map(([path, data]): [string, string] => [`/custom/${id}/${path}`, data]));
 }
 
 /** The options a style honours; a style of the user's honours whatever it reads, so all. */

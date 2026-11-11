@@ -11,7 +11,10 @@ npx foja build my.foja.json                       # un PDF por perfil
 npx foja build my.foja.json --profile dev --format pdf --format docx --out out
 npx foja build my.foja.json --format all          # todos los formatos en un solo .zip
 npx foja validate my.foja.json
+npx foja import plantilla.zip my.foja.json        # una plantilla de Typst: su contenido y su aspecto
 ```
+
+`import` lee una plantilla de CV de Typst (`.typ`, `.zip` o `.tar.gz`) con reglas fijas, sin IA: su contenido de ejemplo pasa a ser un perfil y su aspecto un estilo propio; `--into` los suma a un proyecto que ya existe y `--no-style` deja afuera el aspecto. Toma la propuesta de las reglas tal como sale; el editor la muestra antes para revisarla.
 
 Formatos: `pdf`, `svg`, `typ` (un `.zip` que compila con `typst compile` a secas), `tex`
 (LaTeX), `md`, `json`, `docx` (Word), `all`. Necesita Node 24 o posterior. Los mensajes y `--help`

@@ -24,6 +24,21 @@ own, and reads only files under its project root.
   contact field cannot inject TeX (`\input`, `\write`) into `cv.tex` (tested, compiled).
 - A style that runs too long (an endless loop) is stopped after 20 seconds and the editor says so.
 
+## Imported templates
+
+A Typst template someone else wrote is data until Typst compiles it:
+
+- Foja reads it with fixed rules (`packages/core/src/importer/`): it scans the code, never runs it,
+  and calls no model or service.
+- A `.zip` or `.tar.gz` is unpacked with the platform's own decompressor, with caps: at most 400
+  files and 20 MB unpacked, counted while it inflates, so a small archive that would unpack to
+  gigabytes stops early. Absolute paths, paths with `..`, backslashes and links are refused.
+- Its files go into the project under the style, and the compiler sees them under `/custom/<id>/`,
+  in the same sandbox as any style: nothing outside the project can be read (tested).
+- `@preview` packages are never downloaded: those that came in the upload are pointed at, and the
+  editor names the ones that are missing. Fonts in the upload are left out.
+- The template's licence, when it has one, is kept with the style.
+
 ## The web app
 
 Production pages carry a Content Security Policy: scripts only from the site itself (and

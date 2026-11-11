@@ -11,6 +11,10 @@ Todo corre en el navegador; tu CV nunca sale de tu máquina.
 - **Seis estilos propios** (Legajo, Banda, Minimal, y Claustro, Recto y Llano, hechos para los sistemas de
   selección) con opciones de diseño, y **estilos que escribís vos en Typst**
   («Editar en Typst» copia cualquier estilo en uno tuyo).
+- **Plantillas de Typst importadas** con reglas fijas, sin IA: su contenido de ejemplo como perfil y su aspecto
+  como estilo propio, después de un formulario donde revisás qué argumento es cada campo.
+- **Qué entra en cada perfil**: prioridades marcadas una vez en el banco, un largo por perfil (corto, normal,
+  completo), excepciones, y un botón que ajusta el CV a una página.
 - **Disciplina de una página**: la vista previa te dice si el CV entra y qué se pasa; hacé clic en una parte de la
   vista previa para editarla.
 - **Exportación**: PDF, JPG, Word, Typst, LaTeX, Markdown, JSON.

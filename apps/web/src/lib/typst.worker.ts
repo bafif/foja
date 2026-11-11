@@ -11,6 +11,7 @@ import {
   LIB_PATH,
   PROJECT_PATH,
   builtinStylePath,
+  customStyleBinaries,
   customStyleSources,
   fromBase64,
   projectForTypst,
@@ -92,8 +93,16 @@ function load(project: Project) {
       customSources.set(path, source);
     }
   }
+  // The pictures of imported templates, by their path under /custom/.
+  for (const [path, data] of customStyleBinaries(project)) {
+    if (mappedAssets.get(path) !== data) {
+      compiler.mapShadow(path, fromBase64(data));
+      mappedAssets.set(path, data);
+    }
+  }
   const assets = project.assets ?? {};
   for (const [name, data] of mappedAssets) {
+    if (name.startsWith("/custom/")) continue;
     if (assets[name]?.data !== data) {
       compiler.unmapShadow(`/assets/${name}`);
       mappedAssets.delete(name);

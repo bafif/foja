@@ -72,6 +72,28 @@ of fixed labels (Spanish, English, Portuguese).
 style from scratch** starts from a small skeleton. Errors show above the preview, which keeps the
 last good version. How to write a style: [`templates.md`](templates.md).
 
+## Importing a Typst template
+
+**Style and layout → Import a Typst template** takes a CV template written in Typst: a `.typ`, or
+a `.zip` or `.tar.gz` with its files. Foja reads it with fixed rules, no AI: the functions it
+defines, the ones its sample content calls again and again (each call is an entry), its headings
+(the sections), the bullets under each call (the items) and its `#show: x.with(...)` (the
+header). It then proposes which argument of each macro is the position, the place, the dates, a
+note or the items, from the argument's name (`title`, `company`, `dates`, `institución`…) and from
+what its value looks like (a date, an e-mail, a URL).
+
+The form shows each argument with its sample value and the field it goes to, which you can
+change; below, what will come in. The same correspondence is used twice:
+
+- **the data**: the sample content becomes entries of the bank and a new profile, in the open
+  project or in a new one;
+- **the look**: a style of your own that keeps the template's files and calls its macros with the
+  CV's data; the new profile uses it.
+
+`@preview` packages are not downloaded: if the template uses one, upload a `.zip` that brings its
+folder (with its `typst.toml`), or import only the data. The template's licence stays with the
+style. The command line does the same with `foja import`.
+
 ## What goes in each profile
 
 Every entry, item and skill of the bank has a priority, marked once where it is written:

@@ -10,6 +10,7 @@ import { LayoutForm } from "./forms/Layout";
 import { PersonForm } from "./forms/Person";
 import { addSection, ProfileTextForm } from "./forms/ProfileText";
 import { SelectionForm } from "./forms/Selection";
+import { ImportTemplate } from "./forms/ImportTemplate";
 import { SectionForm } from "./forms/Section";
 import { SkillsForm } from "./forms/Skills";
 import { StyleEditor } from "./forms/StyleEditor";
@@ -490,6 +491,8 @@ function SelectionPanel() {
       return <EntryForm key={selection.id} id={selection.id} />;
     case "layout":
       return <LayoutForm />;
+    case "import":
+      return <ImportTemplate />;
     case "style":
       return <StyleEditor key={selection.id} id={selection.id} />;
     case "section":

@@ -171,6 +171,30 @@
           "source": {
             "type": "string",
             "description": "Typst source that starts with #import \"/lib.typ\": *"
+          },
+          "files": {
+            "type": "object",
+            "description": "The text files of an imported template, by relative path; the compiler sees them under /custom/<id>/.",
+            "propertyNames": {
+              "$ref": "#/$defs/filePath"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "binaries": {
+            "type": "object",
+            "description": "The other files of an imported template (pictures), by relative path, in base64.",
+            "propertyNames": {
+              "$ref": "#/$defs/filePath"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "license": {
+            "$ref": "#/$defs/filePath",
+            "description": "The path of the imported template's licence among its files."
           }
         }
       }
@@ -588,6 +612,11 @@
           "$ref": "#/$defs/priority"
         }
       }
+    },
+    "filePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.?(/|$))[A-Za-z0-9._ +-]+(/[A-Za-z0-9._ +-]+)*$",
+      "description": "A relative path inside an imported template: no leading slash, no . or .. segments."
     }
   }
 }

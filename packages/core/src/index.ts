@@ -8,3 +8,6 @@ export * from "./resolve.ts";
 export * from "./geometry.ts";
 export * from "./templates.ts";
 export * from "./select.ts";
+export * from "./importer/archive.ts";
+export * from "./importer/parse.ts";
+export * from "./importer/template.ts";

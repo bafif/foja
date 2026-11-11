@@ -38,7 +38,12 @@ export function typstBundle(project: Project, profileId: string, template: Templ
     ].join("\n"),
   };
   for (const [id, source] of Object.entries(template.styles)) files[`styles/${id}.typ`] = source;
-  for (const [id, t] of Object.entries(project.templates ?? {})) files[customStylePath(id).slice(1)] = t.source;
+  for (const [id, t] of Object.entries(project.templates ?? {})) {
+    files[customStylePath(id).slice(1)] = t.source;
+    // An imported template travels with its files and its licence.
+    for (const [path, text] of Object.entries(t.files ?? {})) files[`custom/${id}/${path}`] = text;
+    for (const [path, data] of Object.entries(t.binaries ?? {})) files[`custom/${id}/${path}`] = fromBase64(data);
+  }
   for (const [name, asset] of Object.entries(assets ?? {})) files[`assets/${name}`] = fromBase64(asset.data);
   for (const [name, data] of Object.entries(template.fonts)) files[`fonts/${name}`] = data;
   return files;
