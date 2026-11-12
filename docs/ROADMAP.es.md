@@ -254,7 +254,8 @@ compartir de verdad. Esto pide el aparato o la cuenta reales:
 1. **La CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete está listo: instalado desde
    su `.tgz`, arma los PDF sin el repositorio. Falta publicarlo.
 2. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
-   Partner Center.
+   Partner Center. El manifest ya tiene lo que PWABuilder pide y recomienda: id, íconos, captura, categorías y abrir
+   la ventana que ya está abierta.
 3. **La app de escritorio**: la primera versión en GitHub Releases, una vez probados los instaladores; después AUR, un
    Flatpak compilado desde el código fuente y la postulación a Flathub, y SignPath Foundation para Windows cuando el
    proyecto califique.

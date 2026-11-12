@@ -1,11 +1,16 @@
 {
+  "id": "/foja/editor/",
   "name": "Foja — CV editor",
   "short_name": "Foja",
   "description": "Your CV in Typst, without writing code. Everything stays on your device.",
   "lang": "en",
+  "dir": "ltr",
   "start_url": "./editor/",
   "scope": "./",
   "display": "standalone",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "background_color": "#f6f1e7",
   "theme_color": "#1f5f5b",
   "icons": [
@@ -13,5 +18,19 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
     { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
-  ]
+  ],
+  "categories": [
+    "productivity",
+    "business"
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot.jpg",
+      "sizes": "1200x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Foja's editor: on the left, the forms of an entry; on the right, the preview of the CV."
+    }
+  ],
+  "prefer_related_applications": false
 }

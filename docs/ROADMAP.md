@@ -241,7 +241,8 @@ sheet. These need the real device or account:
 1. **The CLI on npm** as `foja`, so that `npx foja` works without the repository. The package is ready: installed from
    its `.tgz`, it builds the PDFs without the repository. It is left to publish it.
 2. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
-   account.
+   account. The manifest already has what PWABuilder asks for and recommends: an id, icons, a screenshot, categories
+   and focusing the window that is already open.
 3. **The desktop app**: the first version on GitHub Releases, once the installers have been tried; then AUR, a Flatpak
    built from source and the Flathub submission, and SignPath Foundation for Windows once the project qualifies.
 4. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,

@@ -1,11 +1,16 @@
 {
+  "id": "/foja/editor/",
   "name": "Foja — editor de CV",
   "short_name": "Foja",
   "description": "Tu CV en Typst, sin escribir código. Todo queda en tu dispositivo.",
   "lang": "es",
+  "dir": "ltr",
   "start_url": "./editor/",
   "scope": "./",
   "display": "standalone",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "background_color": "#f6f1e7",
   "theme_color": "#1f5f5b",
   "icons": [
@@ -13,5 +18,19 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
     { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
-  ]
+  ],
+  "categories": [
+    "productivity",
+    "business"
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot.jpg",
+      "sizes": "1200x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "El editor de Foja: a la izquierda, los formularios de una entrada; a la derecha, la vista previa del CV."
+    }
+  ],
+  "prefer_related_applications": false
 }

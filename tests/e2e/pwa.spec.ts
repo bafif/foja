@@ -97,7 +97,9 @@ test.describe("production build", () => {
       const response = await page.request.get(`${url}${file}`);
       const manifest = await response.json();
       expect(manifest.start_url).toBe("./editor/");
-      for (const icon of manifest.icons) expect((await page.request.get(new URL(icon.src, `${url}${file}`).href)).ok()).toBe(true);
+      // The id is the one browsers took from start_url before there was one: installed apps keep being the same app.
+      expect(new URL(manifest.id, url).href).toBe(new URL(manifest.start_url, `${url}${file}`).href);
+      for (const image of [...manifest.icons, ...manifest.screenshots]) expect((await page.request.get(new URL(image.src, `${url}${file}`).href)).ok()).toBe(true);
     }
   });
 
