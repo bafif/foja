@@ -97,8 +97,8 @@ first time one is used. The fonts a XeLaTeX template names besides Latin Modern,
   GitHub Releases and on F-Droid if it meets their build rules. Google Play charges a registration fee, so it stays
   out.
 - **iPhone and iPad**: the App Store needs the paid Apple Developer Program, so the PWA added to the Home Screen from
-  Safari is the iOS app. A build installed with a free Apple ID expires after seven days, which is no way to ship it to
-  anyone.
+  Safari or Chrome is the iOS app. A build installed with a free Apple ID expires after seven days, which is no way to
+  ship it to anyone.
 - **CLI**: npm.
 
 ### Exporters in TypeScript
@@ -192,7 +192,10 @@ None is signed, to keep the project at zero cost; the release notes and the user
 
 ## What comes next
 
-In this order:
+First what the product still lacks, in this order. The tests on real devices and accounts can be done at any point,
+and each channel is published once what it carries has been tried.
+
+### In the product
 
 1. **The same length in every format.** A CV that fits on one page in the PDF has to fit in LaTeX and in Word too, and
    today it can run over (see the known limitations below). The fix holds for every style and format at once, with no
@@ -213,30 +216,40 @@ In this order:
    and restore, stored with the project. A history inside the app, not a link to any version control system. Automatic
    snapshots are thinned out so the project does not grow without limit, and named versions stay until you delete
    them; a photo that did not change is not copied into each version, and restoring can be undone.
-3. **The full test on real phones**: on an Android with Chrome and an iPhone with Safari and with Chrome, install it
-   following the steps the app shows, edit, export through the share sheet, and use it offline. The automated tests
-   emulate a phone in Chromium, which has neither Safari's quirks nor a real share sheet.
-4. **Publish the CLI on npm** as `foja`, so that `npx foja` works without the repository. The package already bundles
-   itself on `npm pack`.
-5. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
+3. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
+   (except on Flathub, where Flatpak updates it). It is the desktop integration Flathub asks for to accept it.
+
+### Tests on real devices and accounts
+
+The automated tests run on Linux, with a Chromium that emulates the phone without Safari's quirks or a real share
+sheet. These need the real device or account:
+
+- **Phones**: on an Android with Chrome and an iPhone with Safari and with Chrome, install it following the steps the
+  app shows, edit, export through the share sheet, and use it offline.
+- **Microsoft Word**: open the Word exports, which so far have been checked only in LibreOffice.
+- **Overleaf**: try “Open in Overleaf” with an account; the tests check what is sent, but intercept the request.
+- **Windows and macOS**: install and open the desktop app with the installers, which are built but have not been
+  tried.
+
+### Publishing
+
+1. **The CLI on npm** as `foja`, so that `npx foja` works without the repository. The package already bundles itself
+   on `npm pack`.
+2. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
    account.
-6. **Desktop app and Flathub**: try the Windows and macOS installers and publish the first version; then native file
-   access (projects opened and saved as files, with a file type of their own), updating itself, a Flatpak built from
-   source, and the Flathub submission. Also AUR, and SignPath Foundation for Windows once the project qualifies.
-7. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
+3. **The desktop app**: the first version on GitHub Releases, once the installers have been tried; then AUR, a Flatpak
+   built from source and the Flathub submission, and SignPath Foundation for Windows once the project qualifies.
+4. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
    on F-Droid. On iPhone the PWA remains the app (see the distribution channels above).
 
-Smaller things that can go in at any point:
+### Known limitations
 
-- Check the Word export in Microsoft Word: so far it has been checked only in LibreOffice.
-- Try “Open in Overleaf” against overleaf.com: the tests check what is sent, but intercept the request.
-
-Known limitations: the LaTeX export breaks lines a little differently from Typst and can run a few lines past one page
-where the PDF fits; so can the Word export, by more, since Georgia is wider than XCharter (the example's programmer
-profile runs about twenty lines over in LibreOffice). The first item of the list above fixes both. An imported LaTeX
-template shows in the preview without
-click-to-edit or the marks of what spills over; only the data of templates that need LuaLaTeX is imported, and the
-command line does not compile LaTeX: it writes the filled `.tex`.
+- The LaTeX export breaks lines a little differently from Typst and can run a few lines past one page where the PDF
+  fits; so can the Word export, by more, since Georgia is wider than XCharter (the example's programmer profile runs
+  about twenty lines over in LibreOffice). “The same length in every format” fixes it.
+- An imported LaTeX template shows in the preview without click-to-edit or the marks of what spills over, and only the
+  data of templates that need LuaLaTeX is imported.
+- The command line does not compile LaTeX: it writes the filled `.tex`.
 
 ### Long term
 

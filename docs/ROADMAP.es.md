@@ -103,8 +103,8 @@ Modern, las sube el usuario.
   también compila para Android, en GitHub Releases y en F-Droid si cumple sus reglas de compilación. Google Play cobra
   una tarifa de registro, así que queda afuera.
 - **iPhone y iPad**: la App Store exige el Apple Developer Program, que es pago, así que la app de iOS es la PWA
-  agregada a la pantalla de inicio desde Safari. Una versión instalada con un Apple ID gratuito vence a los siete días,
-  y así no hay forma de dársela a nadie.
+  agregada a la pantalla de inicio desde Safari o Chrome. Una versión instalada con un Apple ID gratuito vence a los
+  siete días, y así no hay forma de dársela a nadie.
 - **CLI**: npm.
 
 ### Exportadores en TypeScript
@@ -202,7 +202,10 @@ proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo a
 
 ## Qué viene después
 
-En este orden:
+Primero lo que le falta al producto, en este orden. Las pruebas en dispositivos y cuentas reales pueden hacerse en
+cualquier momento, y cada canal se publica cuando lo que lleva está probado.
+
+### En el producto
 
 1. **El mismo largo en todos los formatos.** Un CV que entra en una página en el PDF tiene que entrar también en
    LaTeX y en Word, y hoy puede pasarse (ver las limitaciones conocidas, más abajo). El arreglo vale para todos los
@@ -225,32 +228,43 @@ En este orden:
    a ningún sistema de control de versiones. Las instantáneas automáticas se ralean para que el proyecto no crezca sin
    límite, y las versiones con nombre quedan hasta que las borrás; una foto que no cambió no se copia en cada versión,
    y restaurar se puede deshacer.
-3. **La prueba completa en teléfonos reales**: en un Android con Chrome y en un iPhone con Safari y con Chrome,
-   instalarla siguiendo los pasos que muestra la app, editar, exportar a través del menú de compartir y usarla sin
-   conexión. Los tests automáticos emulan un teléfono en Chromium, que no tiene ni las mañas de Safari ni un menú de
-   compartir de verdad.
-4. **Publicar la CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta
-   solo con `npm pack`.
-5. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
+3. **Archivos en la app de escritorio**: abrir y guardar proyectos como archivos, con su propio tipo de archivo, y que
+   se actualice sola (salvo la de Flathub, que la actualiza Flatpak). Es la integración con el escritorio que pide
+   Flathub para aceptarla.
+
+### Pruebas en dispositivos y cuentas reales
+
+Los tests automáticos corren en Linux, con un Chromium que emula el teléfono sin las mañas de Safari ni un menú de
+compartir de verdad. Esto pide el aparato o la cuenta reales:
+
+- **Teléfonos**: en un Android con Chrome y en un iPhone con Safari y con Chrome, instalarla siguiendo los pasos que
+  muestra la app, editar, exportar a través del menú de compartir y usarla sin conexión.
+- **Microsoft Word**: abrir las exportaciones a Word, que hasta ahora se comprobaron solo en LibreOffice.
+- **Overleaf**: probar «Abrir en Overleaf» con una cuenta; los tests comprueban lo que se manda, pero interceptan el
+  envío.
+- **Windows y macOS**: instalar y abrir la app de escritorio con los instaladores, que se arman pero todavía no se
+  probaron.
+
+### Publicación
+
+1. **La CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta solo con
+   `npm pack`.
+2. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
    Partner Center.
-6. **App de escritorio y Flathub**: probar los instaladores de Windows y macOS y publicar la primera versión; después,
-   el acceso nativo a archivos (abrir y guardar proyectos como archivos, con su propio tipo de archivo), que se
-   actualice sola, un Flatpak compilado desde el código fuente y la postulación a Flathub. También AUR, y SignPath
-   Foundation para Windows una vez que el proyecto califique.
-7. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases y, si
+3. **La app de escritorio**: la primera versión en GitHub Releases, una vez probados los instaladores; después AUR, un
+   Flatpak compilado desde el código fuente y la postulación a Flathub, y SignPath Foundation para Windows cuando el
+   proyecto califique.
+4. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases y, si
    califica, en F-Droid. En iPhone la app sigue siendo la PWA (ver los canales de distribución más arriba).
 
-Cosas más chicas que pueden entrar en cualquier momento:
+### Limitaciones conocidas
 
-- Comprobar la exportación de Word en Microsoft Word: hasta ahora solo se comprobó en LibreOffice.
-- Probar «Abrir en Overleaf» contra overleaf.com: los tests comprueban lo que se manda, pero interceptan el envío.
-
-Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse unas líneas
-de una página cuando el PDF entra; la de Word también, y más, porque Georgia es más ancha que XCharter (el perfil de
-programador del ejemplo se pasa unos veinte renglones en LibreOffice). Las dos cosas las resuelve el primer punto de
-la lista de arriba. Una plantilla LaTeX importada se ve en la vista
-previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se importan
-solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
+- La exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse unas líneas de una página cuando
+  el PDF entra; la de Word también, y más, porque Georgia es más ancha que XCharter (el perfil de programador del
+  ejemplo se pasa unos veinte renglones en LibreOffice). Lo resuelve «El mismo largo en todos los formatos».
+- Una plantilla LaTeX importada se ve en la vista previa sin el clic para editar ni las marcas de lo que se pasa de la
+  página, y de las que necesitan LuaLaTeX se importan solo los datos.
+- La línea de comandos no compila LaTeX: escribe el `.tex` lleno.
 
 ### A largo plazo
 
