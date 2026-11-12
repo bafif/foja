@@ -64,7 +64,8 @@ The whole editor, step by step, is in the [user guide](docs/guide.md).
 - **Web editor:** online, on computers and phones. On phones it is tested in an emulated phone in Chromium; the full
   test on a real Android and a real iPhone is still to be done.
 - **Exports:** Word is checked by opening it in LibreOffice, not yet in Microsoft Word. Word and LaTeX lay the text
-  out a little differently from Typst, so a CV that just fits in the PDF can run a few lines over.
+  out a little differently from Typst, so a CV that just fits in the PDF can run a few lines over; making them match
+  is next on the [roadmap](docs/ROADMAP.md).
 - **Desktop app:** the Linux packages are built and tried; the Windows and macOS installers are built but have not
   been tried. No version has been published yet.
 - **Command line:** works from a clone of the repository; it is not on npm yet.

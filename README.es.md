@@ -68,7 +68,8 @@ Todo el editor, paso a paso, está en la [guía de uso](docs/guide.es.md).
 - **Editor web:** en línea, en computadoras y celulares. En el celular se prueba con un teléfono emulado en Chromium;
   falta la prueba completa en un Android y un iPhone de verdad.
 - **Exportaciones:** Word se comprueba abriéndolo en LibreOffice, todavía no en Microsoft Word. Word y LaTeX
-  acomodan el texto un poco distinto que Typst, así que un CV que entra justo en el PDF puede pasarse unas líneas.
+  acomodan el texto un poco distinto que Typst, así que un CV que entra justo en el PDF puede pasarse unas líneas;
+  igualarlos es lo próximo en la [hoja de ruta](docs/ROADMAP.es.md).
 - **App de escritorio:** los paquetes de Linux se arman y están probados; los instaladores de Windows y macOS se arman,
   pero todavía no se probaron. Todavía no se publicó ninguna versión.
 - **Línea de comandos:** funciona desde una copia del repositorio; todavía no está en npm.

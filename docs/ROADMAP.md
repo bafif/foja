@@ -194,28 +194,47 @@ None is signed, to keep the project at zero cost; the release notes and the user
 
 In this order:
 
-1. **The full test on real phones**: on an Android with Chrome and an iPhone with Safari, install it, edit, export
-   through the share sheet, and use it offline. The automated tests emulate a phone in Chromium, which has neither
-   Safari's quirks nor a real share sheet.
-2. **Publish the CLI on npm** as `foja`, so that `npx foja` works without the repository. The package already bundles
+1. **The same length in every format.** A CV that fits on one page in the PDF has to fit in LaTeX and in Word too, and
+   today it can run over (see the known limitations below). The fix holds for every style and format at once, with no
+   per-style tuning: Typst decides where each line breaks and the other formats copy it.
+   - **The same font.** The `.docx` embeds XCharter and Noto Sans instead of asking for Georgia. Word embeds only
+     TrueType fonts, so XCharter, which comes as CFF OpenType, is converted; its licence allows modifying and
+     redistributing it. A program that does not read embedded fonts still has to show a similar serif.
+   - **The same lines.** Before exporting, Typst compiles the profile in the style the exporter reproduces (the
+     profile's own, or Legajo or Minimal where the exporter stands in for it) and returns where each line of each
+     paragraph ends. LaTeX and Word break there with a forced line break, with the same line spacing and the same gaps
+     between blocks, so each paragraph takes the same lines in all three formats, whatever way each program would
+     have broken them. An imported LaTeX template stays out of this: its PDF already is LaTeX's.
+   - **A test that holds it.** For each profile of the example projects and each built-in style, it compiles the
+     LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with that of the Typst PDF. It
+     runs in a container of its own, since LibreOffice and TeX Live are heavy, and a new style is covered without
+     writing anything else.
+2. **Versions**, off by default: snapshots on save and named versions (“sent to Acme”) with a preview, a diff of fields
+   and restore, stored with the project. A history inside the app, not a link to any version control system. Automatic
+   snapshots are thinned out so the project does not grow without limit, and named versions stay until you delete
+   them; a photo that did not change is not copied into each version, and restoring can be undone.
+3. **The full test on real phones**: on an Android with Chrome and an iPhone with Safari and with Chrome, install it
+   following the steps the app shows, edit, export through the share sheet, and use it offline. The automated tests
+   emulate a phone in Chromium, which has neither Safari's quirks nor a real share sheet.
+4. **Publish the CLI on npm** as `foja`, so that `npx foja` works without the repository. The package already bundles
    itself on `npm pack`.
-3. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
+5. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
    account.
-4. **Desktop app and Flathub**: try the Windows and macOS installers and publish the first version; then native file
+6. **Desktop app and Flathub**: try the Windows and macOS installers and publish the first version; then native file
    access (projects opened and saved as files, with a file type of their own), updating itself, a Flatpak built from
    source, and the Flathub submission. Also AUR, and SignPath Foundation for Windows once the project qualifies.
-5. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
+7. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
    on F-Droid. On iPhone the PWA remains the app (see the distribution channels above).
 
 Smaller things that can go in at any point:
 
 - Check the Word export in Microsoft Word: so far it has been checked only in LibreOffice.
-- **Versions**, off by default: snapshots on save and named versions (“sent to Acme”) with a preview, a diff of fields
-  and restore, stored with the project. A history inside the app, not a link to any version control system.
+- Try “Open in Overleaf” against overleaf.com: the tests check what is sent, but intercept the request.
 
 Known limitations: the LaTeX export breaks lines a little differently from Typst and can run a few lines past one page
 where the PDF fits; so can the Word export, by more, since Georgia is wider than XCharter (the example's programmer
-profile runs about twenty lines over in LibreOffice). An imported LaTeX template shows in the preview without
+profile runs about twenty lines over in LibreOffice). The first item of the list above fixes both. An imported LaTeX
+template shows in the preview without
 click-to-edit or the marks of what spills over; only the data of templates that need LuaLaTeX is imported, and the
 command line does not compile LaTeX: it writes the filled `.tex`.
 

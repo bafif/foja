@@ -204,30 +204,51 @@ proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo a
 
 En este orden:
 
-1. **La prueba completa en teléfonos reales**: en un Android con Chrome y en un iPhone con Safari, instalarla, editar,
-   exportar a través del menú de compartir y usarla sin conexión. Los tests automáticos emulan un teléfono en
-   Chromium, que no tiene ni las mañas de Safari ni un menú de compartir de verdad.
-2. **Publicar la CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta
+1. **El mismo largo en todos los formatos.** Un CV que entra en una página en el PDF tiene que entrar también en
+   LaTeX y en Word, y hoy puede pasarse (ver las limitaciones conocidas, más abajo). El arreglo vale para todos los
+   estilos y formatos a la vez, sin ajustes por estilo: Typst decide dónde corta cada renglón y los demás formatos
+   lo copian.
+   - **La misma fuente.** El `.docx` lleva incrustadas XCharter y Noto Sans en vez de pedir Georgia. Word incrusta
+     solo fuentes TrueType, así que XCharter, que viene en OpenType CFF, se convierte; su licencia permite modificarla
+     y redistribuirla. Un programa que no lea fuentes incrustadas tiene que seguir mostrando una serif parecida.
+   - **Los mismos renglones.** Antes de exportar, Typst compila el perfil con el estilo que reproduce el exportador
+     (el del perfil, o Legajo o Minimal cuando el exportador lo reemplaza) y devuelve dónde termina cada renglón de
+     cada párrafo. LaTeX y Word cortan ahí con un salto de línea forzado, con el mismo interlineado y los mismos
+     espacios entre bloques, así cada párrafo ocupa los mismos renglones en los tres formatos sin depender de cómo
+     parte las líneas cada programa. La plantilla LaTeX importada queda afuera: su PDF ya es el de LaTeX.
+   - **Un test que lo sostenga.** Para cada perfil de los proyectos de ejemplo y cada estilo incluido, compila el
+     LaTeX con TeX Live, abre el Word en LibreOffice y compara la cantidad de páginas con la del PDF de Typst. Corre en
+     un contenedor propio, porque LibreOffice y TeX Live pesan, y un estilo nuevo queda cubierto sin escribir nada
+     más.
+2. **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con vista
+   previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no un enlace
+   a ningún sistema de control de versiones. Las instantáneas automáticas se ralean para que el proyecto no crezca sin
+   límite, y las versiones con nombre quedan hasta que las borrás; una foto que no cambió no se copia en cada versión,
+   y restaurar se puede deshacer.
+3. **La prueba completa en teléfonos reales**: en un Android con Chrome y en un iPhone con Safari y con Chrome,
+   instalarla siguiendo los pasos que muestra la app, editar, exportar a través del menú de compartir y usarla sin
+   conexión. Los tests automáticos emulan un teléfono en Chromium, que no tiene ni las mañas de Safari ni un menú de
+   compartir de verdad.
+4. **Publicar la CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta
    solo con `npm pack`.
-3. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
+5. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
    Partner Center.
-4. **App de escritorio y Flathub**: probar los instaladores de Windows y macOS y publicar la primera versión; después,
+6. **App de escritorio y Flathub**: probar los instaladores de Windows y macOS y publicar la primera versión; después,
    el acceso nativo a archivos (abrir y guardar proyectos como archivos, con su propio tipo de archivo), que se
    actualice sola, un Flatpak compilado desde el código fuente y la postulación a Flathub. También AUR, y SignPath
    Foundation para Windows una vez que el proyecto califique.
-5. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases y, si
+7. **Paquete para Android**: el mismo shell de Tauri 2 compilado para Android, como APK en GitHub Releases y, si
    califica, en F-Droid. En iPhone la app sigue siendo la PWA (ver los canales de distribución más arriba).
 
 Cosas más chicas que pueden entrar en cualquier momento:
 
 - Comprobar la exportación de Word en Microsoft Word: hasta ahora solo se comprobó en LibreOffice.
-- **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con vista
-  previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no un enlace
-  a ningún sistema de control de versiones.
+- Probar «Abrir en Overleaf» contra overleaf.com: los tests comprueban lo que se manda, pero interceptan el envío.
 
 Limitaciones conocidas: la exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse unas líneas
 de una página cuando el PDF entra; la de Word también, y más, porque Georgia es más ancha que XCharter (el perfil de
-programador del ejemplo se pasa unos veinte renglones en LibreOffice). Una plantilla LaTeX importada se ve en la vista
+programador del ejemplo se pasa unos veinte renglones en LibreOffice). Las dos cosas las resuelve el primer punto de
+la lista de arriba. Una plantilla LaTeX importada se ve en la vista
 previa sin el clic para editar ni las marcas de lo que se pasa de la página; de las que necesitan LuaLaTeX se importan
 solo los datos, y la línea de comandos no compila LaTeX: escribe el `.tex` lleno.
 
