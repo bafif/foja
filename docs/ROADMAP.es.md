@@ -251,8 +251,8 @@ compartir de verdad. Esto pide el aparato o la cuenta reales:
 
 ### Publicación
 
-1. **La CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete ya se empaqueta solo con
-   `npm pack`.
+1. **La CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete está listo: instalado desde
+   su `.tgz`, arma los PDF sin el repositorio. Falta publicarlo.
 2. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
    Partner Center.
 3. **La app de escritorio**: la primera versión en GitHub Releases, una vez probados los instaladores; después AUR, un

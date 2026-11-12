@@ -14,7 +14,8 @@ const en = {
 
 options:
   --lang <es|en>   the language of these messages (by default, the system's)
-  -h, --help       this help`,
+  -h, --help       this help
+  -v, --version    the version of foja`,
   invalidProject: "not a valid Foja project",
   notJsonResume: "not a JSON Resume (jsonresume.org)",
   jsonResumeLeft: (file: string, sections: string) => `${file}: JSON Resume has no place for: ${sections}`,
@@ -44,7 +45,8 @@ const es: Messages = {
 
 opciones:
   --lang <es|en>   el idioma de estos mensajes (por defecto, el del sistema)
-  -h, --help       esta ayuda`,
+  -h, --help       esta ayuda
+  -v, --version    la versión de foja`,
   invalidProject: "no es un proyecto de Foja válido",
   notJsonResume: "no es un JSON Resume (jsonresume.org)",
   jsonResumeLeft: (file: string, sections: string) => `${file}: JSON Resume no tiene lugar para: ${sections}`,

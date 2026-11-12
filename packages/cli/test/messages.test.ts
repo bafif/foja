@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -43,6 +44,11 @@ describe("foja speaks the language it is asked to", () => {
     expect(run(["--help"], { LANG: "es_AR.UTF-8" }).stdout).toMatch(/^uso:/);
     expect(run(["--help"], { LANG: "en_US.UTF-8" }).stdout).toMatch(/^usage:/);
     expect(run(["--help", "--lang", "en"], { LANG: "es_AR.UTF-8" }).stdout).toMatch(/^usage:/);
+  });
+
+  test("--version says the version of the package", () => {
+    const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    expect(run(["--version"], {}).stdout.trim()).toBe(version);
   });
 
   test("errors too", () => {

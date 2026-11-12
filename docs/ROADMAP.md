@@ -238,8 +238,8 @@ sheet. These need the real device or account:
 
 ### Publishing
 
-1. **The CLI on npm** as `foja`, so that `npx foja` works without the repository. The package already bundles itself
-   on `npm pack`.
+1. **The CLI on npm** as `foja`, so that `npx foja` works without the repository. The package is ready: installed from
+   its `.tgz`, it builds the PDFs without the repository. It is left to publish it.
 2. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
    account.
 3. **The desktop app**: the first version on GitHub Releases, once the installers have been tried; then AUR, a Flatpak

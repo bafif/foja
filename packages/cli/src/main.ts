@@ -6,6 +6,7 @@ import { basename, join } from "node:path";
 import { parseArgs } from "node:util";
 import { migrate, validate, type Project } from "@foja/core";
 import { detectLanguage, MESSAGES, systemLanguages, takeLanguage, type Language } from "./messages.ts";
+import cli from "../package.json" with { type: "json" };
 
 const { lang, rest: argv } = takeLanguage(process.argv.slice(2));
 const m = MESSAGES[lang && lang in MESSAGES ? (lang as Language) : detectLanguage(systemLanguages())];
@@ -89,6 +90,7 @@ async function main(argv: string[]) {
   const [command, ...rest] = argv;
   if (lang !== undefined && !(lang in MESSAGES)) fail(`${m.badLanguage(lang)}\n${USAGE}`, 2);
   if (command === "-h" || command === "--help" || command === "help") return console.log(USAGE);
+  if (command === "-v" || command === "--version") return console.log(cli.version);
   if (command === "build") return build(rest);
   if (command === "validate") {
     if (rest.length !== 1) fail(USAGE, 2);
