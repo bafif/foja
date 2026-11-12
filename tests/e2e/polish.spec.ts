@@ -94,7 +94,10 @@ test.describe("in dark mode", () => {
   test.use({ colorScheme: "dark" });
 
   test("the theme sets every colour the stylesheet declares", async ({ page }) => {
+    // On the page as well: over CDP the context's colour scheme now and then does not reach it.
+    await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/editor");
+    expect(await page.evaluate(() => matchMedia("(prefers-color-scheme: dark)").matches)).toBe(true);
     await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
     // Anything global.css declares on :root and the theme leaves alone keeps its light value.
     const unset = await page.evaluate(() => {
@@ -218,7 +221,8 @@ test.describe("on a phone", () => {
     await page.getByRole("button", { name: "Exportar", exact: true }).click();
     await page.getByLabel("PDF").check();
     await page.getByRole("button", { name: "Preparar el archivo" }).click();
-    await expect(page.getByRole("status")).toContainText(/Listo: .+\.pdf/);
+    // In the dialog: the reordering's live region is a status too.
+    await expect(page.getByRole("dialog").getByRole("status")).toContainText(/Listo: .+\.pdf/);
     await page.getByRole("button", { name: "Compartir o guardar…" }).click();
     await expect.poll(() => page.evaluate(() => (window as unknown as { shared: string[] }).shared)).toEqual([expect.stringMatching(/\.pdf$/)]);
     await expect(page.getByRole("dialog")).toBeHidden();
