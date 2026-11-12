@@ -172,6 +172,13 @@ links open in the browser; everything else is the web editor as it is. A workflo
 `.rpm` and an AppImage for Linux, a setup `.exe` for Windows and a `.dmg` for both kinds of Mac on GitHub's runners.
 None is signed, to keep the project at zero cost; the release notes and the user guide say how to open them.
 
+### Versions inside the project
+
+Versions travel in the project (`history`), not in separate storage: the exported JSON carries them and a copy of the
+project is a copy of its history too. Each version keeps the whole project, not the difference from the one before,
+so it is read and restored without rebuilding anything; thinning leaves about 80 after a year of daily use, and
+pictures are stored once per content. They stay out of undo, so Ctrl+Z never deletes a version.
+
 ## What is built
 
 - **The editor**: the bank of entries and the profiles, live preview with click-to-edit and the page-fit badge,
@@ -188,6 +195,8 @@ None is signed, to keep the project at zero cost; the release notes and the user
 - **The command line**, with `build`, `validate` and `import`, and a converter from cvgen's data.
 - **The desktop installers**. The Linux packages are tried; the Windows and macOS installers have not been tried yet,
   and no version has been published.
+- **Versions** of the project, off by default: snapshots on save that thin out over time, named versions, a preview,
+  a field-by-field comparison and restoring that Ctrl+Z undoes.
 - **Spanish and English** everywhere.
 
 ## What comes next
@@ -212,11 +221,7 @@ and each channel is published once what it carries has been tried.
      LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with that of the Typst PDF. It
      runs in a container of its own, since LibreOffice and TeX Live are heavy, and a new style is covered without
      writing anything else.
-2. **Versions**, off by default: snapshots on save and named versions (“sent to Acme”) with a preview, a diff of fields
-   and restore, stored with the project. A history inside the app, not a link to any version control system. Automatic
-   snapshots are thinned out so the project does not grow without limit, and named versions stay until you delete
-   them; a photo that did not change is not copied into each version, and restoring can be undone.
-3. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
+2. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
    (except on Flathub, where Flatpak updates it). It is the desktop integration Flathub asks for to accept it.
 
 ### Tests on real devices and accounts

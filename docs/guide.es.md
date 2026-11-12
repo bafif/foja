@@ -28,6 +28,13 @@ Tu trabajo se guarda en el navegador a medida que avanzás («Guardado» en el e
 momento. Reemplazar el proyecto (nuevo, ejemplo, importar) no pierde el anterior: **Proyecto ▾ → Recuperar el proyecto
 anterior** lo trae de vuelta. Cada tanto exportá el proyecto como JSON para tener una copia fuera del navegador.
 
+**Proyecto ▾ → Versiones** guarda la historia del proyecto, si la activás: una instantánea cada vez que se guarda y las
+versiones con nombre que guardes vos (por ejemplo, «Enviado a Acme» al mandar el CV). De cada una ves cómo se veía el
+perfil y qué cambió desde entonces, campo por campo, y podés restaurarla: Ctrl+Z lo deshace, y lo que había queda
+guardado como versión. Las instantáneas automáticas se ralean con el tiempo: de la última hora queda una cada 10
+minutos; del último día, una por hora; del último mes, una por día, y de antes, una por mes. Las versiones con nombre
+quedan hasta que las borrás. Viajan con el proyecto, también en su JSON.
+
 ## Perfiles y el banco de entradas
 
 Un proyecto tiene **un banco de entradas** (trabajos, títulos, proyectos) y **varios perfiles** que eligen de ahí: un CV

@@ -1,6 +1,6 @@
 // The project lives in IndexedDB, in the browser only: no accounts, no server.
 
-import type { Project } from "@foja/core";
+import type { History, Project } from "@foja/core";
 
 const DB = "foja";
 const STORE = "projects";
@@ -31,6 +31,8 @@ async function run<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => I
 export interface Saved {
   project: Project;
   profileId: string;
+  /** The versions, when they are on. */
+  history?: History;
 }
 
 export const loadSaved = () => run<Saved | undefined>("readonly", (s) => s.get(KEY));

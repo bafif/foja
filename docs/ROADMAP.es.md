@@ -180,6 +180,13 @@ cual. Un workflow que se corre a mano arma un `.deb`, un `.rpm` y un AppImage pa
 para Windows y un `.dmg` para los dos tipos de Mac en los runners de GitHub. Ninguno está firmado, para que el
 proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo abrirlos.
 
+### Versiones dentro del proyecto
+
+Las versiones viajan en el proyecto (`history`), no en un almacenamiento aparte: el JSON exportado las lleva y una
+copia del proyecto es también una copia de su historia. Cada versión guarda el proyecto entero, no la diferencia con
+la anterior, porque así se lee y se restaura sin reconstruir nada; el raleo deja unas 80 en un año de uso diario, y
+las fotos se guardan una vez por contenido. Quedan fuera del deshacer, para que Ctrl+Z nunca borre una versión.
+
 ## Qué está hecho
 
 - **El editor**: el banco de entradas y los perfiles, la vista previa en vivo con clic para editar y el indicador de
@@ -198,6 +205,8 @@ proyecto siga sin costo; las notas de la release y la guía de uso dicen cómo a
 - **La línea de comandos**, con `build`, `validate` e `import`, y un conversor desde los datos de cvgen.
 - **Los instaladores de escritorio**. Los paquetes de Linux están probados; los instaladores de Windows y macOS
   todavía no se probaron, y no se publicó ninguna versión.
+- **Versiones** del proyecto, desactivadas por defecto: instantáneas al guardar que se ralean con el tiempo, versiones
+  con nombre, vista previa, comparación campo por campo y restauración que se deshace con Ctrl+Z.
 - **Español e inglés** en todo.
 
 ## Qué viene después
@@ -223,12 +232,7 @@ cualquier momento, y cada canal se publica cuando lo que lleva está probado.
      LaTeX con TeX Live, abre el Word en LibreOffice y compara la cantidad de páginas con la del PDF de Typst. Corre en
      un contenedor propio, porque LibreOffice y TeX Live pesan, y un estilo nuevo queda cubierto sin escribir nada
      más.
-2. **Versiones**, desactivadas por defecto: instantáneas al guardar y versiones con nombre («enviado a Acme») con vista
-   previa, comparación de campos y restauración, guardadas con el proyecto. Un historial dentro de la app, no un enlace
-   a ningún sistema de control de versiones. Las instantáneas automáticas se ralean para que el proyecto no crezca sin
-   límite, y las versiones con nombre quedan hasta que las borrás; una foto que no cambió no se copia en cada versión,
-   y restaurar se puede deshacer.
-3. **Archivos en la app de escritorio**: abrir y guardar proyectos como archivos, con su propio tipo de archivo, y que
+2. **Archivos en la app de escritorio**: abrir y guardar proyectos como archivos, con su propio tipo de archivo, y que
    se actualice sola (salvo la de Flathub, que la actualiza Flatpak). Es la integración con el escritorio que pide
    Flathub para aceptarla.
 

@@ -2,7 +2,7 @@
 // selection and the live preview.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { profileName } from "@foja/core";
+import { profileName, snapshot } from "@foja/core";
 import { InstallSteps } from "./InstallSteps";
 import { ExportDialog } from "./ExportDialog";
 import { ContactsForm } from "./forms/Contacts";
@@ -15,6 +15,7 @@ import { ImportTemplate } from "./forms/ImportTemplate";
 import { SectionForm } from "./forms/Section";
 import { SkillsForm } from "./forms/Skills";
 import { StyleEditor } from "./forms/StyleEditor";
+import { VersionsPanel } from "./forms/Versions";
 import { t, useLanguage } from "./i18n";
 import { connectPreview, usePreview } from "./preview";
 import { overflowingSections } from "./selection";
@@ -40,7 +41,11 @@ async function saveNow() {
   if (!project) return;
   setSaveState("saving");
   try {
-    await save({ project, profileId });
+    // With versions on, every save is a snapshot (when something changed), thinned out as it ages.
+    const before = useEditor.getState().history;
+    const history = before && snapshot(before, project, new Date());
+    if (history !== before) useEditor.setState({ history });
+    await save({ project, profileId, history });
     keepStorage();
     // Only mark it saved if nothing changed while writing.
     if (useEditor.getState().project === project) setSaveState("saved");
@@ -53,7 +58,9 @@ function useAutosave() {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const stop = useEditor.subscribe((state, prev) => {
-      if (state.project === prev.project && state.profileId === prev.profileId) return;
+      // A change to the versions is saved too, but not the snapshot a save takes.
+      const versions = state.history !== prev.history && state.saveState === "unsaved";
+      if (state.project === prev.project && state.profileId === prev.profileId && !versions) return;
       clearTimeout(timer);
       timer = setTimeout(saveNow, 500);
     });
@@ -108,7 +115,7 @@ function useSingleTab(): ["ok" | "elsewhere" | "taken", () => void] {
           return;
         }
         setState("ok");
-        if (steal) void loadSaved().then((saved) => saved && useEditor.getState().load(saved.project, saved.profileId));
+        if (steal) void loadSaved().then((saved) => saved && useEditor.getState().load(saved.project, saved.profileId, saved.history));
         return new Promise<void>(() => undefined); // held while the tab lives
       })
       .catch(() => setState("taken")); // another tab took over
@@ -126,7 +133,7 @@ export default function App() {
     loadSaved()
       .then((saved) => {
         if (saved) {
-          useEditor.getState().load(saved.project, saved.profileId);
+          useEditor.getState().load(saved.project, saved.profileId, saved.history);
           useEditor.getState().setSaveState("saved");
         }
       })
@@ -390,13 +397,16 @@ function TopBar({ onExport }: { onExport: () => void }) {
                   variant="ghost"
                   onClick={async () => {
                     const previous = await loadPrevious();
-                    if (previous) load(previous.project, previous.profileId);
+                    if (previous) load(previous.project, previous.profileId, previous.history);
                     setProjectMenu(false);
                   }}
                 >
                   {t.restorePrevious}
                 </Button>
               )}
+              <Button variant="ghost" onClick={() => (useEditor.getState().select({ kind: "versions" }), setProjectMenu(false), setMore(false))}>
+                {t.versions.title}
+              </Button>
               <ImportButton
                 className="cursor-pointer rounded px-2 py-1 text-sm hover:bg-surface-2"
                 onError={(m) => {
@@ -550,6 +560,8 @@ function SelectionPanel() {
       return <LayoutForm />;
     case "import":
       return <ImportTemplate />;
+    case "versions":
+      return <VersionsPanel />;
     case "style":
       return <StyleEditor key={selection.id} id={selection.id} />;
     case "section":

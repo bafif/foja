@@ -201,6 +201,53 @@
           }
         }
       }
+    },
+    "history": {
+      "type": "object",
+      "description": "Versions of the project, kept with it when versions are on: automatic snapshots taken on save, thinned out as they age, and versions named by the user, kept until deleted.",
+      "required": [
+        "versions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/version"
+          }
+        },
+        "assets": {
+          "type": "object",
+          "description": "The pictures of the versions by a hash of their content: a picture that did not change is kept once, whatever the number of versions.",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type",
+              "data"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "enum": [
+                  "image/jpeg",
+                  "image/png",
+                  "image/svg+xml"
+                ]
+              },
+              "data": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+                "description": "Base64; at most about 10 MB of image.",
+                "maxLength": 14000000
+              }
+            }
+          }
+        }
+      }
     }
   },
   "$defs": {
@@ -741,6 +788,34 @@
               "description": "One item; # is its text."
             }
           }
+        }
+      }
+    },
+    "version": {
+      "type": "object",
+      "required": [
+        "date",
+        "project"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T",
+          "description": "When it was taken, ISO 8601."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Given by the user; without one, an automatic snapshot."
+        },
+        "project": {
+          "type": "object",
+          "required": [
+            "format",
+            "profiles"
+          ],
+          "description": "The project as it was, without its history; its assets name pictures of history.assets by their hash."
         }
       }
     }

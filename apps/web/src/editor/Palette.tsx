@@ -43,6 +43,7 @@ function useCommands(onExport: () => void): Command[] {
       go(t.entries, { kind: "entries" }),
       go(t.profileText, { kind: "profile" }),
       go(t.layout, { kind: "layout" }),
+      go(t.versions.title, { kind: "versions" }),
       ...Object.entries(project.templates ?? {}).map(([id, s]) => go(`${t.styles.editor}: ${s.name}`, { kind: "style", id })),
       ...(profile?.sections.map((s, i) => go(`${t.sections}: ${s.title}`, { kind: "section", index: i })) ?? []),
       ...Object.entries(project.entries).map(([id, e]) => go(`${t.palette.entry}: ${e.title}`, { kind: "entry", id })),

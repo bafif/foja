@@ -14,3 +14,4 @@ export * from "./importer/template.ts";
 export * from "./importer/latex.ts";
 export * from "./fonts.ts";
 export * from "./jsonresume.ts";
+export * from "./history.ts";

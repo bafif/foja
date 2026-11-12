@@ -2,7 +2,7 @@
 // the validation problems of the current project.
 
 import { create } from "zustand";
-import { migrate, validate, type Problem, type Project } from "@foja/core";
+import { migrate, validate, type History, type Problem, type Project } from "@foja/core";
 import { savePrevious } from "./storage";
 
 export type Selection =
@@ -15,21 +15,29 @@ export type Selection =
   | { kind: "layout" }
   | { kind: "style"; id: string }
   | { kind: "import" }
+  | { kind: "versions" }
   | { kind: "section"; index: number };
 
 export interface EditorState {
   project: Project | null;
   profileId: string;
+  /** The project's versions; absent while they are off. Kept apart from the project so undo, the
+   * preview and every edit leave them alone; saved and exported with it. */
+  history?: History;
   selection: Selection;
   problems: Problem[];
   saveState: "saved" | "saving" | "unsaved";
   /** On narrow screens, the one pane shown. */
   pane: "nav" | "edit" | "preview";
   setPane(pane: EditorState["pane"]): void;
-  /** Replaces the project (new, example, import, restore) and forgets the undo history. */
-  load(project: Project, profileId?: string): void;
+  /** Replaces the project (new, example, import, restore) and forgets the undo history. The
+   * versions come in `history` or in the project's own `history`. */
+  load(project: Project, profileId?: string, history?: History): void;
   /** Changes the project: `fn` edits a copy. */
   update(fn: (draft: Project) => void): void;
+  /** Puts `project` in place of the current one as an undo step of its own (restoring a version). */
+  replace(project: Project): void;
+  setHistory(history: History | undefined): void;
   setProfile(id: string): void;
   select(selection: Selection): void;
   setSaveState(state: EditorState["saveState"]): void;
@@ -67,14 +75,14 @@ export const useEditor = create<EditorState>()((set, get) => ({
   setPane(pane) {
     set({ pane });
   },
-  load(loaded, profileId) {
+  load(loaded, profileId, history) {
     // A project saved or exported by an older Foja comes up to the current format.
-    const project = migrate(loaded) as Project;
+    const { history: own, ...project } = migrate(loaded) as Project;
     // Keep what this replaces, so a misclick on "new project" can be undone from the menu.
     const replaced = get().project;
-    if (replaced && replaced !== project) void savePrevious({ project: replaced, profileId: get().profileId }).catch(() => undefined);
+    if (replaced && replaced !== loaded) void savePrevious({ project: replaced, profileId: get().profileId, history: get().history }).catch(() => undefined);
     const id = profileId && project.profiles[profileId] ? profileId : Object.keys(project.profiles)[0];
-    set({ project, profileId: id, problems: validate(project), selection: { kind: "profile" } });
+    set({ project, profileId: id, history: history ?? own, problems: validate(project), selection: { kind: "profile" } });
     past = [];
     future = [];
   },
@@ -89,6 +97,17 @@ export const useEditor = create<EditorState>()((set, get) => ({
     fn(draft);
     record(current);
     set({ project: draft, saveState: "unsaved" });
+  },
+  replace(project) {
+    const current = get().project;
+    if (!current) return;
+    lastEdit = 0;
+    record(current);
+    lastEdit = 0;
+    set({ project, saveState: "unsaved" });
+  },
+  setHistory(history) {
+    set({ history, saveState: "unsaved" });
   },
   setProfile(profileId) {
     set({ profileId, selection: { kind: "profile" } });

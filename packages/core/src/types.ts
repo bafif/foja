@@ -179,4 +179,26 @@ export interface Project {
   profiles: Record<string, Profile>;
   assets?: Record<string, Asset>;
   templates?: Record<string, CustomTemplate>;
+  /** Present when versions are on (history.ts). */
+  history?: History;
+}
+
+/** A project as a version keeps it: without its history, and with its assets as keys of
+ * `History.assets` instead of the pictures themselves. */
+export type VersionProject = Omit<Project, "assets" | "history"> & { assets?: Record<string, string> };
+
+export interface Version {
+  /** ISO 8601. */
+  date: string;
+  /** Given by the user («sent to Acme»): kept until deleted. Without one, an automatic snapshot,
+   * thinned out as it ages. */
+  name?: string;
+  project: VersionProject;
+}
+
+export interface History {
+  /** Oldest first. */
+  versions: Version[];
+  /** The pictures of the versions by a hash of their content: one that did not change is kept once. */
+  assets?: Record<string, Asset>;
 }

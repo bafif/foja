@@ -24,8 +24,10 @@ function remembered(): { format: Choice; dpi: number } {
 }
 
 async function build(format: Choice, dpi: number): Promise<ExportedFile> {
-  const { project, profileId } = useEditor.getState();
+  const { project, profileId, history } = useEditor.getState();
   const { exportFiles, exportStem, bundleExports } = await import("@foja/core/export");
+  // The project file carries the versions; the other formats ignore them.
+  const file = history ? { ...project!, history } : project!;
   const stem = exportStem(project!, profileId);
   const pdf = async (): Promise<ExportedFile> => ({ name: `${stem}.pdf`, mime: "application/pdf", data: await compilePdf(project!, profileId) });
   const jpgs = async (): Promise<ExportedFile[]> => {
@@ -44,10 +46,10 @@ async function build(format: Choice, dpi: number): Promise<ExportedFile> {
   if (format === "all") {
     const template = await templateFiles();
     const files = [await pdf(), ...(await jpgs())];
-    for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(project!, profileId, f, template)));
+    for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(file, profileId, f, template)));
     return bundleExports(project!, profileId, files);
   }
-  const files = await exportFiles(project!, profileId, format, format === "typ" ? await templateFiles() : undefined);
+  const files = await exportFiles(file, profileId, format, format === "typ" ? await templateFiles() : undefined);
   // JSON: the project file, which is what Foja imports; the resolved profile is in "all".
   return files[0];
 }

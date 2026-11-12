@@ -28,6 +28,13 @@ Replacing the project (new, example, import) keeps the previous one: **Project �
 previous project** brings it back. Export the project as JSON now and then to keep a copy outside
 the browser.
 
+**Project ▾ → Versions** keeps the history of the project, if you turn it on: a snapshot every time it is saved and the
+named versions you save yourself (for instance, "Sent to Acme" when you send the CV). For each one you see how the
+profile looked and what changed since, field by field, and you can restore it: Ctrl+Z undoes that, and what was there
+is kept as a version. Automatic snapshots thin out over time: from the last hour, one every 10 minutes stays; from the
+last day, one an hour; from the last month, one a day; and from before that, one a month. Named versions stay until
+you delete them. They travel with the project, in its JSON too.
+
 ## Profiles and the entry bank
 
 A project holds **one bank of entries** (jobs, degrees, projects) and **several profiles** that
