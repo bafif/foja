@@ -218,22 +218,18 @@ cualquier momento, y cada canal se publica cuando lo que lleva está probado.
 ### En el producto
 
 1. **El mismo largo en todos los formatos.** Un CV que entra en una página en el PDF tiene que entrar también en
-   LaTeX y en Word, y hoy puede pasarse (ver las limitaciones conocidas, más abajo). El arreglo vale para todos los
-   estilos y formatos a la vez, sin ajustes por estilo: Typst decide dónde corta cada renglón y los demás formatos
-   lo copian. Ya están la misma fuente (el Word lleva incrustadas XCharter, convertida a TrueType, y Noto Sans) y el
-   test, `scripts/length.sh`: para cada perfil de los proyectos de ejemplo y cada estilo incluido, compila el LaTeX con
-   TeX Live, abre el Word en LibreOffice y compara la cantidad de páginas con la del PDF de Typst. Los casos que fallan
-   son los CV de una página que van justos. Falta:
-   - **Los mismos espacios.** LaTeX deja más aire que Typst en el encabezado, entre las entradas y en las listas, y en
-     Word las columnas son algo más angostas (la sangría de los ítems, el margen de las celdas). Cada estilo de LaTeX
-     y de Word tiene que tomar de su archivo de Typst los mismos espacios entre bloques, el mismo interlineado y los
-     mismos anchos.
-   - **Los mismos renglones.** Typst ya dice dónde corta cada renglón de cada párrafo (`measure.typ` compila el
-     estilo que reproduce el exportador con una marca en cada palabra), y LaTeX y Word ya saben cortar ahí con un
-     salto de línea forzado; Word junta apenas las letras de un renglón donde Typst achicó los espacios. Se enciende
-     en el editor y en la CLI cuando estén los mismos espacios: con los anchos de ahora, el renglón de Word no entra y
-     el largo empeora (`scripts/length.sh --lines` lo mide). La plantilla LaTeX importada queda afuera: su PDF ya es
-     el de LaTeX.
+   LaTeX y en Word, y en algunos estilos todavía puede pasarse (ver las limitaciones conocidas, más abajo). El arreglo
+   es el mismo para todos los estilos: LaTeX y Word toman de Typst sus espacios y sus renglones. Ya están la misma
+   fuente (el Word lleva incrustadas XCharter, convertida a TrueType, y Noto Sans), el test, `scripts/length.sh` (para
+   cada perfil de los proyectos de ejemplo y cada estilo incluido, compila el LaTeX con TeX Live, abre el Word en
+   LibreOffice y compara la cantidad de páginas con la del PDF de Typst), y Legajo, con Arco, Rótulo y los estilos
+   propios, que salen con su disposición: en LaTeX y en Word cada espacio entre bloques sale de cómo los junta Typst
+   (`packages/core/src/export/flow.ts`), y el editor y la CLI le pasan a la exportación dónde corta Typst cada renglón
+   (`measure.typ`), para que corte ahí. Word, que no tiene espacios negativos, junta apenas por dentro los ítems que
+   Typst separa menos que sus renglones, para terminar donde termina Typst. Falta:
+   - **Los demás estilos.** Banda, Minimal (con Portada), Claustro, Recto y Llano todavía tienen sus propios espacios y
+     cortan los renglones a su manera. Cada uno pasa al mismo modelo y recién entonces copia los renglones. Los casos
+     que fallan son CV de una página justos en Banda y Minimal.
    - **Sin las fuentes incrustadas.** Un programa que no lea las fuentes que lleva el Word tiene que seguir mostrando
      una serif parecida.
 2. **Archivos en la app de escritorio**: abrir y guardar proyectos como archivos, con su propio tipo de archivo, y que
@@ -266,9 +262,10 @@ compartir de verdad. Esto pide el aparato o la cuenta reales:
 
 ### Limitaciones conocidas
 
-- LaTeX y Word usan la misma fuente que Typst, pero cortan los renglones a su manera y dejan algo más de aire entre
-  los bloques: un CV que entra justo en una página en el PDF puede pasarse unos renglones. Lo resuelve «El mismo
-  largo en todos los formatos».
+- En Legajo (y en Arco, Rótulo y los estilos propios), LaTeX y Word tienen los espacios y los renglones del PDF. En
+  los demás estilos usan la misma fuente que Typst, pero cortan los renglones a su manera y dejan algo más de aire
+  entre los bloques: un CV que entra justo en una página en el PDF puede pasarse unos renglones. Lo resuelve «El
+  mismo largo en todos los formatos».
 - Una plantilla LaTeX importada se ve en la vista previa sin el clic para editar ni las marcas de lo que se pasa de la
   página, y de las que necesitan LuaLaTeX se importan solo los datos.
 - La línea de comandos no compila LaTeX: escribe el `.tex` lleno.

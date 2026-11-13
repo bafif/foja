@@ -2,7 +2,7 @@
 // profile (debounced), plus PDF exports through the same worker.
 
 import { create } from "zustand";
-import { styleOf, type Mark, type Project, type StyleGeometry } from "@foja/core";
+import { styleOf, type Mark, type MeasuredWord, type Project, type StyleGeometry } from "@foja/core";
 import { pageBoxes } from "../lib/jpg";
 import { compileProfileLatex, latexExtra, withStyle } from "../lib/latex";
 import type { WorkerReply, WorkerRequest } from "../lib/typst.worker";
@@ -33,6 +33,7 @@ let worker: Worker | undefined;
 let nextId = 1;
 const pdfWaiting = new Map<number, (reply: Extract<WorkerReply, { type: "pdf" }>) => void>();
 const thumbWaiting = new Map<number, (svg: string | undefined) => void>();
+const linesWaiting = new Map<number, (words: MeasuredWord[] | undefined) => void>();
 
 // A style is code and can be slow (or loop for ever): a job that has not answered in this long
 // gets the worker replaced, with an error shown, instead of a preview and exports stuck for good.
@@ -46,6 +47,8 @@ function restart() {
   pdfWaiting.clear();
   for (const [, resolve] of thumbWaiting) resolve(undefined);
   thumbWaiting.clear();
+  for (const [, resolve] of linesWaiting) resolve(undefined);
+  linesWaiting.clear();
   usePreview.setState({ ready: false, errors: [t.workerTimeout] });
   start();
 }
@@ -68,6 +71,9 @@ function start(): Worker {
     } else if (data.type === "pdf") {
       pdfWaiting.get(data.id)?.(data);
       pdfWaiting.delete(data.id);
+    } else if (data.type === "lines") {
+      linesWaiting.get(data.id)?.(data.words);
+      linesWaiting.delete(data.id);
     } else {
       // The last good render stays on screen when there is an error.
       usePreview.setState(
@@ -120,6 +126,14 @@ export async function compilePdf(project: Project, profile: string): Promise<Uin
   return new Promise((resolve, reject) =>
     pdfWaiting.set(id, (reply) => (reply.pdf ? resolve(reply.pdf) : reject(new Error((reply.errors ?? [t.pdfFailed]).join("\n"))))),
   );
+}
+
+/** Where each word of the profile is in the style its LaTeX and Word exports reproduce, which they copy (measure.typ);
+ * nothing if Typst fails. */
+export function measureLines(project: Project, profile: string): Promise<MeasuredWord[] | undefined> {
+  const id = nextId++;
+  post({ type: "lines", id, project, profile });
+  return new Promise((resolve) => linesWaiting.set(id, resolve));
 }
 
 // Thumbnails by project version, profile and style: the picker asks again on every render.

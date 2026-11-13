@@ -9,6 +9,7 @@ import rendererWasm from "@myriaddreamin/typst-ts-renderer/wasm?url";
 import {
   LABELS_PATH,
   LIB_PATH,
+  MEASURE_PATH,
   PROJECT_PATH,
   builtinStylePath,
   customStyleBinaries,
@@ -19,10 +20,13 @@ import {
   stylePath,
   typstInputs,
   type Mark,
+  type MeasuredWord,
   type Project,
   type StyleGeometry,
 } from "@foja/core";
+import { exportedProject } from "@foja/core/export/style";
 import lib from "@foja/template/lib.typ?raw";
+import measure from "@foja/template/measure.typ?raw";
 import labels from "@foja/template/labels.json?raw";
 
 const fontUrls = Object.values(
@@ -38,7 +42,8 @@ export type WorkerRequest =
   | ({ type: "render"; id: number; project: Project; profile: string } & Extra)
   | ({ type: "pdf"; id: number; project: Project; profile: string } & Extra)
   /** The first page in another style, for the style picker. */
-  | ({ type: "thumb"; id: number; project: Project; profile: string; style: string } & Extra);
+  | ({ type: "thumb"; id: number; project: Project; profile: string; style: string } & Extra)
+  | ({ type: "lines"; id: number; project: Project; profile: string } & Extra);
 
 export type WorkerReply =
   | { type: "ready"; initMs: number }
@@ -58,7 +63,8 @@ export type WorkerReply =
       renderMs: number;
     }
   | { type: "pdf"; id: number; pdf?: Uint8Array; errors?: string[] }
-  | { type: "thumb"; id: number; svg?: string };
+  | { type: "thumb"; id: number; svg?: string }
+  | { type: "lines"; id: number; words?: MeasuredWord[] };
 
 const compiler = createTypstCompiler();
 const renderer = createTypstRenderer();
@@ -75,6 +81,7 @@ async function init() {
     renderer.init({ getModule: () => rendererWasm }),
   ]);
   compiler.addSource(LIB_PATH, lib);
+  compiler.addSource(MEASURE_PATH, measure);
   for (const [path, source] of Object.entries(styleSources)) compiler.addSource(builtinStylePath(path.split("/").pop()!.replace(/\.typ$/, "")), source);
   compiler.mapShadow(LABELS_PATH, encoder.encode(labels));
   postMessage({ type: "ready", initMs: performance.now() - start } satisfies WorkerReply);
@@ -130,9 +137,16 @@ const asStrings = (d: unknown) => (d as string[] | undefined)?.length ? (d as st
 
 // One snapshot per request: compile once, then take the vector artifact, the marks or the PDF
 // from the same world.
-function withWorld<T>(project: Project, profile: string, fn: (world: TypstWorld) => Promise<T>, mainFilePath = styleOf(project, profile).path, extra?: Record<string, Uint8Array>): Promise<T> {
+function withWorld<T>(
+  project: Project,
+  profile: string,
+  fn: (world: TypstWorld) => Promise<T>,
+  mainFilePath = styleOf(project, profile).path,
+  extra?: Record<string, Uint8Array>,
+  inputs: Record<string, string> = {},
+): Promise<T> {
   load(project, extra);
-  return compiler.runWithWorld({ mainFilePath, inputs: typstInputs(profile) }, fn);
+  return compiler.runWithWorld({ mainFilePath, inputs: { ...typstInputs(profile), ...inputs } }, fn);
 }
 
 async function thumb(req: Extract<WorkerRequest, { type: "thumb" }>): Promise<WorkerReply> {
@@ -184,10 +198,28 @@ async function pdf(req: Extract<WorkerRequest, { type: "pdf" }>): Promise<Worker
   }, undefined, req.extra);
 }
 
+// Where each word is in the style the LaTeX and Word exports reproduce (measure.typ), which they copy.
+async function lines(req: Extract<WorkerRequest, { type: "lines" }>): Promise<WorkerReply> {
+  const project = exportedProject(req.project, req.profile);
+  const style = styleOf(project, req.profile).path;
+  return withWorld(
+    project,
+    req.profile,
+    async (world) => {
+      const compiled = await world.compile({ diagnostics: "unix" });
+      if (compiled.hasError) return { type: "lines", id: req.id };
+      return { type: "lines", id: req.id, words: await world.query<MeasuredWord[]>({ selector: "<foja-word>", field: "value" }) };
+    },
+    MEASURE_PATH,
+    req.extra,
+    { style },
+  );
+}
+
 // Renders: only the newest request matters, anything queued behind a running one is dropped.
 // Exports always run, in order.
 let pendingRender: Extract<WorkerRequest, { type: "render" }> | undefined;
-const exports: Extract<WorkerRequest, { type: "pdf" }>[] = [];
+const exports: Extract<WorkerRequest, { type: "pdf" | "lines" }>[] = [];
 // Thumbnails wait for everything else; a newer request for the same style replaces an older one.
 const thumbs = new Map<string, Extract<WorkerRequest, { type: "thumb" }>>();
 let busy = false;
@@ -199,6 +231,10 @@ async function drain() {
   while (pendingRender || exports.length || thumbs.size) {
     postMessage({ type: "working" } satisfies WorkerReply);
     const next = exports.shift();
+    if (next?.type === "lines") {
+      postMessage(await lines(next).catch((): WorkerReply => ({ type: "lines", id: next.id })));
+      continue;
+    }
     if (next) {
       const reply = await pdf(next).catch((e): WorkerReply => ({ type: "pdf", id: next.id, errors: [errorText(e)] }));
       postMessage(reply, reply.type === "pdf" && reply.pdf ? [reply.pdf.buffer] : []);

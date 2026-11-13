@@ -13,14 +13,14 @@ import { projectJson, resolvedJson } from "./json.ts";
 import { latexBundle } from "./latex.ts";
 import { latexStyleOf } from "./latex-template.ts";
 import { renderMarkdown } from "./markdown.ts";
-import { resolveStyled } from "./style.ts";
+import { copiesLines, resolveStyled } from "./style.ts";
 
 export { escapeLatex, inlineLatex, latexBundle, renderLatex } from "./latex.ts";
 export { fillLatex, latexStyleOf, latexTemplateFiles } from "./latex-template.ts";
 export { inlineMarkdown, renderMarkdown } from "./markdown.ts";
 export { projectJson, resolvedJson } from "./json.ts";
 export { lineSpacing, renderDocx, wordLanguage, type WordFonts } from "./docx.ts";
-export { ATS_STYLES, exportedProject, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
+export { ATS_STYLES, copiesLines, exportedProject, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
 
 export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "jsonresume", "docx"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
@@ -47,7 +47,7 @@ export interface ExportInputs {
   /** The fonts the Word export embeds (packages/template/word-fonts); without them it only names them. */
   wordFonts?: WordFonts;
   /** The words of the profile as measure.typ laid them out with `exportedProject`: the LaTeX and Word exports break
-   * their lines where Typst does. */
+   * their lines where Typst does, when `copiesLines`. */
   measured?: MeasuredWord[];
 }
 
@@ -59,6 +59,7 @@ export async function exportFiles(
   { template, wordFonts, measured }: ExportInputs = {},
 ): Promise<ExportedFile[]> {
   const stem = exportStem(project, profileId);
+  if (!copiesLines(project, profileId)) measured = undefined;
   switch (format) {
     case "typ":
       if (!template) throw new Error("the Typst export needs the template files");
@@ -94,8 +95,9 @@ export function bundleExports(project: Project, profileId: string, files: Export
 }
 
 /** "Open in Overleaf": the LaTeX export, with the file Overleaf has to compile and the engine. */
-export function overleafProject(project: Project, profileId: string): { zip: Uint8Array; main: string; engine: "pdflatex" | "xelatex" } {
+export function overleafProject(project: Project, profileId: string, measured?: MeasuredWord[]): { zip: Uint8Array; main: string; engine: "pdflatex" | "xelatex" } {
   const template = latexStyleOf(project, profileId);
   const main = template ? template.fill.main.slice(template.fill.main.lastIndexOf("/") + 1) : "cv.tex";
-  return { zip: zip(latexBundle(project, profileId)), main, engine: template?.fill.engine === "xetex" ? "xelatex" : "pdflatex" };
+  const lines = copiesLines(project, profileId) ? measured : undefined;
+  return { zip: zip(latexBundle(project, profileId, lines)), main, engine: template?.fill.engine === "xetex" ? "xelatex" : "pdflatex" };
 }

@@ -90,7 +90,7 @@ export class Lines {
     // The first word starts a line, at the paragraph's left edge.
     const left = words[0].end[1] - words[0].width;
     const marks: { at: number; hyphen: boolean }[] = [];
-    const lines: { widths: number[]; spaces: number; space: number; end: number }[] = [];
+    const lines: { widths: number[]; spaces: number; space: number; end: number; cut?: boolean }[] = [];
     let page = words[0].end[0];
     let y = words[0].end[2];
     words.forEach((w, j) => {
@@ -124,11 +124,14 @@ export class Lines {
       line.widths.push(before);
       // Where the word starts is known when it is not the first on its line.
       line.end = line.widths.length > 1 && w.start !== undefined ? w.start + before : Number.NaN;
+      line.cut = true;
       lines.push({ widths: [w.endings[k]], spaces: 0, space: w.space, end: x });
     });
-    // A line that ends in a hyphen reaches the paragraph's right edge, where the widest of the others ends.
-    const right = Math.max(...lines.map((l) => l.end).filter((e) => !Number.isNaN(e)));
-    const over = lines.map((l) => l.widths.reduce((a, b) => a + b, 0) + l.spaces * l.space - ((Number.isNaN(l.end) ? right : l.end) - left));
+    // A line that ends in a hyphen reaches the paragraph's right edge, where the justified lines end (not the last, not
+    // cut), and no further: Typst lets the hyphen hang past it, which Word does not. With no such line, the widest.
+    const ends = (all: boolean) => lines.filter((l, i) => all || (!l.cut && i < lines.length - 1)).map((l) => l.end).filter((e) => !Number.isNaN(e));
+    const right = Math.max(...(ends(false).length ? ends(false) : ends(true)));
+    const over = lines.map((l) => l.widths.reduce((a, b) => a + b, 0) + l.spaces * l.space - ((Number.isNaN(l.end) ? right : l.cut ? Math.min(l.end, right) : l.end) - left));
 
     let out = "";
     let i = 0;

@@ -25,6 +25,7 @@ import {
   type StyleGeometry,
   type TemplateFiles,
 } from "@foja/core";
+import { exportedProject } from "@foja/core/export";
 
 // The published CLI carries the template next to itself (dist/template); in the repository it
 // comes from the @foja/template workspace package.
@@ -115,6 +116,12 @@ export class Typst {
   /** Where each word of the profile is, from a compilation with `measuring`. */
   words(doc: Doc): MeasuredWord[] {
     return this.query(doc, "foja-word");
+  }
+
+  /** Where each word of a profile of `project` is in the style its LaTeX and Word exports reproduce, which they copy. */
+  static measure(project: Project, profileId: string): MeasuredWord[] {
+    const typst = new Typst(exportedProject(project, profileId));
+    return typst.words(typst.compile(profileId, true));
   }
 
   marks(doc: Doc): Mark[] {

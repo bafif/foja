@@ -51,9 +51,9 @@ async function build(args: string[]) {
   for (const id of profiles) if (!(id in project.profiles)) fail(m.noProfile(id));
 
   const { Typst, templateFiles, wordFonts } = await import("./typst.ts");
-  const { bundleExports, exportFiles, exportStem, latexStyleOf } = await import("@foja/core/export");
+  const { bundleExports, copiesLines, exportFiles, exportStem, latexStyleOf } = await import("@foja/core/export");
   const typst = new Typst(project);
-  const inputs = { template: templateFiles(), wordFonts: wordFonts() };
+  const shared = { template: templateFiles(), wordFonts: wordFonts() };
   mkdirSync(values.out, { recursive: true });
   const write = (name: string, data: Uint8Array | string, note = "") => {
     const file = join(values.out, name);
@@ -68,6 +68,9 @@ async function build(args: string[]) {
     if (latex && (wanted.length < formats.length || formats.includes("all"))) console.error(m.latexStyle(id));
     const doc = !latex && wanted.some((f) => f === "pdf" || f === "svg" || f === "all") ? typst.compile(id) : undefined;
     const pages = doc ? m.pages(doc.numOfPages) : "";
+    // LaTeX and Word break their lines where Typst does.
+    const measured = wanted.some((f) => f === "tex" || f === "docx" || f === "all") && copiesLines(project, id) ? Typst.measure(project, id) : undefined;
+    const inputs = { ...shared, measured };
     const stem = exportStem(project, id);
     for (const format of wanted) {
       if (format === "pdf") write(`${stem}.pdf`, typst.pdf(doc!), pages);

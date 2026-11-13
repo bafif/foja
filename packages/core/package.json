@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./export": "./src/export/index.ts",
     "./export/latex-template": "./src/export/latex-template.ts",
+    "./export/style": "./src/export/style.ts",
     "./schema": "./schema/project.schema.json"
   },
   "dependencies": {

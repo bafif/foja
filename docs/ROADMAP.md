@@ -208,21 +208,18 @@ and each channel is published once what it carries has been tried.
 ### In the product
 
 1. **The same length in every format.** A CV that fits on one page in the PDF has to fit in LaTeX and in Word too, and
-   today it can run over (see the known limitations below). The fix holds for every style and format at once, with no
-   per-style tuning: Typst decides where each line breaks and the other formats copy it. The same font is done (the
-   Word file embeds XCharter, turned into TrueType, and Noto Sans), and so is the test, `scripts/length.sh`: for each
-   profile of the example projects and each built-in style, it compiles the LaTeX with TeX Live, opens the Word file
-   in LibreOffice and compares the page count with that of the Typst PDF. The cases that fail are one-page CVs that
-   just fit. Still to do:
-   - **The same gaps.** LaTeX leaves more room than Typst in the header, between entries and in lists, and in Word the
-     columns are a little narrower (the items' indent, the cells' margins). Each LaTeX and Word style has to take from
-     its Typst file the same gaps between blocks, the same line spacing and the same widths.
-   - **The same lines.** Typst already tells where each line of each paragraph breaks (`measure.typ` compiles the style
-     the exporter reproduces with a marker on every word), and LaTeX and Word already know how to break there with a
-     forced line break; Word draws the letters of a line slightly closer where Typst narrowed its spaces. It is turned
-     on in the editor and the CLI once the gaps are the same: with today's widths, Word's line does not fit and the
-     length gets worse (`scripts/length.sh --lines` measures it). An imported LaTeX template stays out of this: its
-     PDF already is LaTeX's.
+   in some styles it can still run over (see the known limitations below). The fix is the same for every style: LaTeX
+   and Word take Typst's spacing and lines. Done: the same font (the Word file embeds XCharter, turned into TrueType,
+   and Noto Sans), the test, `scripts/length.sh` (for each profile of the example projects and each built-in style, it
+   compiles the LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with that of the
+   Typst PDF), and Legajo, with Arco, Rótulo and styles of one's own, which come out in its layout: in LaTeX and in
+   Word every gap between blocks comes from how Typst puts them together (`packages/core/src/export/flow.ts`), and the
+   editor and the CLI hand the export where Typst breaks each line (`measure.typ`), for it to break there. Word, which
+   has no negative spacing, draws the lines of an item slightly closer where Typst sets items closer than lines, to
+   end where Typst ends. Still to do:
+   - **The other styles.** Banda, Minimal (with Portada), Claustro, Recto and Llano still have spacing of their own
+     and break lines their own way. Each one moves to the same model, and only then copies the lines. The cases that
+     fail are one-page CVs that just fit in Banda and Minimal.
    - **Without the embedded fonts.** A program that does not read the fonts the Word file carries still has to show a
      similar serif.
 2. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
@@ -252,7 +249,8 @@ sheet. These need the real device or account:
 
 ### Known limitations
 
-- LaTeX and Word use Typst's font, but break lines their own way and leave a little more room between blocks: a CV
+- In Legajo (and in Arco, Rótulo and styles of one's own), LaTeX and Word have the PDF's spacing and lines. In the
+  other styles they use Typst's font, but break lines their own way and leave a little more room between blocks: a CV
   that just fits on one page in the PDF can run a few lines over. “The same length in every format” fixes it.
 - An imported LaTeX template shows in the preview without click-to-edit or the marks of what spills over, and only the
   data of templates that need LuaLaTeX is imported.

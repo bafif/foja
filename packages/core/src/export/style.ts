@@ -75,3 +75,12 @@ export function resolveStyled(project: Project, profileId: string): { cv: Resolv
   const styled = { ...layout, columns: 1 as const, font: layout.font ?? d.font, accent: layout.accent ?? d.accent, margins: { ...d.margins, ...layout.margins }, ...own };
   return { cv: resolveProfile(withLayout(styled), profileId), style, custom, standsIn };
 }
+
+/** The export styles whose spacing is Typst's (flow.ts). Only they take Typst's lines: in the others, which leave
+ * more space between blocks than Typst, lines laid out as Typst's would push the text further. */
+const COPIES_LINES: ReadonlySet<ExportStyle> = new Set(["legajo"]);
+
+/** Whether the LaTeX and Word exports of a profile break their lines where Typst does, which measure.typ tells. */
+export function copiesLines(project: Project, profileId: string): boolean {
+  return COPIES_LINES.has(resolveStyled(project, profileId).style);
+}

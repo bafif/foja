@@ -5,6 +5,7 @@
 // the Typst point).
 
 import { HYPHEN_LINE, LINE, Lines, type MeasuredWord } from "../lines.ts";
+import { BLOCK, Flow, legajoLook, legajoTop, PAR, type LegajoLook } from "./flow.ts";
 import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
@@ -72,6 +73,8 @@ const BABEL: Record<string, string> = {
 const MM = 72 / 25.4; // bp per millimetre
 const PAPER = { a4: { width: 210, height: 297, option: "a4paper" }, "us-letter": { width: 215.9, height: 279.4, option: "letterpaper" } };
 const bp = (value: number) => `${+value.toFixed(3)}bp`;
+/** A size of `size` bp whose lines are `baseline` bp apart. */
+const sized = (size: number, baseline: number) => `\\fontsize{${bp(size)}}{${bp(baseline)}}\\selectfont `;
 
 /** The photo's file name inside the bundle; SVG is left out (pdflatex cannot include it). */
 function photoFile(cv: ResolvedCv): string | undefined {
@@ -174,32 +177,45 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
     lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\SmallSep{\\bfseries\\Caps{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
     return lines;
   }
+  const k = legajoLook(cv.layout);
   lines.push(
+    // Typst's sizes and distances (legajo.typ): a line is its cap height plus the leading below the one before, and
+    // a tall letter does not move it; between blocks only the spacing the body writes. The small size keeps the
+    // leading of the normal one, as in Typst, where it is set inside the paragraph.
+    `\\renewcommand{\\normalsize}{${sized(k.S, (k.cap + 0.55) * k.S)}}\\normalsize`,
+    `\\newcommand{\\Small}{${sized(k.small, k.cap * k.small + k.lead)}}`,
+    `\\setlength{\\topskip}{${bp(k.S)}}\\setlength{\\parskip}{0pt}\\setlength{\\lineskiplimit}{-4bp}`,
+    `\\setlist[itemize]{itemsep=${bp(0.4 * k.d * k.S - k.lead)},topsep=0pt,partopsep=0pt,parsep=0pt}`,
     // A section title in small caps, then a hairline to the end of the line.
     // \\nopagebreak keeps a title with what follows; needspace would misjudge flowfram's frames.
-    "\\newcommand{\\CVSection}[1]{\\par\\Sep{\\color{accent}\\bfseries\\Caps{#1}}\\hspace{0.6em}{\\color{accent!50}\\leaders\\hrule height 0.36em depth -0.32em\\hfill}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}",
+    "\\newcommand{\\CVSection}[1]{{\\color{accent}\\bfseries\\Caps{#1}}\\hspace{0.6em}{\\color{accent!50}\\leaders\\hrule height 0.36em depth -0.32em\\hfill}\\par\\nopagebreak[4]}",
     "\\newcommand{\\SideHeading}[1]{{\\footnotesize\\color{accent}\\bfseries\\Caps{#1}}\\par}",
     `\\newlength{\\DateWidth}\\setlength{\\DateWidth}{${bp(2 * 28.35 * (l.fontSize / 10))}}`,
-    // An entry: the period in its own column, the rest beside it.
-    "\\newcommand{\\CVEntry}[2]{\\par\\noindent\\parbox[t]{\\DateWidth}{\\raggedright\\small\\color{muted}#1}\\hspace{0.8em}\\parbox[t]{\\dimexpr\\linewidth-\\DateWidth-0.8em\\relax}{#2}\\par\\SmallSep}",
+    // A row of two columns, the period (or a skill's name) and the rest, as a grid row in Typst: each column ends at
+    // its last baseline, and the next line is as far below the lower one as below any line.
+    "\\newcommand{\\Row}[2]{\\noindent\\parbox[t]{\\DateWidth}{\\raggedright\\Small\\leavevmode\\color{muted}#1\\par\\vskip-\\prevdepth}\\hspace{0.8em}\\parbox[t]{\\dimexpr\\linewidth-\\DateWidth-0.8em\\relax}{#2\\par\\vskip-\\prevdepth}\\par\\prevdepth=0pt}",
   );
-  const header = 22 * MM * (l.fontSize / 10);
   if (l.columns === 2) {
     const left = l.sidebar === "left";
     const sideX = left ? 0 : main + gutter;
     const mainX = left ? side + gutter : 0;
+    // The columns' first baselines are where Typst has them: \\topskip below the top of their frame, and the cap
+    // height below the top of the column in Typst.
+    const raise = (1 - k.cap) * k.S;
+    const header = legajoTop(k) - raise;
     const below = textHeight - header;
     lines.push(
       "% Page 1: the header across the top, the sidebar and the main column below it; the main",
       "% column continues on the next pages.",
       `\\newstaticframe[1]{\\textwidth}{${bp(header)}}{0pt}{${bp(below)}}[header]`,
-      `\\newflowframe[1]{${bp(side)}}{${bp(below)}}{${bp(sideX)}}{0pt}[side]`,
+      "\\setstaticframe*{header}{valign=t}",
+      `\\newflowframe[1]{${bp(side)}}{${bp(below - raise)}}{${bp(sideX)}}{0pt}[side]`,
       `\\newflowframe[1]{${bp(main)}}{${bp(below)}}{${bp(mainX)}}{0pt}[main]`,
-      `\\newflowframe[>1]{${bp(main)}}{${bp(textHeight)}}{${bp(mainX)}}{0pt}[continuation]`,
+      `\\newflowframe[>1]{${bp(main)}}{${bp(textHeight + raise)}}{${bp(mainX)}}{0pt}[continuation]`,
       // The sidebar exists on page 1 only: if it is taller than its frame, it is scaled to fit
       // rather than pushing the main column off the page.
       "\\newsavebox{\\SideBox}",
-      `\\newcommand{\\FitSide}[1]{\\sbox{\\SideBox}{#1}\\ifdim\\dimexpr\\ht\\SideBox+\\dp\\SideBox\\relax>${bp(below - 4)}\\resizebox*{!}{${bp(below - 4)}}{\\usebox{\\SideBox}}\\else\\usebox{\\SideBox}\\fi}`,
+      `\\newcommand{\\FitSide}[1]{\\sbox{\\SideBox}{#1}\\ifdim\\dimexpr\\ht\\SideBox+\\dp\\SideBox\\relax>${bp(below - raise - 4)}\\resizebox*{!}{${bp(below - raise - 4)}}{\\usebox{\\SideBox}}\\else\\usebox{\\SideBox}\\fi}`,
     );
   }
   return lines;
@@ -210,15 +226,43 @@ function items(list: Item[]): string[] {
   return ["\\begin{itemize}", ...list.map((it) => `\\item ${laid((it.heading ? `**${it.heading}.** ` : "") + it.text)}`), "\\end{itemize}"];
 }
 
+/** The vertical space before the next line or block of `flow`, as TeX adds it to the distance between baselines. */
+function skip(flow: Flow, k: LegajoLook): string {
+  return `\\par\\vspace{${bp(flow.take() - k.lead)}}`;
+}
+
 /** Legajo: the period in its own column, the rest beside it. */
-function legajoEntry(e: ResolvedEntry, compact: boolean): string {
-  const content = [
-    `\\textbf{${laid(e.title, false)}}`,
-    e.place ? `\\\\{\\itshape\\color{muted}${laid(e.place, false)}}` : "",
-    e.note ? `\\par{\\small\\color{muted}${laid(e.note, false)}}` : "",
-    !compact && e.items.length ? `\\par${items(e.items).join("\n")}` : "",
-  ].join("");
-  return `\\CVEntry{${laid(e.period, false)}}{${content}}`;
+function legajoEntry(e: ResolvedEntry, compact: boolean, k: LegajoLook): string {
+  const cell = new Flow();
+  cell.take();
+  const content = [`\\textbf{${laid(e.title, false)}}`, e.place ? `\\\\{\\itshape\\color{muted}${laid(e.place, false)}}` : ""];
+  cell.space(0.55 * k.d * k.S, PAR);
+  if (e.note) {
+    content.push(skip(cell.space(0.55 * k.d * k.S, PAR), k), `{\\Small\\leavevmode\\color{muted}${laid(e.note, false)}\\par}`);
+    cell.space(0.55 * k.d * k.S, PAR);
+  }
+  if (!compact && e.items.length) content.push(skip(cell.space(0.4 * k.d * k.S, BLOCK), k), items(e.items).join("\n"));
+  return `\\Row{${laid(e.period, false)}}{${content.join("")}}`;
+}
+
+/** A section of Legajo's main column: the title, then its entries, items and paragraphs. */
+function legajoSection(s: ResolvedSection, flow: Flow, k: LegajoLook): string[] {
+  const { S, d } = k;
+  const out = [skip(flow.space(1.15 * d * S, BLOCK), k), `\\CVSection{${escapeLatex(s.title)}}`];
+  flow.space(0.6 * d * S, BLOCK);
+  for (const b of s.blocks) {
+    if (b.type === "entry") {
+      out.push(skip(flow.space(0.75 * d * S, BLOCK), k), legajoEntry(b.entry, s.compact, k));
+      flow.space(0, BLOCK);
+    } else if (b.type === "item") {
+      out.push(skip(flow.space(0.5 * d * S, BLOCK), k), ...items([b]));
+      flow.space(0, BLOCK);
+    } else {
+      out.push(skip(flow.space(0.55 * d * S, PAR), k), `${laid(b.text)}\\par`);
+      flow.space(0.55 * d * S, PAR);
+    }
+  }
+  return out;
 }
 
 /** Banda and Minimal: the title with the period on the right, the place below it. */
@@ -237,7 +281,7 @@ function lineEntry(style: "banda" | "minimal") {
 
 type EntryLatex = (e: ResolvedEntry, compact: boolean) => string;
 
-function mainSection(s: ResolvedSection, entry: EntryLatex = legajoEntry): string[] {
+function mainSection(s: ResolvedSection, entry: EntryLatex): string[] {
   const out = [`\\CVSection{${escapeLatex(s.title)}}`];
   let pending: Item[] = [];
   const flush = () => {
@@ -281,11 +325,19 @@ function contactValue(c: ResolvedCv["contacts"][number]): string {
 
 function sidebar(cv: ResolvedCv, photo: string | undefined): string[] {
   const { side } = geometry(cv);
+  const k = legajoLook(cv.layout);
+  const small = k.small;
+  const pitch = small * (k.cap + 0.5);
+  // Typst's sidebar: the small size with a leading of 0.5em, a block of 1.1em below every part, 0.25em and the
+  // paragraph spacing under its title, 0.6em between the entries of a section.
+  const gap = (typst: number, next = small) => `\\vspace{${bp(typst + k.cap * next - pitch)}}`;
+  const heading = 0.836 * k.S;
   const inner = side - 2 * 10;
-  const out = ["\\setlength{\\fboxsep}{10bp}", `\\FitSide{\\colorbox{tint}{\\begin{minipage}[t]{${bp(inner)}}`, "\\raggedright\\small"];
+  const out = ["\\setlength{\\fboxsep}{10bp}", `\\FitSide{\\colorbox{tint}{\\begin{minipage}[t]{${bp(inner)}}`, `\\vspace*{2bp}\\raggedright${sized(small, pitch)}`];
   if (photo) out.push(`\\centering${photoCommand(cv, photo, inner)}\\par\\raggedright\\vspace{6bp}`);
+  const title = (text: string) => [`\\SideHeading{${escapeLatex(text)}}`, gap(0.25 * small + 0.55 * k.d * small)];
   // `\\\\{}`: a line break that a next line starting with [ or * cannot extend.
-  const block = (title: string, values: string[]) => out.push(`\\SideHeading{${escapeLatex(title)}}`, values.join("\\\\{}"), "\\par\\SmallSep");
+  const block = (text: string, values: string[]) => out.push(...title(text), values.join("\\\\{}"), `\\par${gap(1.1 * k.d * small, heading)}`);
   if (cv.highlight) block(cv.highlight.title, [escapeLatex(cv.highlight.text)]);
   if (cv.contacts.length) block(cv.labels.contact, cv.contacts.map(contactValue));
   for (const row of cv.skills) {
@@ -294,23 +346,24 @@ function sidebar(cv: ResolvedCv, photo: string | undefined): string[] {
       const columns = row.map(
         (g) => `\\begin{tabular}[t]{@{}l@{}}{\\footnotesize\\color{accent}\\bfseries\\Caps{${escapeLatex(g.title)}}}\\\\{} ${g.items.map(escapeLatex).join(" \\\\{} ")}\\end{tabular}`,
       );
-      out.push(`${columns.join("\\hspace{1em}")}\\par\\SmallSep`);
+      out.push(`${columns.join("\\hspace{1em}")}\\par${gap(1.1 * k.d * small, heading)}`);
     }
   }
   for (const s of cv.sections.filter((s) => s.side)) {
-    out.push(`\\SideHeading{${escapeLatex(s.title)}}`);
-    for (const b of s.blocks) out.push(sideBlock(b), "\\vspace{0.3em}");
-    out.push("\\SmallSep");
+    out.push(...title(s.title));
+    out.push(s.blocks.map(sideBlock).join(gap(0.6 * small)), gap(1.1 * k.d * small, heading));
   }
-  out.push("\\end{minipage}}}");
+  out.push("\\vspace*{2bp}\\end{minipage}}}");
   return out;
 }
 
-function heading(cv: ResolvedCv): string[] {
+/** Legajo's name over a rule and the subtitle, each line as far from the one before as in Typst (legajoTop). */
+function heading(cv: ResolvedCv, k: LegajoLook): string[] {
+  const { S, d, cap } = k;
   return [
-    `{\\fontsize{${+(cv.layout.fontSize * 2.3).toFixed(1)}}{${+(cv.layout.fontSize * 2.6).toFixed(1)}}\\selectfont\\scshape ${escapeLatex(cv.name)}\\par}`,
-    "\\vspace{-2bp}{\\color{accent}\\rule{\\linewidth}{1.6bp}}\\par\\vspace{-2bp}",
-    `{\\large\\itshape\\color{muted}${escapeLatex(cv.subtitle)}\\par}`,
+    `{${sized(2.1 * S, cap * 2.1 * S)}\\scshape ${escapeLatex(cv.name)}\\par}`,
+    `{\\setlength{\\baselineskip}{${bp(0.55 * d * 2.1 * S - 0.35 * S)}}\\noindent{\\color{accent}\\rule[-0.8bp]{\\linewidth}{1.6bp}}\\par}`,
+    `{${sized(1.25 * S, 0.1 * S + 0.55 * d * 1.25 * S + cap * 1.25 * S)}\\itshape\\color{muted}${escapeLatex(cv.subtitle)}\\par}`,
   ];
 }
 
@@ -318,13 +371,29 @@ function summary(cv: ResolvedCv): string[] {
   return cv.summary ? [`${laid(cv.summary)}\\par`] : [];
 }
 
+/** A paragraph of Legajo's main column: the highlight or the summary. */
+function legajoPar(flow: Flow, k: LegajoLook, tex: string): string[] {
+  const out = [skip(flow.space(0.55 * k.d * k.S, PAR), k), tex];
+  flow.space(0.55 * k.d * k.S, PAR);
+  return out;
+}
+
+/** Legajo, in one column or two. */
 function body(cv: ResolvedCv, photo: string | undefined): string[] {
-  const main = cv.sections.filter((s) => !s.side).flatMap((s) => mainSection(s));
+  const k = legajoLook(cv.layout);
+  const { S, d } = k;
+  const flow = new Flow();
   if (cv.layout.columns === 2) {
-    return ["\\begin{staticcontents*}{header}", ...heading(cv), "\\end{staticcontents*}", ...sidebar(cv, photo), "\\framebreak", ...summary(cv), ...main];
+    const start = cv.summary ? legajoPar(flow, k, summary(cv)[0]).slice(1) : [];
+    const main = cv.sections.filter((s) => !s.side).flatMap((s) => legajoSection(s, flow, k));
+    return ["\\begin{staticcontents*}{header}", ...heading(cv, k), "\\end{staticcontents*}", ...sidebar(cv, photo), "\\framebreak", ...start, ...main];
   }
+  // The contacts 0.4em below the subtitle, then 1em more than the spacing of the paragraphs down to the body.
   const contacts = cv.contacts.map(contactValue).join(" \\enspace$\\cdot$\\enspace ");
-  const head = [...heading(cv), ...(contacts ? ["\\vspace{4bp}", `{\\small\\color{muted}${contacts}\\par}`] : [])];
+  const below = contacts ? `{${sized(k.small, 0.4 * S + 0.55 * d * 1.25 * S + k.cap * k.small)}\\color{muted}${contacts}\\par}` : "";
+  const head = [...heading(cv, k), below].filter(Boolean);
+  flow.take();
+  flow.space(0.55 * d * (contacts ? k.small : 1.25 * S), PAR).v(d * S);
   const photoWidth = cv.layout.fontSize * 8.5;
   const top = photo
     ? [
@@ -334,11 +403,19 @@ function body(cv: ResolvedCv, photo: string | undefined): string[] {
         `\\begin{minipage}[t]{${bp(photoWidth)}}\\vspace{0pt}${photoCommand(cv, photo, photoWidth)}\\end{minipage}\\par`,
       ]
     : head;
-  const skills = cv.skills.length
-    ? [`\\CVSection{${escapeLatex(cv.labels.skills)}}`, ...cv.skills.flat().map((g) => `{\\color{muted}\\Caps{${escapeLatex(g.title)}}}:\\enspace ${g.items.map(escapeLatex).join(", ")}\\par`)]
-    : [];
-  const highlight = cv.highlight ? [`{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}~~${escapeLatex(cv.highlight.text)}\\par`] : [];
-  return [...top, "\\bigskip", ...highlight, ...summary(cv), ...skills, ...cv.sections.flatMap((s) => mainSection(s))];
+  const out = [...top];
+  if (cv.highlight) out.push(...legajoPar(flow, k, `{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.5em}${escapeLatex(cv.highlight.text)}\\par`));
+  if (cv.summary) out.push(...legajoPar(flow, k, summary(cv)[0]));
+  if (cv.skills.length) {
+    // Each skill as a row of a grid, its name in the column of the periods; 0.45em between rows.
+    out.push(skip(flow.space(1.15 * d * S, BLOCK), k), `\\CVSection{${escapeLatex(cv.labels.skills)}}`);
+    flow.space(0.6 * d * S, BLOCK);
+    for (const g of cv.skills.flat()) {
+      out.push(skip(flow, k), `\\Row{\\Caps{${escapeLatex(g.title)}}}{${g.items.map(escapeLatex).join(", ")}}`);
+      flow.v(0.45 * S);
+    }
+  }
+  return [...out, ...cv.sections.flatMap((s) => legajoSection(s, flow, k))];
 }
 
 const DOT = " $\\cdot$ ";

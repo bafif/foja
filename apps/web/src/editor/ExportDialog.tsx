@@ -7,7 +7,9 @@ import { download } from "./download";
 import { openInOverleaf } from "./overleaf";
 import { t } from "./i18n";
 import { styleOf } from "@foja/core";
-import { compilePdf, renderThumb } from "./preview";
+import type { MeasuredWord } from "@foja/core";
+import { copiesLines } from "@foja/core/export/style";
+import { compilePdf, measureLines, renderThumb } from "./preview";
 import { useEditor } from "./store";
 import { templateFiles, wordFonts } from "./template";
 
@@ -23,7 +25,10 @@ function remembered(): { format: Choice; dpi: number } {
   }
 }
 
-async function build(format: Choice, dpi: number): Promise<ExportedFile> {
+/** Where Typst breaks the lines of the profile, measured when first asked for. */
+type Lines = () => Promise<MeasuredWord[] | undefined>;
+
+async function build(format: Choice, dpi: number, lines: Lines): Promise<ExportedFile> {
   const { project, profileId, history } = useEditor.getState();
   const { exportFiles, exportStem, bundleExports } = await import("@foja/core/export");
   // The project file carries the versions; the other formats ignore them.
@@ -44,7 +49,7 @@ async function build(format: Choice, dpi: number): Promise<ExportedFile> {
     return files.length === 1 ? files[0] : bundleExports(project!, profileId, files);
   }
   if (format === "all") {
-    const inputs = { template: await templateFiles(), wordFonts: await wordFonts() };
+    const inputs = { template: await templateFiles(), wordFonts: await wordFonts(), measured: await lines() };
     const files = [await pdf(), ...(await jpgs())];
     for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(file, profileId, f, inputs)));
     return bundleExports(project!, profileId, files);
@@ -52,6 +57,7 @@ async function build(format: Choice, dpi: number): Promise<ExportedFile> {
   const files = await exportFiles(file, profileId, format, {
     template: format === "typ" ? await templateFiles() : undefined,
     wordFonts: format === "docx" ? await wordFonts() : undefined,
+    measured: format === "docx" || format === "tex" ? await lines() : undefined,
   });
   // JSON: the project file, which is what Foja imports; the resolved profile is in "all".
   return files[0];
@@ -70,6 +76,22 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   const sharing = canShareFiles();
   // Loaded up front: "Open in Overleaf" builds the zip inside the click, where a new tab is allowed.
   const [exporters, setExporters] = useState<typeof import("@foja/core/export")>();
+  // Where Typst breaks the lines, which LaTeX and Word copy: measured once, as soon as one of them is chosen, so that
+  // "Open in Overleaf", which cannot wait, finds it done.
+  const lines = useRef<{ promise: Promise<MeasuredWord[] | undefined>; words?: MeasuredWord[] }>(undefined);
+  const measured = () => {
+    if (!lines.current) {
+      const { project, profileId } = useEditor.getState();
+      const promise = copiesLines(project!, profileId) ? measureLines(project!, profileId) : Promise.resolve(undefined);
+      const current: { promise: typeof promise; words?: MeasuredWord[] } = { promise };
+      void promise.then((words) => (current.words = words));
+      lines.current = current;
+    }
+    return lines.current.promise;
+  };
+  useEffect(() => {
+    if (choice.format === "tex" || choice.format === "docx" || choice.format === "all") void measured();
+  }, [choice.format]);
   // A webview cannot post a form to a new tab: Overleaf is a browser action.
   const overleaf = choice.format === "tex" && !desktop();
 
@@ -83,7 +105,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
     setError(undefined);
     try {
       const { project, profileId } = useEditor.getState();
-      openInOverleaf(exporters.overleafProject(project!, profileId));
+      openInOverleaf(exporters.overleafProject(project!, profileId, lines.current?.words));
     } catch (e) {
       setError(`${t.exportFailed} ${(e as Error).message}`);
     }
@@ -116,7 +138,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
       // Storage can be unavailable (private windows); the choice is just not remembered.
     }
     try {
-      const built = await build(choice.format, choice.dpi);
+      const built = await build(choice.format, choice.dpi, measured);
       const note = built.left?.length ? t.jsonResumeLeft(built.left.join(", ")) : undefined;
       setLeft(note);
       const file = shareable(built.name, built.data, built.mime);
