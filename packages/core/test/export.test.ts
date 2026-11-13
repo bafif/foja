@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { pickStyle, resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
 import { docxParts } from "./docx-parts.ts";
-import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, overleafProject, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
+import { ATS_STYLES, STYLE_NAMES, bundleExports, resolveStyled, escapeLatex, exportFiles, overleafProject, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
 const decoder = new TextDecoder();
@@ -129,11 +129,11 @@ describe("LaTeX", () => {
   test("Claustro: the name centred, the institution above the position and the dates", () => {
     const cv = resolveProfile(inAtsStyle("claustro"), "programador");
     const tex = renderLatex(cv, "claustro");
-    expect(tex).toContain("{\\centering");
+    expect(tex).toContain("\\makebox[\\linewidth][c]{\\fontsize");
     const first = cv.sections[0].blocks[0];
     if (first.type !== "entry") throw new Error("the first block is not an entry");
     const e = first.entry;
-    expect(tex).toContain(`\\textbf{${escapeLatex(e.place)}}\\\\\\textit{${escapeLatex(e.title)}}\\hfill{${escapeLatex(e.period)}}`);
+    expect(tex).toContain(`\\textbf{${escapeLatex(e.place)}}\\par\\textit{${escapeLatex(e.title)}}\\hfill{${escapeLatex(e.period)}}`);
   });
 
   test.each([
@@ -284,8 +284,8 @@ describe("files", () => {
   test.each(["banda", "minimal"] as const)("Word in %s: the dates at the right margin, as in Typst", async (style) => {
     const xml = await documentXml((await exportFiles(inStyle(style), "programador", "docx"))[0].data);
     expect(xml).toMatch(/<w:tab w:val="right"/);
-    // No column of dates: the only tables left are Banda's band.
-    expect(xml.split("<w:tbl>").length - 1).toBe(style === "banda" ? 1 : 0);
+    // No column of dates: the only tables are the header's row (Banda's band) and a grid for each row of skills.
+    expect(xml.split("<w:tbl>").length - 1).toBe(1 + resolveStyled(inStyle(style), "programador").cv.skills.length);
   });
 
   test.each(ATS_STYLES)("Word in %s: paragraphs only, the contacts in the body, no header or footer", async (style) => {

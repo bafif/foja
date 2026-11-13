@@ -5,12 +5,12 @@
 // the Typst point).
 
 import { HYPHEN_LINE, LINE, Lines, type MeasuredWord } from "../lines.ts";
-import { BLOCK, Flow, legajoLook, legajoTop, PAR, type LegajoLook } from "./flow.ts";
+import { BLOCK, capHeight, Flow, legajoLook, legajoTop, look, PAR, photoHeight, titleLook, type LegajoLook, type Look, type OneColumnStyle } from "./flow.ts";
 import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
 import type { ZipInput } from "../zip.ts";
-import { isAtsStyle, resolveStyled, STYLE_NAMES, styleName, type AtsStyle, type ExportStyle } from "./style.ts";
+import { resolveStyled, STYLE_NAMES, styleName, type AtsStyle, type ExportStyle } from "./style.ts";
 import { latexStyleOf, latexTemplateBundle } from "./latex-template.ts";
 
 type LatexStyle = ExportStyle;
@@ -120,17 +120,19 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
   const l = cv.layout;
   const { paper, textHeight, gutter, side, main } = geometry(cv);
   const size = [9, 10, 11, 12].reduce((a, b) => (Math.abs(b - l.fontSize) < Math.abs(a - l.fontSize) ? b : a));
-  const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
   const m = l.margins;
   const accent = (l.accent ?? DEFAULT_ACCENT).slice(1).toUpperCase();
   const font = l.font === "Noto Sans" ? "\\usepackage[sfdefault]{noto}" : "\\usepackage{XCharter}";
+  // The one-column styles' text starts (1 − cap height) em higher: their first baseline, \\topskip below it, is where
+  // Typst has it, the cap height below the margin.
+  const top = style === "legajo" ? `${m.top}mm` : bp(m.top * MM - (1 - capHeight(l.font === "Noto Sans")) * look(style, l).S);
   const lines = [
     `\\documentclass[${paper.option},${size}pt]{memoir}`,
     `% Made with Foja (https://github.com/bafif/foja), ${STYLE_NAMES[style]} style. Compile with pdflatex, lualatex or tectonic.`,
     "\\usepackage[T1]{fontenc}",
     font,
     `\\usepackage[${BABEL[cv.language.split("-")[0]] ?? "english"}]{babel}`,
-    `\\usepackage[paperwidth=${paper.width}mm,paperheight=${paper.height}mm,top=${m.top}mm,bottom=${m.bottom}mm,left=${m.left}mm,right=${m.right}mm]{geometry}`,
+    `\\usepackage[paperwidth=${paper.width}mm,paperheight=${paper.height}mm,top=${top},bottom=${m.bottom}mm,left=${m.left}mm,right=${m.right}mm]{geometry}`,
     "\\usepackage{graphicx}",
     // flowfram 2 defines \\cleartoevenpage anew, which memoir has: LaTeX would stop there.
     style === "legajo" ? "\\let\\cleartoevenpage\\undefined\\usepackage{flowfram}" : style === "banda" ? "\\usepackage{eso-pic}" : "",
@@ -144,37 +146,37 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
     "\\colorlet{tint}{accent!8}",
     "\\pagestyle{empty}",
     "\\setlength{\\parindent}{0pt}",
-    `\\setlength{\\parskip}{${+(0.15 * density).toFixed(2)}em}`,
     "\\color{ink}",
     `\\setlist[itemize]{leftmargin=1em,label=${MARKER[style]},itemsep=0.2em,topsep=0.2em,parsep=0pt}`,
-    `\\newcommand{\\Sep}{\\vspace{${+(0.9 * density).toFixed(2)}em}}`,
-    `\\newcommand{\\SmallSep}{\\vspace{${+(0.45 * density).toFixed(2)}em}}`,
     // Spaced capitals in a small size: XCharter's small caps lack accented letters in LaTeX.
     "\\newcommand{\\Caps}[1]{{\\footnotesize\\MakeUppercase{#1}}}",
   ].filter(Boolean);
-  if (style === "banda") {
-    // A block of the accent colour, then the title.
-    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep{\\color{accent}\\rule[-0.12em]{3.5bp}{0.95em}}\\hspace{0.5em}{\\large\\bfseries #1}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
-    return lines;
-  }
-  if (style === "claustro") {
-    // Capitals in bold over a rule from margin to margin (drawn first, under the baseline).
-    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\noindent\\rlap{\\color{accent}\\rule[-0.4em]{\\linewidth}{0.7bp}}{\\bfseries\\MakeUppercase{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
-    return lines;
-  }
-  if (style === "recto") {
-    // Small capitals of the accent colour over a hairline.
-    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\noindent\\rlap{\\color{ink!22}\\rule[-0.45em]{\\linewidth}{0.5bp}}{\\color{accent}\\bfseries\\Caps{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
-    return lines;
-  }
-  if (style === "llano") {
-    // Bold in the accent colour, nothing else.
-    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep{\\large\\color{accent}\\bfseries #1\\par}\\nopagebreak[4]\\vspace{0.2em}\\nopagebreak[4]}");
-    return lines;
-  }
-  if (style === "minimal") {
-    // Small spaced capitals in bold, nothing else.
-    lines.push("\\newcommand{\\CVSection}[1]{\\par\\Sep\\SmallSep{\\bfseries\\Caps{#1}}\\par\\nopagebreak[4]\\SmallSep\\nopagebreak[4]}");
+  if (style !== "legajo") {
+    // Typst's sizes and distances (styles/*.typ), as Legajo's below.
+    const k = look(style, l);
+    const t = titleLook(style, k);
+    const title = `{${sized(t.size, t.top + k.lead)}\\noindent `;
+    const TITLE: Record<OneColumnStyle, string> = {
+      // A block of the accent colour, then the title.
+      banda: `${title}{\\color{accent}\\rule[${bp(-0.12 * k.S)}]{3.5bp}{${bp(0.95 * k.S)}}}\\hspace{${bp(0.5 * k.S)}}\\bfseries #1\\par}`,
+      // Small capitals in bold, nothing else.
+      minimal: `${title}\\bfseries\\MakeUppercase{#1}\\par}`,
+      // Capitals in bold over a rule from margin to margin (drawn first), at the bottom of the title's inset.
+      claustro: `${title}\\rlap{\\color{accent}\\rule[${bp(-t.under - 0.35)}]{\\linewidth}{0.7bp}}\\bfseries\\MakeUppercase{#1}\\par}`,
+      // Small capitals of the accent colour over a hairline.
+      recto: `${title}\\rlap{\\color{ink!22}\\rule[${bp(-t.under - 0.25)}]{\\linewidth}{0.5bp}}\\color{accent}\\bfseries\\MakeUppercase{#1}\\par}`,
+      // Bold in the accent colour, nothing else.
+      llano: `${title}\\color{accent}\\bfseries #1\\par}`,
+    };
+    lines.push(
+      `\\renewcommand{\\normalsize}{${sized(k.S, k.cap * k.S + k.lead)}}\\normalsize`,
+      `\\newcommand{\\Small}{${sized(k.small, k.cap * k.small + k.lead)}}`,
+      `\\setlength{\\topskip}{${bp(k.S)}}\\setlength{\\parskip}{0pt}\\setlength{\\lineskiplimit}{-4bp}`,
+      // As Typst's list: the marker `indent` in, the text `body-indent` after it.
+      `\\setlist[itemize]{leftmargin=${bp(k.indent + k.marker + k.body)},labelwidth=${bp(k.marker)},labelsep=${bp(k.body)},align=left,itemsep=${bp(k.list - k.lead)},topsep=0pt,partopsep=0pt,parsep=0pt}`,
+      `\\newcommand{\\CVSection}[1]{${TITLE[style]}\\nopagebreak[4]}`,
+      "\\newlength{\\SkillWidth}",
+    );
     return lines;
   }
   const k = legajoLook(cv.layout);
@@ -226,9 +228,10 @@ function items(list: Item[]): string[] {
   return ["\\begin{itemize}", ...list.map((it) => `\\item ${laid((it.heading ? `**${it.heading}.** ` : "") + it.text)}`), "\\end{itemize}"];
 }
 
-/** The vertical space before the next line or block of `flow`, as TeX adds it to the distance between baselines. */
-function skip(flow: Flow, k: LegajoLook): string {
-  return `\\par\\vspace{${bp(flow.take() - k.lead)}}`;
+/** The vertical space before the next line or block of `flow`, as TeX adds it to the distance between baselines: less
+ * `lead`, the leading of the paragraph that follows. */
+function skip(flow: Flow, k: { lead: number }, lead = k.lead): string {
+  return `\\par\\vspace{${bp(flow.take() - lead)}}`;
 }
 
 /** Legajo: the period in its own column, the rest beside it. */
@@ -262,42 +265,6 @@ function legajoSection(s: ResolvedSection, flow: Flow, k: LegajoLook): string[] 
       flow.space(0.55 * d * S, PAR);
     }
   }
-  return out;
-}
-
-/** Banda and Minimal: the title with the period on the right, the place below it. */
-function lineEntry(style: "banda" | "minimal") {
-  return (e: ResolvedEntry, compact: boolean): string =>
-    [
-      "\\par\\SmallSep\\noindent ",
-      style === "banda" ? `\\textbf{${laid(e.title, false)}}` : laid(e.title, false),
-      `\\hfill{\\small\\color{muted}${escapeLatex(e.period)}}`,
-      e.place ? (style === "banda" ? `\\\\{\\small\\color{accent}\\bfseries ${laid(e.place, false)}}` : `\\\\{\\small\\color{muted}${laid(e.place, false)}}`) : "",
-      "\\par",
-      e.note ? `{\\small\\color{muted}${laid(e.note, false)}}\\par` : "",
-      !compact && e.items.length ? items(e.items).join("\n") : "",
-    ].join("");
-}
-
-type EntryLatex = (e: ResolvedEntry, compact: boolean) => string;
-
-function mainSection(s: ResolvedSection, entry: EntryLatex): string[] {
-  const out = [`\\CVSection{${escapeLatex(s.title)}}`];
-  let pending: Item[] = [];
-  const flush = () => {
-    out.push(...items(pending));
-    pending = [];
-  };
-  for (const b of s.blocks) {
-    if (b.type === "item") {
-      pending.push(b);
-      continue;
-    }
-    flush();
-    if (b.type === "paragraph") out.push(`${laid(b.text)}\\par`);
-    else out.push(entry(b.entry, s.compact));
-  }
-  flush();
   return out;
 }
 
@@ -407,125 +374,258 @@ function body(cv: ResolvedCv, photo: string | undefined): string[] {
   if (cv.highlight) out.push(...legajoPar(flow, k, `{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.5em}${escapeLatex(cv.highlight.text)}\\par`));
   if (cv.summary) out.push(...legajoPar(flow, k, summary(cv)[0]));
   if (cv.skills.length) {
-    // Each skill as a row of a grid, its name in the column of the periods; 0.45em between rows.
+    // Each skill as a row of a grid, its name in the column of the periods; 0.45em between rows, and between the grids
+    // of two rows of skills the paragraph spacing too.
     out.push(skip(flow.space(1.15 * d * S, BLOCK), k), `\\CVSection{${escapeLatex(cv.labels.skills)}}`);
     flow.space(0.6 * d * S, BLOCK);
-    for (const g of cv.skills.flat()) {
-      out.push(skip(flow, k), `\\Row{\\Caps{${escapeLatex(g.title)}}}{${g.items.map(escapeLatex).join(", ")}}`);
-      flow.v(0.45 * S);
+    for (const row of cv.skills) {
+      row.forEach((g, i) => {
+        if (i === 0) flow.space(0.55 * d * S, PAR);
+        else flow.v(0.45 * S);
+        out.push(skip(flow, k), `\\Row{\\Caps{${laid(g.title, false)}}}{${g.items.map(escapeLatex).join(", ")}}`);
+      });
+      flow.space(0.55 * d * S, PAR).v(0.45 * S);
     }
   }
   return [...out, ...cv.sections.flatMap((s) => legajoSection(s, flow, k))];
 }
 
-const DOT = " $\\cdot$ ";
-const size = (cv: ResolvedCv, scale: number) => `\\fontsize{${+(cv.layout.fontSize * scale).toFixed(1)}}{${+(cv.layout.fontSize * scale * 1.2).toFixed(1)}}\\selectfont `;
+// ---------------------------------------------------------------- the one-column styles, with Typst's spacing
 
-/** Banda: a band of the accent colour across the top of page 1 with the name and the photo in
- * white; contacts, skills, highlight and summary below it; one column. */
-function bandaBody(cv: ResolvedCv, photo: string | undefined): string[] {
-  const band = 36; // mm, as in banda.typ
-  const inner = Math.max(band - cv.layout.margins.top, 12) * MM;
-  const photoWidth = Math.max(band - cv.layout.margins.top - 8, 10) * MM;
-  const names = [`{${size(cv, 2.3)}\\bfseries ${escapeLatex(cv.name)}\\par}`, "\\vspace{2bp}", `{${size(cv, 1.25)}${escapeLatex(cv.subtitle)}\\par}`];
-  const head = photo
-    ? [
-        `\\begin{minipage}{\\dimexpr\\linewidth-${bp(photoWidth)}-1em\\relax}`,
-        ...names,
-        `\\end{minipage}\\hfill\\begin{minipage}{${bp(photoWidth)}}${photoCommand(cv, photo, photoWidth, cv.layout.photo === "square" ? "rounded" : cv.layout.photo)}\\end{minipage}`,
-      ]
-    : names;
-  const out = [
-    `\\AddToShipoutPictureBG*{\\AtPageUpperLeft{\\color{accent}\\rule[-${band}mm]{\\paperwidth}{${band}mm}}}`,
-    `\\noindent\\parbox[b][${bp(inner)}][c]{\\linewidth}{\\color{white}`,
-    ...head,
-    "}\\par\\vspace{0.9em}",
-  ];
-  if (cv.contacts.length) out.push(`{\\small\\color{muted}${cv.contacts.map(contactValue).join("\\enspace{\\color{accent}\\textbullet}\\enspace ")}\\par}`);
-  for (const row of cv.skills) {
-    const group = (g: (typeof row)[number]) => `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(DOT)}`;
-    const width = `\\dimexpr(\\linewidth-${1.5 * (row.length - 1)}em)/${row.length}\\relax`;
-    out.push(`{\\small${row.map((g) => `\\parbox[t]{${width}}{\\raggedright ${group(g)}}`).join("\\hspace{1.5em}")}\\par}\\vspace{0.25em}`);
-  }
-  if (cv.highlight) out.push(`\\SmallSep{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.4em}${escapeLatex(cv.highlight.text)}\\par`);
-  if (cv.summary) out.push("\\SmallSep", ...summary(cv));
-  return [...out, ...cv.sections.flatMap((s) => mainSection(s, lineEntry("banda")))];
+/** Justified, as the paragraphs set with `justify: true` in a style whose others are not. */
+const JUSTIFIED = "\\rightskip=0pt\\parfillskip=0pt plus1fil ";
+
+/** How many lines Typst gave `text`, when it has them; one when not. */
+function lineCount(text: string): number {
+  const l = lines?.lay(text);
+  return l ? l.text.split(new RegExp(`[${LINE}${HYPHEN_LINE}]`)).length : 1;
 }
 
-/** Minimal: the name in the accent colour, the subtitle below it, the contacts on the right; a
- * lot of air, hierarchy from size and weight; one column. */
-function minimalBody(cv: ResolvedCv, photo: string | undefined): string[] {
-  const photoWidth = cv.layout.fontSize * 7.5;
-  const names = [`{${size(cv, 2.6)}\\color{accent}${escapeLatex(cv.name)}\\par}`, "\\vspace{2bp}", `{${size(cv, 1.2)}\\color{muted}${escapeLatex(cv.subtitle)}\\par}`];
-  const out = [`\\noindent\\begin{minipage}[b]{${cv.contacts.length || photo ? "0.55" : "1"}\\linewidth}`, ...names, "\\end{minipage}\\hfill"];
-  if (cv.contacts.length) out.push(`{\\small\\color{muted}\\begin{tabular}[b]{@{}r@{}}${cv.contacts.map(contactValue).join("\\\\{}")}\\end{tabular}}`);
-  if (photo) out.push(`\\hspace{1.4em}\\begin{minipage}[b]{${bp(photoWidth)}}${photoCommand(cv, photo, photoWidth)}\\end{minipage}`);
-  out.push("\\par");
-  if (cv.highlight) out.push(`\\Sep{\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{0.4em}${escapeLatex(cv.highlight.text)}\\par`);
-  if (cv.summary) out.push("\\Sep", ...summary(cv));
-  if (cv.skills.length) {
-    out.push(`\\CVSection{${escapeLatex(cv.labels.skills)}}`, "\\begin{tabular}{@{}p{0.22\\linewidth}@{\\hspace{1.5em}}p{\\dimexpr0.78\\linewidth-1.5em\\relax}@{}}");
-    out.push(...cv.skills.flat().map((g) => `\\leavevmode{\\small\\color{muted}${escapeLatex(g.title)}} & ${g.items.map(escapeLatex).join(DOT)}\\\\[0.3em]`));
-    out.push("\\end{tabular}\\par");
-  }
-  return [...out, ...cv.sections.flatMap((s) => mainSection(s, lineEntry("minimal")))];
+/** A header as Typst lays it out: a line whose baseline is the cap height below the top margin, where Typst has a
+ * page's first line, and on it every piece at its place, `y` its baseline below the top margin, across the text width
+ * to the left, the centre or the right. None of it takes room: the body goes on from where Typst has the header end. */
+function placed(k: Look, pieces: { y: number; tex: string; align?: "l" | "c" | "r" }[]): string {
+  const at = (p: (typeof pieces)[number]) => `\\smash{\\rlap{\\raisebox{${bp(k.cap * k.S - p.y)}}{\\makebox[\\linewidth][${p.align ?? "l"}]{${p.tex}}}}}`;
+  return `\\noindent\\rule{0pt}{${bp(k.S)}}${pieces.map(at).join("")}\\par`;
 }
 
-/** An entry of Claustro (the institution above, the position and the dates below), Recto (the
- * position and the dates, the institution below) or Llano (all on one line). */
-function atsEntry(style: AtsStyle): EntryLatex {
-  return (e, compact) => {
-    const title = laid(e.title, false);
-    const place = laid(e.place, false);
-    const period = e.period ? `\\hfill{${style === "claustro" ? "" : "\\small\\color{muted}"}${escapeLatex(e.period)}}` : "";
+/** A row of a grid: its cells side by side, `gutter` bp apart, each ending at its last baseline; the next line is as
+ * far below the lowest of them as below any line. */
+function cells(widths: string[], contents: string[], gutter: number): string {
+  const cell = (c: string, i: number) => `\\parbox[t]{${widths[i]}}{\\raggedright\\leavevmode ${c}\\par\\vskip-\\prevdepth}`;
+  return `\\noindent${contents.map(cell).join(`\\hspace{${bp(gutter)}}`)}\\par\\prevdepth=0pt`;
+}
+
+/** A paragraph of the text size, after the spacing of a paragraph. */
+function columnPar(flow: Flow, k: Look, tex: string): string[] {
+  const out = [skip(flow.space(k.par, PAR), k), tex];
+  flow.space(k.par, PAR);
+  return out;
+}
+
+/** A section title of a one-column style, kept with what follows. */
+function columnTitle(style: OneColumnStyle, flow: Flow, k: Look, title: string): string[] {
+  const out = [skip(flow.space(k.above, BLOCK), k), `\\CVSection{${escapeLatex(title)}}`];
+  flow.v(titleLook(style, k).under).space(k.below, BLOCK);
+  return out;
+}
+
+/** An entry of a one-column style. Banda: the title with the dates on the right in the small size, the place below it
+ * in the accent colour, the note in a paragraph of its own. Minimal: the title and the dates in a grid, the place and
+ * the note in paragraphs of the small size. Claustro: the institution above, the position and the dates below. Recto:
+ * the position and the dates, the institution below. Llano: all on one line. The lines of one paragraph in Typst are
+ * paragraphs here as far apart, each with the leading of its size. */
+function columnEntry(style: OneColumnStyle, e: ResolvedEntry, compact: boolean, flow: Flow, k: Look): string[] {
+  const out = [skip(flow.space(k.entry, BLOCK), k)];
+  const title = laid(e.title, false);
+  const place = laid(e.place, false);
+  const period = e.period ? `\\hfill{${style === "claustro" ? "" : "\\Small\\color{muted}"}${escapeLatex(e.period)}}` : "";
+  const small = (tex: string) => `{\\Small\\leavevmode${tex}\\par}`;
+  const note = e.note ? small(`\\color{muted}${laid(e.note, false)}`) : "";
+  if (style === "minimal") {
+    out.push(`${title}${period}\\par`);
+    flow.space(k.par, PAR);
+    if (e.place) {
+      const lead = k.leadEm * k.small;
+      out.push(skip(flow.space(k.parEm * k.small, PAR), k, lead), `{${sized(k.small, k.cap * k.small + lead)}\\leavevmode\\color{muted}${place}\\par}`);
+      flow.space(k.parEm * k.small, PAR);
+    }
+    if (note) out.push(...columnPar(flow, k, note));
+    if (!compact && e.items.length) flow.v(0.2 * k.S);
+  } else {
     const head =
-      style === "claustro"
-        ? e.place
-          ? `\\textbf{${place}}\\\\\\textit{${title}}${period}`
-          : `\\textbf{${title}}${period}`
-        : style === "recto"
-          ? `\\textbf{${title}}${period}${e.place ? `\\\\{\\color{muted}${place}}` : ""}`
-          : `\\textbf{${title}}${e.place ? `, ${place}` : ""}${period}`;
-    return [
-      "\\par\\SmallSep\\noindent ",
-      head,
-      "\\par",
-      e.note ? `{\\small\\color{muted}${laid(e.note, false)}}\\par` : "",
-      !compact && e.items.length ? items(e.items).join("\n") : "",
-    ].join("");
-  };
+      style === "banda"
+        ? [`\\textbf{${title}}${period}\\par`, e.place ? small(`\\color{accent}\\bfseries ${place}`) : ""]
+        : style === "claustro"
+          ? e.place
+            ? [`\\textbf{${place}}\\par`, `\\textit{${title}}${period}\\par`]
+            : [`\\textbf{${title}}${period}\\par`]
+          : style === "recto"
+            ? [`\\textbf{${title}}${period}\\par`, e.place ? `{\\leavevmode\\color{muted}${place}}\\par` : ""]
+            : [`\\textbf{${title}}${e.place ? `, ${place}` : ""}${period}\\par`];
+    out.push(head.join(""));
+    flow.space(k.par, PAR);
+    if (style === "banda" && note) out.push(...columnPar(flow, k, note));
+    else out.push(note);
+  }
+  if (!compact && e.items.length) out.push(skip(flow.space(k.list, BLOCK), k), ...items(e.items));
+  flow.space(0, BLOCK);
+  return out;
 }
 
-/** Claustro, Recto and Llano, made for applicant tracking systems: one column of plain text in the
- * order it is read, the contacts on one line in the body, every part under a standard title. */
-function atsBody(cv: ResolvedCv, photo: string | undefined, style: AtsStyle): string[] {
-  const sep = style === "recto" ? "\\enspace\\textbar\\enspace " : "\\enspace\\textperiodcentered\\enspace ";
-  const contacts = cv.contacts.map(contactValue).join(sep);
-  const subtitleLook = { claustro: "\\itshape ", recto: "\\color{accent}", llano: "" }[style];
-  const head = [
-    style === "claustro" ? "{\\centering" : "{",
-    `{${size(cv, style === "llano" ? 2 : 2.2)}${style === "llano" ? "\\color{accent}" : "\\bfseries "}${escapeLatex(cv.name)}\\par}`,
-    cv.subtitle ? `\\vspace{2bp}{${size(cv, style === "llano" ? 1.1 : 1.15)}${subtitleLook}${escapeLatex(cv.subtitle)}\\par}` : "",
-    contacts ? `\\vspace{2bp}{\\small${style === "claustro" ? " " : "\\color{muted}"}${contacts}\\par}` : "",
-    "}",
-  ].filter(Boolean);
-  const photoWidth = cv.layout.fontSize * 7;
-  const top = photo
-    ? [
-        `\\noindent\\begin{minipage}[t]{\\dimexpr\\linewidth-${bp(photoWidth)}-1em\\relax}\\vspace{0pt}`,
-        ...head,
-        "\\end{minipage}\\hfill",
-        `\\begin{minipage}[t]{${bp(photoWidth)}}\\vspace{0pt}${photoCommand(cv, photo, photoWidth)}\\end{minipage}\\par`,
-      ]
-    : head;
-  // Ragged right and no hyphenation, as in Typst: a word split at a line end reaches a parser in two.
-  const out = ["\\raggedright\\hyphenpenalty=10000\\exhyphenpenalty=10000", ...top];
-  if (cv.highlight) out.push(`\\Sep{${style === "recto" ? "\\color{accent}" : ""}\\bfseries ${escapeLatex(cv.highlight.title)}}: ${escapeLatex(cv.highlight.text)}\\par`);
-  if (cv.summary) out.push(`\\CVSection{${escapeLatex(cv.labels.profile)}}`, ...summary(cv));
-  if (cv.skills.length) {
-    out.push(`\\CVSection{${escapeLatex(cv.labels.skills)}}`, ...cv.skills.flat().map((g) => `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(", ")}\\par`));
+/** A section of a one-column style: the title, then its entries, items and paragraphs. */
+function columnSection(style: OneColumnStyle, s: ResolvedSection, flow: Flow, k: Look): string[] {
+  const out = columnTitle(style, flow, k, s.title);
+  for (const b of s.blocks) {
+    if (b.type === "entry") out.push(...columnEntry(style, b.entry, s.compact, flow, k));
+    else if (b.type === "item") {
+      out.push(skip(flow.space(k.item, BLOCK), k), ...items([b]));
+      flow.space(0, BLOCK);
+    } else out.push(...columnPar(flow, k, `${laid(b.text)}\\par`));
   }
-  return [...out, ...cv.sections.flatMap((s) => mainSection(s, atsEntry(style)))];
+  return out;
+}
+
+/** Banda: a band of the accent colour across the top of page 1, as tall as Typst's, with the name and the photo in
+ * white; the contacts, the skills in a grid, the highlight and the summary below it. */
+function bandaTop(cv: ResolvedCv, photo: string | undefined, flow: Flow, k: Look): string[] {
+  const band = 36; // mm, as in banda.typ
+  const height = Math.max(band - cv.layout.margins.top, 12) * MM;
+  const name = 2.3 * k.B;
+  const subtitle = 1.25 * k.B;
+  const names = k.cap * name + k.parEm * name + 0.1 * k.S + k.cap * subtitle;
+  const width = Math.max(band - cv.layout.margins.top - 8, 10) * MM;
+  const shape = cv.layout.photo === "square" ? "rounded" : cv.layout.photo;
+  const tall = photo ? photoHeight(width, shape, cv.photo?.size) : 0;
+  const row = Math.max(names, tall);
+  const top = (row - names) / 2;
+  const pieces: Parameters<typeof placed>[1] = [
+    { y: top + k.cap * name, tex: `${sized(name, 1.2 * name)}\\color{white}\\bfseries ${escapeLatex(cv.name)}` },
+    { y: top + names, tex: `${sized(subtitle, 1.2 * subtitle)}\\color{white}${escapeLatex(cv.subtitle)}` },
+  ];
+  if (photo) pieces.push({ y: (row - tall) / 2 + tall, tex: photoCommand(cv, photo, width, shape), align: "r" });
+  const out = [`\\AddToShipoutPictureBG*{\\AtPageUpperLeft{\\color{accent}\\rule[-${band}mm]{\\paperwidth}{${band}mm}}}`, placed(k, pieces)];
+  flow.take();
+  flow.v(height - k.cap * k.S).space(k.par, PAR).v(0.9 * k.S);
+  const lead = k.leadEm * k.small;
+  const smallPar = `${sized(k.small, k.cap * k.small + lead)}\\leavevmode`;
+  if (cv.contacts.length) {
+    const dot = `\\hspace{${bp(0.45 * k.small)}}{\\color{accent}\\textbullet}\\hspace{${bp(0.45 * k.small)}}`;
+    out.push(skip(flow.space(k.parEm * k.small, PAR), k, lead), `{${smallPar}\\color{muted}${cv.contacts.map(contactValue).join(dot)}\\par}`);
+    flow.space(k.parEm * k.small, PAR);
+  }
+  if (cv.skills.length) flow.v(0.5 * k.S);
+  for (const row of cv.skills) {
+    const w = `\\dimexpr(\\linewidth-${bp(1.5 * k.S * (row.length - 1))})/${row.length}\\relax`;
+    const group = (g: (typeof row)[number]) => `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(" \\textperiodcentered{} ")}`;
+    out.push(skip(flow.space(k.par, PAR), k, lead), `{${smallPar}${cells(row.map(() => w), row.map(group), 1.5 * k.S)}}`);
+    flow.space(k.par, PAR).v(0.25 * k.S);
+  }
+  if (cv.highlight) {
+    flow.v(0.5 * k.S);
+    out.push(...columnPar(flow, k, `\\leavevmode{\\color{accent}\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{${bp(0.4 * k.S)}}${escapeLatex(cv.highlight.text)}\\par`));
+  }
+  if (cv.summary) {
+    flow.v(0.4 * k.S);
+    out.push(...columnPar(flow, k, `{${JUSTIFIED}${lines ? "" : "\\hyphenpenalty=50 "}${laid(cv.summary)}\\par}`));
+  }
+  return out;
+}
+
+/** Minimal: the name in the accent colour over the subtitle, the contacts one under the other on their right and the
+ * photo beside them, all at the bottom of one row but the photo; a lot of air, hierarchy from size and weight. */
+function minimalTop(cv: ResolvedCv, photo: string | undefined, flow: Flow, k: Look): string[] {
+  const name = 2.6 * k.B;
+  const subtitle = 1.2 * k.B;
+  const names = k.cap * name + k.parEm * name + 0.15 * k.S + k.cap * subtitle;
+  const pitch = k.leadEm * k.small + k.cap * k.small;
+  const n = cv.contacts.length;
+  const width = 7.5 * k.B;
+  const tall = photo ? photoHeight(width, cv.layout.photo, cv.photo?.size) : 0;
+  const row = Math.max(names, n ? k.cap * k.small + (n - 1) * pitch : 0, tall);
+  const right = photo ? `\\hspace{${bp(width + 1.4 * k.S)}}` : "";
+  const pieces: Parameters<typeof placed>[1] = [
+    { y: row - names + k.cap * name, tex: `${sized(name, 1.2 * name)}\\color{accent}${escapeLatex(cv.name)}` },
+    { y: row, tex: `${sized(subtitle, 1.2 * subtitle)}\\color{muted}${escapeLatex(cv.subtitle)}` },
+    ...cv.contacts.map((c, i) => ({ y: row - (n - 1 - i) * pitch, tex: `{\\Small\\color{muted}${contactValue(c)}}${right}`, align: "r" as const })),
+  ];
+  if (photo) pieces.push({ y: tall, tex: photoCommand(cv, photo, width), align: "r" });
+  const out = [placed(k, pieces)];
+  flow.take();
+  flow.v(row - k.cap * k.S).space(k.par, PAR);
+  if (cv.highlight) {
+    flow.v(1.4 * k.d * k.S);
+    out.push(...columnPar(flow, k, `\\leavevmode{\\bfseries ${escapeLatex(cv.highlight.title)}}\\hspace{${bp(0.4 * k.S)}}${escapeLatex(cv.highlight.text)}\\par`));
+  }
+  if (cv.summary) {
+    // In a size of its own, with the leading of the text size.
+    flow.v(1.4 * k.d * k.S);
+    const size = 1.02 * k.B;
+    out.push(...columnPar(flow, k, `{${sized(size, k.cap * size + k.lead)}${JUSTIFIED}${lines ? "" : "\\hyphenpenalty=50 "}${laid(cv.summary)}\\par}`));
+  }
+  if (cv.skills.length) out.push(...columnTitle("minimal", flow, k, cv.labels.skills));
+  for (const row of cv.skills) {
+    // A grid for each row of groups, its first column as wide as its longest name.
+    out.push(`\\settowidth{\\SkillWidth}{\\Small\\begin{tabular}{@{}l@{}}${row.map((g) => escapeLatex(g.title)).join("\\\\")}\\end{tabular}}`);
+    row.forEach((g, i) => {
+      if (i === 0) flow.space(k.par, PAR);
+      else flow.v(0.5 * k.S);
+      const contents = [`\\Small\\color{muted}${escapeLatex(g.title)}`, g.items.map(escapeLatex).join(" \\textperiodcentered{} ")];
+      out.push(skip(flow, k), cells(["\\SkillWidth", `\\dimexpr\\linewidth-\\SkillWidth-${bp(1.5 * k.S)}\\relax`], contents, 1.5 * k.S));
+    });
+    flow.space(k.par, PAR).v(0.5 * k.S);
+  }
+  return out;
+}
+
+/** Claustro, Recto and Llano, made for applicant tracking systems: one column of plain text in the order it is read,
+ * the name, the subtitle and the contacts on a line each (centred in Claustro), the photo beside them; every part under
+ * a standard title. */
+function atsTop(cv: ResolvedCv, photo: string | undefined, style: AtsStyle, flow: Flow, k: Look): string[] {
+  const name = (style === "llano" ? 2 : 2.2) * k.B;
+  const subtitle = (style === "recto" ? 1.15 : 1.1) * k.B;
+  const width = (style === "llano" ? 6.5 : 7) * k.B;
+  const tall = photo ? photoHeight(width, cv.layout.photo, cv.photo?.size) : 0;
+  const gutter = (style === "claustro" ? 1 : 1.2) * k.S;
+  const align = style === "claustro" ? "c" : "l";
+  const column = !photo ? "\\linewidth" : `\\dimexpr\\linewidth-${bp((style === "claustro" ? 2 : 1) * (width + gutter))}\\relax`;
+  const head: Parameters<typeof placed>[1] = [];
+  let y = k.cap * name;
+  head.push({ y, align, tex: `${sized(name, 1.2 * name)}${style === "llano" ? "\\color{accent}" : "\\bfseries "}${escapeLatex(cv.name)}` });
+  if (cv.subtitle) {
+    y += k.par + k.cap * subtitle;
+    head.push({ y, align, tex: `${sized(subtitle, 1.2 * subtitle)}${{ claustro: "\\itshape ", recto: "\\color{accent}", llano: "" }[style]}${escapeLatex(cv.subtitle)}` });
+  }
+  if (cv.contacts.length) {
+    const sep = style === "recto" ? " | " : " · ";
+    const tex = cv.contacts.map(contactValue).join(style === "recto" ? " \\textbar{} " : " \\textperiodcentered{} ");
+    y += k.par + k.cap * k.small;
+    head.push({ y, align, tex: `\\parbox[t]{${column}}{${style === "claustro" ? "\\centering" : "\\raggedright"}\\Small${style === "claustro" ? " " : "\\color{muted}"}${tex}}` });
+    y += (lineCount(cv.contacts.map((c) => c.value).join(sep)) - 1) * (k.lead + k.cap * k.small);
+  }
+  // Beside the photo, the header in the middle of the row.
+  const row = Math.max(y, tall);
+  const pieces = head.map((p) => ({ ...p, y: p.y + (row - y) / 2 }));
+  if (photo) pieces.push({ y: tall, tex: photoCommand(cv, photo, width), align: "r" });
+  const out = [placed(k, pieces)];
+  flow.take();
+  flow.v(row - k.cap * k.S).space(k.par, PAR);
+  if (cv.highlight) {
+    flow.v((style === "llano" ? 0.5 : 0.6) * k.d * k.S);
+    out.push(...columnPar(flow, k, `\\leavevmode{${style === "recto" ? "\\color{accent}" : ""}\\bfseries ${escapeLatex(cv.highlight.title)}}: ${escapeLatex(cv.highlight.text)}\\par`));
+  }
+  if (cv.summary) out.push(...columnTitle(style, flow, k, cv.labels.profile), ...columnPar(flow, k, `${laid(cv.summary)}\\par`));
+  if (cv.skills.length) out.push(...columnTitle(style, flow, k, cv.labels.skills));
+  for (const g of cv.skills.flat()) out.push(...columnPar(flow, k, `\\textbf{${escapeLatex(g.title)}}: ${g.items.map(escapeLatex).join(", ")}\\par`));
+  return out;
+}
+
+/** Banda, Minimal, Claustro, Recto or Llano: one column, ragged right, words cut only where Typst cuts them. */
+function columnBody(cv: ResolvedCv, photo: string | undefined, style: OneColumnStyle): string[] {
+  const k = look(style, cv.layout);
+  const flow = new Flow();
+  const top = style === "banda" ? bandaTop(cv, photo, flow, k) : style === "minimal" ? minimalTop(cv, photo, flow, k) : atsTop(cv, photo, style, flow, k);
+  return ["\\raggedright\\hyphenpenalty=10000\\exhyphenpenalty=10000", ...top, ...cv.sections.flatMap((s) => columnSection(style, s, flow, k))];
 }
 
 /** The CV in LaTeX; with `measured` (measure.typ's words), in the lines Typst gave it. */
@@ -534,7 +634,7 @@ export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo", measur
   lines = measured && new Lines(measured);
   try {
     const content =
-      style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : isAtsStyle(style) ? atsBody(cv, photo, style) : body(cv, photo);
+      style === "legajo" ? body(cv, photo) : columnBody(cv, photo, style);
     // The lines are Typst's: no word is cut where Typst did not cut it.
     const unbroken = measured ? ["\\hyphenpenalty=10000\\exhyphenpenalty=10000"] : [];
     return [...preamble(cv, style), "\\begin{document}", ...unbroken, ...content, "\\end{document}", ""].join("\n");

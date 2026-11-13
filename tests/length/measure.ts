@@ -6,8 +6,7 @@
 //   node tests/length/measure.ts [--only <project>/<profile>] [--style <id>] [--keep <dir>] [--lines]
 //
 // `--lines` gives the exports the lines Typst laid each paragraph out in (measure.typ), as the editor and the command
-// line do: the styles whose spacing is Typst's copy them (copiesLines). `--keep` copies every PDF, .tex and .docx to
-// <dir>.
+// line do. `--keep` copies every PDF, .tex and .docx to <dir>.
 
 import { execFile } from "node:child_process";
 import { cpus } from "node:os";

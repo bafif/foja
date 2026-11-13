@@ -189,6 +189,11 @@ pictures are stored once per content. They stay out of undo, so Ctrl+Z never del
   small, validated JSON file or from a script. Every text and background pair meets WCAG AA contrast in every theme.
 - **Exports** to PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume and a `.zip` with all of them, and “Open in
   Overleaf”, which sends the LaTeX one to overleaf.com only when pressed. The Word file carries Typst's fonts inside.
+  LaTeX and Word come out as long as the PDF in every style: every gap between blocks comes from how Typst puts them
+  together (`packages/core/src/export/flow.ts`), and the editor and the CLI hand the export where Typst breaks each
+  line (`measure.typ`). `scripts/length.sh` checks it: for each profile of the example projects and each built-in
+  style, it compiles the LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with
+  that of the Typst PDF.
 - **Imported templates**, Typst and LaTeX, and JSON Resume files.
 - **The web app** online at [`bafif.github.io/foja/`](https://bafif.github.io/foja/), offline and installable, with
   its phone interface. The deploy runs by hand.
@@ -207,21 +212,8 @@ and each channel is published once what it carries has been tried.
 
 ### In the product
 
-1. **The same length in every format.** A CV that fits on one page in the PDF has to fit in LaTeX and in Word too, and
-   in some styles it can still run over (see the known limitations below). The fix is the same for every style: LaTeX
-   and Word take Typst's spacing and lines. Done: the same font (the Word file embeds XCharter, turned into TrueType,
-   and Noto Sans), the test, `scripts/length.sh` (for each profile of the example projects and each built-in style, it
-   compiles the LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with that of the
-   Typst PDF), and Legajo, with Arco, Rótulo and styles of one's own, which come out in its layout: in LaTeX and in
-   Word every gap between blocks comes from how Typst puts them together (`packages/core/src/export/flow.ts`), and the
-   editor and the CLI hand the export where Typst breaks each line (`measure.typ`), for it to break there. Word, which
-   has no negative spacing, draws the lines of an item slightly closer where Typst sets items closer than lines, to
-   end where Typst ends. Still to do:
-   - **The other styles.** Banda, Minimal (with Portada), Claustro, Recto and Llano still have spacing of their own
-     and break lines their own way. Each one moves to the same model, and only then copies the lines. The cases that
-     fail are one-page CVs that just fit in Banda and Minimal.
-   - **Without the embedded fonts.** A program that does not read the fonts the Word file carries still has to show a
-     similar serif.
+1. **Word without the embedded fonts.** The Word file carries XCharter, turned into TrueType, and Noto Sans. A
+   program that does not read the fonts it carries still has to show a similar serif.
 2. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
    (except on Flathub, where Flatpak updates it). It is the desktop integration Flathub asks for to accept it.
 
@@ -249,9 +241,6 @@ sheet. These need the real device or account:
 
 ### Known limitations
 
-- In Legajo (and in Arco, Rótulo and styles of one's own), LaTeX and Word have the PDF's spacing and lines. In the
-  other styles they use Typst's font, but break lines their own way and leave a little more room between blocks: a CV
-  that just fits on one page in the PDF can run a few lines over. “The same length in every format” fixes it.
 - An imported LaTeX template shows in the preview without click-to-edit or the marks of what spills over, and only the
   data of templates that need LuaLaTeX is imported.
 - The command line does not compile LaTeX: it writes the filled `.tex`.

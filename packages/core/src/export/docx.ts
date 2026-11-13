@@ -5,6 +5,7 @@
 // colour, titles marked with a bar of it. Minimal: the name in the accent colour, plain capitals
 // for the titles. Both are one column. Claustro, Recto and Llano, made for applicant tracking
 // systems, are paragraphs only (no tables), the contacts in the body, the dates on a right tab stop.
+// Every style takes Typst's spacing (flow.ts) in lines of an exact height, to come out as long as the PDF.
 // The fonts are Typst's, XCharter or Noto Sans, embedded in the file in their four faces when the caller passes them
 // (packages/template/word-fonts, made by scripts/word-fonts.py).
 
@@ -13,6 +14,9 @@ import {
   BorderStyle,
   Document,
   ExternalHyperlink,
+  HeightRule,
+  HorizontalPositionAlign,
+  HorizontalPositionRelativeFrom,
   ImageRun,
   LevelFormat,
   LineRuleType,
@@ -27,7 +31,9 @@ import {
   TableLayoutType,
   TableRow,
   TextRun,
+  TextWrappingType,
   VerticalAlign,
+  VerticalPositionRelativeFrom,
   WidthType,
   type IParagraphOptions,
   type ParagraphChild,
@@ -36,13 +42,16 @@ import { HYPHEN_LINE, LINE, type Lines } from "../lines.ts";
 import { DEFAULT_ACCENT, inlineRuns } from "../project.ts";
 import type { ResolvedContact, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import type { Item } from "../types.ts";
-import { BLOCK, Flow, legajoLook, legajoRule, PAR, type LegajoLook } from "./flow.ts";
-import { isAtsStyle, type AtsStyle, type ExportStyle } from "./style.ts";
+import { BLOCK, Flow, legajoLook, legajoRule, look, PAR, photoHeight, titleLook, type LegajoLook, type Look, type OneColumnStyle } from "./flow.ts";
+import type { AtsStyle, ExportStyle } from "./style.ts";
 
 const TWIP_PER_MM = 1440 / 25.4;
+const MM = 72 / 25.4; // pt per millimetre
 const PAPER = { a4: { width: 210, height: 297 }, "us-letter": { width: 215.9, height: 279.4 } };
 const NONE = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const NO_BORDERS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
+/** No margins in a cell: LibreOffice gives cells that set none margins of its own. */
+const NO_MARGINS = { top: 0, bottom: 0, left: 0, right: 0 };
 const INK = "1F2A2E";
 const MUTED = "68767B";
 
@@ -75,10 +84,6 @@ interface Ctx {
   rule: string;
   /** Half-points. */
   size: number;
-  small: number;
-  /** Twips. */
-  sep: number;
-  smallSep: number;
   /** Where Typst breaks each paragraph's lines. */
   lines?: Lines;
   /** How many lines Typst gave the last text laid out in its lines, if it had them. */
@@ -166,21 +171,14 @@ function spacer(twips: number): Paragraph {
   return new Paragraph({ children: [], spacing: { before: 0, after: 0, line: Math.max(1, Math.round(twips)), lineRule: LineRuleType.EXACT } });
 }
 
-function bulletItems(ctx: Ctx, items: Item[]): Paragraph[] {
-  return items.map((it) =>
-    para(runs(ctx, (it.heading ? `**${it.heading}. **` : "") + it.text), {
-      numbering: { reference: "dash", level: 0 },
-      alignment: AlignmentType.JUSTIFIED,
-    }),
-  );
-}
-
 function contactChild(ctx: Ctx, c: ResolvedContact, size: number, color?: string): ParagraphChild {
   const run = plain(ctx, c.value, { size, color });
   return c.href && c.kind !== "phone" ? new ExternalHyperlink({ link: c.href, children: [run] }) : run;
 }
 
-function photoRun(cv: ResolvedCv, widthPt: number): ImageRun | undefined {
+/** The photo `widthPt` wide; with `top`, floating that many pt below the top margin at the right margin, where the text
+ * does not go round it, as beside Typst's grid. */
+function photoRun(cv: ResolvedCv, widthPt: number, top?: number): ImageRun | undefined {
   const photo = cv.photo;
   if (!photo || photo.type === "image/svg+xml") return undefined;
   const size = photo.size ?? { width: 4, height: 3 };
@@ -189,77 +187,16 @@ function photoRun(cv: ResolvedCv, widthPt: number): ImageRun | undefined {
     type: photo.type === "image/png" ? "png" : "jpg",
     data: photo.bytes,
     transformation: { width, height: Math.round((width * size.height) / size.width) },
+    floating:
+      top === undefined
+        ? undefined
+        : {
+            horizontalPosition: { relative: HorizontalPositionRelativeFrom.MARGIN, align: HorizontalPositionAlign.RIGHT },
+            verticalPosition: { relative: VerticalPositionRelativeFrom.MARGIN, offset: Math.round(top * 12700) },
+            wrap: { type: TextWrappingType.NONE },
+            allowOverlap: true,
+          },
   });
-}
-
-/** Small caps title with a hairline under it, kept with what follows. */
-function sectionTitle(ctx: Ctx, title: string): Paragraph {
-  if (ctx.style === "banda")
-    return para([plain(ctx, title, { bold: true, size: Math.round(ctx.size * 1.15) })], {
-      spacing: { before: ctx.sep, after: ctx.smallSep },
-      border: { left: { style: BorderStyle.SINGLE, size: 24, color: ctx.accent, space: 6 } },
-      keepNext: true,
-    });
-  if (ctx.style === "minimal")
-    return para([plain(ctx, title.toUpperCase(), { bold: true, size: ctx.small })], { spacing: { before: Math.round(ctx.sep * 1.3), after: ctx.smallSep }, keepNext: true });
-  if (ctx.style === "claustro")
-    return para([plain(ctx, title.toUpperCase(), { bold: true })], {
-      spacing: { before: ctx.sep, after: ctx.smallSep },
-      border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: ctx.accent, space: 1 } },
-      keepNext: true,
-    });
-  if (ctx.style === "recto")
-    return para([plain(ctx, title.toUpperCase(), { bold: true, color: ctx.accent, size: ctx.small })], {
-      spacing: { before: ctx.sep, after: ctx.smallSep },
-      border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "C9CDD1", space: 2 } },
-      keepNext: true,
-    });
-  if (ctx.style === "llano") return para([plain(ctx, title, { bold: true, color: ctx.accent, size: Math.round(ctx.size * 1.1) })], { spacing: { before: ctx.sep, after: 60 }, keepNext: true });
-  return para([plain(ctx, title.toLowerCase(), { bold: true, color: ctx.accent, smallCaps: true, size: Math.round(ctx.size * 1.1) })], {
-    spacing: { before: ctx.sep, after: ctx.smallSep },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: ctx.rule, space: 2 } },
-    keepNext: true,
-  });
-}
-
-/** An entry of Banda or Minimal: the title with the dates at the right margin, as their Typst styles have it
- * (only Legajo gives the dates a column of their own). */
-function datedEntry(ctx: Ctx, e: ResolvedEntry, compact: boolean, widthTwip: number, first: boolean): Paragraph[] {
-  const banda = ctx.style === "banda";
-  const date = e.period ? [new TextRun({ children: [new Tab(), xmlSafe(e.period)], font: ctx.font, size: ctx.small, color: MUTED })] : [];
-  const out = [
-    para([...words(ctx, e.title, { bold: banda }), ...date], {
-      keepNext: true,
-      tabStops: [{ type: TabStopType.RIGHT, position: widthTwip }],
-      spacing: { before: first ? 0 : ctx.smallSep },
-    }),
-  ];
-  if (e.place) out.push(para(words(ctx, e.place, banda ? { color: ctx.accent } : { size: ctx.small, color: MUTED }), { keepNext: !!(e.note || e.items.length) }));
-  if (e.note) out.push(para(words(ctx, e.note, { size: ctx.small, color: MUTED })));
-  if (!compact) out.push(...bulletItems(ctx, e.items));
-  return out;
-}
-
-function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragraph | Table)[] {
-  const out: (Paragraph | Table)[] = [sectionTitle(ctx, s.title)];
-  for (const [i, b] of s.blocks.entries()) {
-    if (b.type === "entry") out.push(...datedEntry(ctx, b.entry, s.compact, widthTwip, i === 0));
-    else out.push(...(b.type === "item" ? bulletItems(ctx, [b]) : [para(runs(ctx, b.text), { alignment: AlignmentType.JUSTIFIED })]));
-  }
-  return out;
-}
-
-/** Minimal's name in the accent colour over the subtitle. */
-function header(ctx: Ctx): Paragraph[] {
-  const { cv } = ctx;
-  return [
-    para([plain(ctx, cv.name, { color: ctx.accent, size: Math.round(ctx.size * 2.6) })], { spacing: { after: 40 } }),
-    para([plain(ctx, cv.subtitle, { color: MUTED, size: Math.round(ctx.size * 1.2) })], { spacing: { after: ctx.sep } }),
-  ];
-}
-
-function summary(ctx: Ctx): Paragraph[] {
-  return ctx.cv.summary ? [para(runs(ctx, ctx.cv.summary), { alignment: AlignmentType.JUSTIFIED })] : [];
 }
 
 
@@ -275,23 +212,30 @@ function textWidth(text: string, size: number, caps = false): number {
 
 // ---------------------------------------------------------------- Legajo, with Typst's spacing
 
-/** Where the baseline of an exact line is, as a share of its height from the top: LibreOffice puts it there, the
- * ascent's share of the Word fonts' height (scripts/word-fonts.py). */
-const baselineShare = (sans: boolean) => (sans ? 1.124 / 1.519 : 0.963 / 1.199);
+/** Where the baseline of an exact line is, as a share of its height from the top: LibreOffice puts four fifths of the
+ * line above it, whatever the font (measured; in XCharter that is also the ascent's share of the font's height). */
+const BASELINE = 0.8;
 
-/** A column of Legajo, which takes Typst's spacing (flow.ts) and remembers the height of its last line. Word starts a
+/** What a column needs of a style's measures (LegajoLook, Look), in pt. */
+type Measures = { S: number; d: number; cap: number; lead: number; small: number };
+
+/** A column of a style, which takes Typst's spacing (flow.ts) and remembers the height of its last line. Word starts a
  * line where the one before ends; in lines of an exact height, the cap height plus the leading, the baselines stand as
  * far apart as Typst's. Word has no negative spacing: what it cannot take away before a paragraph comes off the
  * paragraph's lines, so that the paragraph still ends where Typst's does. */
 class Column {
   readonly flow = new Flow();
-  readonly k: LegajoLook;
-  /** baselineShare. */
+  readonly k: Measures;
+  /** BASELINE. */
   readonly a: number;
   private prev?: number;
+  /** What the last paragraph takes below its last line, in pt: a border. */
+  private extra = 0;
+  /** How tall the column is so far, in pt. */
+  height = 0;
 
   /** `prev`: the height of the line above the column, if its first line is not placed by what is around it. */
-  constructor(k: LegajoLook, a: number, prev?: number) {
+  constructor(k: Measures, a: number, prev?: number) {
     this.k = k;
     this.a = a;
     this.prev = prev;
@@ -300,23 +244,41 @@ class Column {
   /** The spacing of a paragraph of `n` lines of text `size` pt, `lead` pt apart (plus the cap height). */
   next(size: number, n = 1, lead = this.k.lead, gap = this.flow.take()) {
     const pitch = this.k.cap * size + lead;
+    const count = Math.max(1, n);
     if (this.prev === undefined) {
       this.prev = pitch;
+      this.height += count * pitch;
       return { before: 0, after: 0, line: Math.round(pitch * 20), lineRule: LineRuleType.EXACT };
     }
     // From where the paragraph's first line starts down to its last baseline, as far as Typst has it; that much
     // spacing before lines of the full height, or none before lines shorter.
-    const lines = Math.max(1, n) - 1 + this.a;
-    const reach = gap + this.k.cap * size + (Math.max(1, n) - 1) * pitch - (1 - this.a) * this.prev;
+    const lines = count - 1 + this.a;
+    const reach = gap + this.k.cap * size + (count - 1) * pitch - (1 - this.a) * this.prev - this.extra;
     const before = reach - lines * pitch;
     const line = before < 0 ? reach / lines : pitch;
     this.prev = line;
+    this.extra = 0;
+    this.height += Math.max(0, before) + count * line;
     return { before: Math.max(0, Math.round(before * 20)), after: 0, line: Math.round(line * 20), lineRule: LineRuleType.EXACT };
   }
 
   /** The spacing of a paragraph that goes on a line of Typst's paragraph above it, `lead` pt below. */
-  line(size: number, lead = this.k.lead) {
-    return this.next(size, 1, lead, lead);
+  line(size: number, n = 1, lead = this.k.lead) {
+    return this.next(size, n, lead, lead);
+  }
+
+  /** The spacing of the column's first line, its baseline `y` pt below the top. */
+  start(y: number) {
+    this.flow.take();
+    this.prev = y / this.a;
+    this.height = this.prev;
+    return { before: 0, after: 0, line: Math.round(this.prev * 20), lineRule: LineRuleType.EXACT };
+  }
+
+  /** The last paragraph takes `pt` more below its last line. */
+  drop(pt: number): void {
+    this.extra += pt;
+    this.height += pt;
   }
 
   /** The height of the column's last line. */
@@ -328,6 +290,7 @@ class Column {
   below(height: number): void {
     this.flow.take();
     this.prev = height;
+    this.extra = 0;
   }
 }
 
@@ -514,7 +477,7 @@ function legajoSidebar(ctx: Ctx, k: LegajoLook, a: number, widthPt: number): (Pa
     return p;
   };
   const line = (children: ParagraphChild[], text: string, options: Omit<IParagraphOptions, "children"> = {}, more = false) =>
-    para(children, { ...options, spacing: more ? col.line(small, lead) : col.next(small, lineCount(ctx, text, small, widthPt), lead) });
+    para(children, { ...options, spacing: more ? col.line(small, 1, lead) : col.next(small, lineCount(ctx, text, small, widthPt), lead) });
   // The values of a block are the lines of one paragraph.
   const block = (text: string, values: [ParagraphChild[], string][]) => {
     out.push(title(text), ...values.map(([v, t], i) => line(v, t, {}, i > 0)));
@@ -541,7 +504,7 @@ function legajoSidebar(ctx: Ctx, k: LegajoLook, a: number, widthPt: number): (Pa
         para([plain(ctx, g.title.toLowerCase(), { bold: true, color: ctx.accent, smallCaps: true, size: heading * 2 })], { keepNext: true, spacing: c.next(heading, 1, lead) }),
       ];
       c.flow.space(0.55 * d * small, PAR).v(0.25 * small);
-      children.push(...g.items.map((v, j) => para([plain(ctx, v, { size: small * 2 })], { spacing: j ? c.line(small, lead) : c.next(small, 1, lead) })));
+      children.push(...g.items.map((v, j) => para([plain(ctx, v, { size: small * 2 })], { spacing: j ? c.line(small, 1, lead) : c.next(small, 1, lead) })));
       return new TableCell({ width: { size: widths[i], type: WidthType.DXA }, borders: NO_BORDERS, margins: { right: CELL_GAP }, children });
     });
     out.push(
@@ -579,7 +542,7 @@ function legajoSidebar(ctx: Ctx, k: LegajoLook, a: number, widthPt: number): (Pa
 function twoColumns(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const { layout } = ctx.cv;
   const k = legajoLook(layout);
-  const a = baselineShare(layout.font === "Noto Sans");
+  const a = BASELINE;
   const gutter = Math.round(6 * TWIP_PER_MM);
   const side = Math.round((textWidth * layout.sidebarWidth) / 100);
   const main = textWidth - side - gutter;
@@ -631,7 +594,7 @@ function twoColumns(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
 function legajoOneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   const { cv } = ctx;
   const k = legajoLook(cv.layout);
-  const a = baselineShare(cv.layout.font === "Noto Sans");
+  const a = BASELINE;
   const { S, d, cap, small } = k;
   const head = legajoHeader(ctx, k, a);
   const subtitle = (cap * 1.25 * S) / a;
@@ -683,137 +646,381 @@ function legajoOneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
   }
   if (cv.summary) out.push(legajoPar(ctx, col, runs(ctx, cv.summary), cv.summary, pt, { alignment: AlignmentType.JUSTIFIED }));
   if (cv.skills.length) {
-    // Each skill as a row of a grid, its name in the column of the periods; 0.45em between rows.
+    // Each skill as a row of a grid, its name in the column of the periods; 0.45em between rows, and between the grids
+    // of two rows of skills the paragraph spacing too.
     out.push(legajoTitle(ctx, col, cv.labels.skills));
-    const rows = cv.skills.flat().map((g) => {
-      const row = legajoRow(
-        ctx,
-        col,
-        (c) => [para([plain(ctx, g.title.toLowerCase(), { smallCaps: true, color: MUTED, size: small * 2 })], { spacing: c.next(small) })],
-        (c) => [para([plain(ctx, g.items.join(", "))], { spacing: c.next(S) })],
-      );
-      col.flow.v(0.45 * S);
-      return row;
+    const dateWidth = 2 * 28.35 * (S / 10);
+    const rows = cv.skills.flatMap((groups) => {
+      const grid = groups.map((g, i) => {
+        if (i === 0) col.flow.space(0.55 * d * S, PAR);
+        else col.flow.v(0.45 * S);
+        return legajoRow(
+          ctx,
+          col,
+          (c) => {
+            // In the column of the periods, where Typst may cut a long name in two.
+            const title = words(ctx, g.title.toLowerCase(), { smallCaps: true, color: MUTED, size: small * 2 });
+            return [para(title, { spacing: c.next(small, lineCount(ctx, g.title, small, dateWidth)) })];
+          },
+          (c) => [para([plain(ctx, g.items.join(", "))], { spacing: c.next(S) })],
+        );
+      });
+      col.flow.space(0.55 * d * S, PAR).v(0.45 * S);
+      return grid;
     });
     out.push(legajoTable(ctx, rows, textWidth));
   }
   return [...out, ...cv.sections.flatMap((s) => legajoSection(ctx, col, s, textWidth))];
 }
 
-/** Banda's header: the name and the subtitle in white on the accent colour, the photo beside them. */
-function band(ctx: Ctx, textWidth: number): Table {
-  const { cv } = ctx;
-  const photo = photoRun(cv, ctx.size * 4.25);
-  const shading = { type: ShadingType.CLEAR, color: "auto", fill: ctx.accent };
-  const margins = { top: 160, bottom: 160, left: 200, right: 200 };
-  const names = [
-    para([plain(ctx, cv.name, { bold: true, color: "FFFFFF", size: Math.round(ctx.size * 2.3) })], { spacing: { after: 40 } }),
-    para([plain(ctx, cv.subtitle, { color: "FFFFFF", size: Math.round(ctx.size * 1.25) })]),
-  ];
-  const cells = [new TableCell({ borders: NO_BORDERS, shading, margins, verticalAlign: VerticalAlign.CENTER, children: names })];
-  if (photo) cells.push(new TableCell({ borders: NO_BORDERS, shading, margins, verticalAlign: VerticalAlign.CENTER, children: [para([photo], { alignment: AlignmentType.RIGHT })] }));
-  return new Table({
-    layout: TableLayoutType.FIXED,
-    width: { size: textWidth, type: WidthType.DXA },
-    columnWidths: photo ? [textWidth - 2000, 2000] : [textWidth],
-    borders: TableBorders.NONE,
-    rows: [new TableRow({ children: cells })],
+// ---------------------------------------------------------------- the one-column styles, with Typst's spacing
+
+/** How many lines Typst gave `text`, when it has them; one when not. */
+function laidLines(ctx: Ctx, text: string): number {
+  const l = ctx.lines?.lay(text);
+  return l ? l.over.length : 1;
+}
+
+/** A paragraph of the text size (or `size`) in a one-column style, after the spacing of a paragraph. */
+function columnPar(ctx: Ctx, col: Column, k: Look, children: ParagraphChild[], text: string, width: number, options: Omit<IParagraphOptions, "children"> = {}, size = k.S): Paragraph {
+  col.flow.space(k.par, PAR);
+  const out = para(children, { ...options, spacing: col.next(size, lineCount(ctx, text, size, width / 20)) });
+  col.flow.space(k.par, PAR);
+  return out;
+}
+
+/** A section title of a one-column style, kept with what follows. A rule under it is the paragraph's bottom border, as
+ * far below the baseline as Word's whole points let it be; the paragraph is as much longer. */
+function columnTitle(ctx: Ctx, col: Column, k: Look, title: string): Paragraph {
+  const style = ctx.style as OneColumnStyle;
+  const t = titleLook(style, k);
+  col.flow.space(k.above, BLOCK);
+  const spacing = col.next(t.top / k.cap);
+  const run = (text: string, o: RunOptions) => plain(ctx, text, { size: t.size * 2, bold: true, ...o });
+  const tracked = (em: number) => Math.round(em * t.size * 20);
+  // How far below the line the rule is, for it to be `at` pt below the baseline.
+  const space = (at: number) => Math.max(0, Math.round(at - (1 - col.a) * (spacing.line / 20)));
+  let p: Paragraph;
+  if (style === "banda") {
+    // The bar of the accent colour on the left, 3.5 pt wide and 0.5em from the title.
+    const gap = Math.round(0.5 * k.S);
+    p = para([run(title, {})], { spacing, keepNext: true, indent: { left: Math.round((3.5 + gap) * 20) }, border: { left: { style: BorderStyle.SINGLE, size: 28, color: ctx.accent, space: gap } } });
+  } else if (style === "minimal") p = para([run(title.toUpperCase(), { characterSpacing: tracked(0.14) })], { spacing, keepNext: true });
+  else if (style === "claustro" || style === "recto") {
+    const claustro = style === "claustro";
+    const width = claustro ? 0.75 : 0.5;
+    const under = space(t.under - width / 2);
+    p = para([run(title.toUpperCase(), claustro ? { characterSpacing: tracked(0.05) } : { color: ctx.accent, characterSpacing: tracked(0.1) })], {
+      spacing,
+      keepNext: true,
+      border: { bottom: { style: BorderStyle.SINGLE, size: claustro ? 6 : 4, color: claustro ? ctx.accent : lighten("#1b1f23", 0.78), space: under } },
+    });
+    col.drop(under + width);
+  } else p = para([run(title, { color: ctx.accent })], { spacing, keepNext: true });
+  col.flow.v(t.under).space(k.below, BLOCK);
+  return p;
+}
+
+/** Items as Typst's list: `list` pt apart (`item` before a loose one), the marker `indent` in and the text after it. */
+function columnItems(ctx: Ctx, col: Column, k: Look, items: Item[], width: number): Paragraph[] {
+  const inner = width / 20 - (k.indent + k.marker + k.body);
+  return items.map((it) => {
+    col.flow.space(k.list, BLOCK);
+    const text = (it.heading ? `**${it.heading}. **` : "") + it.text;
+    const children = runs(ctx, text);
+    return para(children, { numbering: { reference: "dash", level: 0 }, spacing: col.next(k.S, lineCount(ctx, text, k.S, inner)) });
   });
 }
 
-function oneColumn(ctx: Ctx, textWidth: number): (Paragraph | Table)[] {
-  const { cv } = ctx;
-  const dot = ctx.style === "banda" ? plain(ctx, "  •  ", { size: ctx.small, color: ctx.accent }) : plain(ctx, "  ·  ", { size: ctx.small, color: MUTED });
-  const contacts: ParagraphChild[] = cv.contacts.flatMap((c, i) => [...(i ? [dot] : []), contactChild(ctx, c, ctx.small)]);
-  const contactLine = contacts.length ? [para(contacts, { spacing: { before: ctx.style === "banda" ? ctx.smallSep : 0, after: ctx.sep } })] : [];
-  const head = [...header(ctx), ...contactLine];
-  const photo = photoRun(cv, ctx.size * 4.25);
-  const top: (Paragraph | Table)[] = ctx.style === "banda" ? [band(ctx, textWidth), ...contactLine] : photo
-    ? [
-        new Table({
-          layout: TableLayoutType.FIXED,
-          width: { size: textWidth, type: WidthType.DXA },
-          columnWidths: [textWidth - 2000, 2000],
-          borders: TableBorders.NONE,
-          rows: [
-            new TableRow({
-              children: [
-                new TableCell({ borders: NO_BORDERS, verticalAlign: VerticalAlign.BOTTOM, children: head }),
-                new TableCell({ borders: NO_BORDERS, children: [para([photo], { alignment: AlignmentType.RIGHT })] }),
-              ],
-            }),
-          ],
-        }),
-      ]
-    : head;
-  const highlight = cv.highlight
-    ? [para([plain(ctx, `${cv.highlight.title}  `, { bold: true, color: ctx.accent }), plain(ctx, cv.highlight.text)], { spacing: { after: ctx.smallSep } })]
-    : [];
-  const banda = ctx.style === "banda";
-  const lines = cv.skills.flat().map((g) => {
-    const title = plain(ctx, `${g.title}: `, banda ? { bold: true, size: ctx.small } : { color: MUTED });
-    return para([title, plain(ctx, g.items.join(banda ? " · " : ", "), banda ? { size: ctx.small } : {})]);
-  });
-  // Banda has its skills under the contacts, without a title, as its Typst style does.
-  const skills = lines.length && !banda ? [sectionTitle(ctx, cv.labels.skills), ...lines] : [];
-  const above = banda && lines.length ? [...lines, spacer(ctx.smallSep)] : [];
-  return [...top, ...highlight, ...above, ...summary(ctx), ...skills, ...cv.sections.flatMap((s) => mainSection(ctx, s, textWidth))];
-}
-
-/** Claustro, Recto and Llano, made for applicant tracking systems: paragraphs only (no tables),
- * the contacts in the body on one line, the dates on a tab stop at the right margin. */
-function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
-  const { cv } = ctx;
-  const align = style === "claustro" ? { alignment: AlignmentType.CENTER } : {};
-  const tabStops = [{ type: TabStopType.RIGHT, position: textWidth }];
-  const dates = (period: string): ParagraphChild[] =>
-    period ? [new TextRun({ children: [new Tab(), xmlSafe(period)], font: ctx.font, size: style === "claustro" ? ctx.size : ctx.small, color: style === "claustro" ? INK : MUTED })] : [];
+/** An entry of a one-column style, as in latex.ts: the lines of one paragraph in Typst are paragraphs here, each a line
+ * below the one before. */
+function columnEntry(ctx: Ctx, col: Column, k: Look, e: ResolvedEntry, compact: boolean, width: number): Paragraph[] {
+  const style = ctx.style as OneColumnStyle;
+  const pt = width / 20;
+  const tabStops = [{ type: TabStopType.RIGHT, position: width }];
+  const small = k.small * 2;
+  const dates: ParagraphChild[] = e.period ? [new TextRun({ children: [new Tab()] }), plain(ctx, e.period, style === "claustro" ? {} : { size: small, color: MUTED })] : [];
+  const first = (children: ParagraphChild[], text: string) => para(children, { tabStops, spacing: col.next(k.S, lineCount(ctx, text, k.S, pt)) });
+  const below = (children: ParagraphChild[], size: number, text: string) => para(children, { tabStops, spacing: col.line(size, lineCount(ctx, text, size, pt)) });
+  const note = () => words(ctx, e.note!, { size: small, color: MUTED });
+  col.flow.space(k.entry, BLOCK);
   const out: Paragraph[] = [];
-  const photo = photoRun(cv, ctx.size * 3.5);
-  if (photo) out.push(para([photo], { alignment: style === "claustro" ? AlignmentType.CENTER : AlignmentType.RIGHT, spacing: { after: 80 } }));
-  const nameSize = Math.round(ctx.size * (style === "llano" ? 2 : 2.2));
-  out.push(para([plain(ctx, cv.name, { bold: style !== "llano", color: style === "llano" ? ctx.accent : INK, size: nameSize })], { ...align, spacing: { after: 40 } }));
-  if (cv.subtitle) {
-    const look = { claustro: { italics: true }, recto: { color: ctx.accent }, llano: {} }[style];
-    out.push(para([plain(ctx, cv.subtitle, { ...look, size: Math.round(ctx.size * 1.15) })], { ...align, spacing: { after: 40 } }));
-  }
-  if (cv.contacts.length) {
-    const color = style === "claustro" ? INK : MUTED;
-    const sep = () => plain(ctx, style === "recto" ? "  |  " : "  ·  ", { size: ctx.small, color });
-    const children = cv.contacts.flatMap((c, i) => [...(i ? [sep()] : []), contactChild(ctx, c, ctx.small, color)]);
-    out.push(para(children, { ...align, spacing: { after: ctx.smallSep } }));
-  }
-  if (cv.highlight) {
-    const title = plain(ctx, `${cv.highlight.title}: `, { bold: true, color: style === "recto" ? ctx.accent : INK });
-    out.push(para([title, ...words(ctx, cv.highlight.text)], { spacing: { before: ctx.smallSep } }));
-  }
-  if (cv.summary) out.push(sectionTitle(ctx, cv.labels.profile), para(runs(ctx, cv.summary)));
-  if (cv.skills.length) {
-    out.push(sectionTitle(ctx, cv.labels.skills), ...cv.skills.flat().map((g) => para([plain(ctx, `${g.title}: `, { bold: true }), plain(ctx, g.items.join(", "))])));
-  }
-  for (const s of cv.sections) {
-    out.push(sectionTitle(ctx, s.title));
-    for (const b of s.blocks) {
-      if (b.type === "item") out.push(...bulletItems(ctx, [b]));
-      else if (b.type === "paragraph") out.push(para(runs(ctx, b.text)));
-      else {
-        const e = b.entry;
-        const first = { keepNext: true, tabStops, spacing: { before: ctx.smallSep } };
-        // Claustro: the institution above, the position and the dates below. Recto: the position
-        // and the dates, the institution below. Llano: all on one line.
-        if (style === "claustro" && e.place)
-          out.push(para([plain(ctx, e.place, { bold: true })], first), para([plain(ctx, e.title, { italics: true }), ...dates(e.period)], { keepNext: true, tabStops }));
-        else if (style === "llano") out.push(para([plain(ctx, e.title, { bold: true }), ...(e.place ? [plain(ctx, `, ${e.place}`)] : []), ...dates(e.period)], first));
-        else {
-          out.push(para([...words(ctx, e.title, { bold: true }), ...dates(e.period)], first));
-          if (e.place) out.push(para(words(ctx, e.place, { color: MUTED }), { keepNext: true }));
-        }
-        if (e.note) out.push(para(words(ctx, e.note, { size: ctx.small, color: MUTED })));
-        if (!s.compact) out.push(...bulletItems(ctx, e.items));
-      }
+  if (style === "minimal") {
+    out.push(first([...words(ctx, e.title), ...dates], e.title));
+    col.flow.space(k.par, PAR);
+    if (e.place) {
+      col.flow.space(k.parEm * k.small, PAR);
+      const children = words(ctx, e.place, { size: small, color: MUTED });
+      out.push(para(children, { spacing: col.next(k.small, lineCount(ctx, e.place, k.small, pt), k.leadEm * k.small) }));
+      col.flow.space(k.parEm * k.small, PAR);
     }
+    if (e.note) out.push(columnPar(ctx, col, k, note(), e.note, width, {}, k.small));
+    if (!compact && e.items.length) col.flow.v(0.2 * k.S);
+  } else {
+    if (style === "banda") {
+      out.push(first([...words(ctx, e.title, { bold: true }), ...dates], e.title));
+      if (e.place) out.push(below(words(ctx, e.place, { size: small, color: ctx.accent, bold: true }), k.small, e.place));
+    } else if (style === "claustro" && e.place) {
+      out.push(first(words(ctx, e.place, { bold: true }), e.place), below([...words(ctx, e.title, { italics: true }), ...dates], k.S, e.title));
+    } else if (style === "llano") {
+      out.push(first([...words(ctx, e.title, { bold: true }), ...(e.place ? [plain(ctx, `, ${e.place}`)] : []), ...dates], e.title));
+    } else {
+      out.push(first([...words(ctx, e.title, { bold: true }), ...dates], e.title));
+      if (style === "recto" && e.place) out.push(below(words(ctx, e.place, { color: MUTED }), k.S, e.place));
+    }
+    col.flow.space(k.par, PAR);
+    // Banda's note is a paragraph of its own; the others', a line of the entry's.
+    if (e.note) out.push(style === "banda" ? columnPar(ctx, col, k, note(), e.note, width, {}, k.small) : below(note(), k.small, e.note));
+  }
+  if (!compact && e.items.length) out.push(...columnItems(ctx, col, k, e.items, width));
+  col.flow.space(0, BLOCK);
+  return out;
+}
+
+/** A section of a one-column style. */
+function columnSection(ctx: Ctx, col: Column, k: Look, s: ResolvedSection, width: number): Paragraph[] {
+  const out = [columnTitle(ctx, col, k, s.title)];
+  for (const b of s.blocks) {
+    if (b.type === "entry") out.push(...columnEntry(ctx, col, k, b.entry, s.compact, width));
+    else if (b.type === "item") {
+      col.flow.space(k.item, BLOCK);
+      out.push(...columnItems(ctx, col, k, [b], width));
+      col.flow.space(0, BLOCK);
+    } else out.push(columnPar(ctx, col, k, runs(ctx, b.text), b.text, width));
   }
   return out;
+}
+
+/** A table with no borders or margins of its own, its columns `widths` twips wide. */
+function plainTable(widths: number[], rows: TableRow[]): Table {
+  return new Table({
+    layout: TableLayoutType.FIXED,
+    width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+    columnWidths: widths,
+    borders: TableBorders.NONE,
+    margins: { top: 0, bottom: 0, left: 0, right: 0 },
+    rows,
+  });
+}
+
+/** A row of a grid, its cells `gutter` twips apart, all as far below what comes before as Typst's grid row; what follows
+ * goes below the cell that ends lowest. */
+function gridRow(col: Column, cells: ((c: Column) => Paragraph[])[], gutter: number): TableRow {
+  const gap = col.flow.take();
+  const columns = cells.map(() => {
+    const c = new Column(col.k, col.a, col.last);
+    c.flow.take();
+    c.flow.v(gap);
+    return c;
+  });
+  const children = cells.map((cell, i) => new TableCell({ borders: NO_BORDERS, margins: { ...NO_MARGINS, left: i ? gutter : 0 }, children: cell(columns[i]) }));
+  const lowest = columns.reduce((a, b) => (b.height > a.height ? b : a));
+  col.below(lowest.last ?? col.k.cap * col.k.S + col.k.lead);
+  return new TableRow({ cantSplit: true, children });
+}
+
+/** Banda: a band of the accent colour as tall as Typst's, with the name and the subtitle in white and the photo beside
+ * them; the contacts, the skills in a grid, the highlight and the summary below it. `top`: how much higher than Typst's
+ * the page's text starts. */
+function bandaTop(ctx: Ctx, col: Column, k: Look, width: number, top: number): (Paragraph | Table)[] {
+  const { cv } = ctx;
+  const band = 36; // mm, as in banda.typ
+  const height = Math.max(band - cv.layout.margins.top, 12) * MM;
+  const name = 2.3 * k.B;
+  const subtitle = 1.25 * k.B;
+  const names = k.cap * name + k.parEm * name + 0.1 * k.S + k.cap * subtitle;
+  const side = Math.max(band - cv.layout.margins.top - 8, 10) * MM;
+  const shape = cv.layout.photo === "square" ? "rounded" : cv.layout.photo;
+  const photo = photoRun(cv, side);
+  const row = Math.max(names, photo ? photoHeight(side, shape, cv.photo?.size) : 0);
+  const inner = new Column(k, col.a);
+  const nameLines = [para([plain(ctx, cv.name, { bold: true, color: "FFFFFF", size: name * 2 })], { spacing: inner.start(top + (row - names) / 2 + k.cap * name) })];
+  inner.flow.space(k.parEm * name, PAR).v(0.1 * k.S);
+  nameLines.push(para([plain(ctx, cv.subtitle, { color: "FFFFFF", size: subtitle * 2 })], { spacing: inner.next(subtitle) }));
+  const shading = { type: ShadingType.CLEAR, color: "auto", fill: ctx.accent };
+  const cells = [new TableCell({ borders: NO_BORDERS, margins: NO_MARGINS, shading, verticalAlign: VerticalAlign.TOP, children: nameLines })];
+  const photoWidth = Math.round((side + 0.5 * k.S) * 20);
+  if (photo)
+    cells.push(
+      new TableCell({
+        borders: NO_BORDERS,
+        margins: NO_MARGINS,
+        shading,
+        verticalAlign: VerticalAlign.CENTER,
+        children: [para([photo], { alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 0, line: 240, lineRule: LineRuleType.AUTO } })],
+      }),
+    );
+  const out: (Paragraph | Table)[] = [
+    plainTable(photo ? [width - photoWidth, photoWidth] : [width], [new TableRow({ height: { value: Math.round((top + height) * 20), rule: HeightRule.EXACT }, children: cells })]),
+  ];
+  // Below the band, the paragraph spacing and 0.9em.
+  col.below(0);
+  col.flow.space(k.par, PAR).v(0.9 * k.S);
+  if (cv.contacts.length) {
+    const dot = plain(ctx, "  •  ", { size: k.small * 2, color: ctx.accent });
+    const contacts = cv.contacts.flatMap((c, i) => [...(i ? [dot] : []), contactChild(ctx, c, k.small * 2, MUTED)]);
+    col.flow.space(k.parEm * k.small, PAR);
+    out.push(para(contacts, { spacing: col.next(k.small, 1, k.leadEm * k.small) }));
+    col.flow.space(k.parEm * k.small, PAR);
+  }
+  if (cv.skills.length) col.flow.v(0.5 * k.S);
+  const gutter = Math.round(1.5 * k.S * 20);
+  for (const groups of cv.skills) {
+    // Each row a grid of its groups side by side, as wide as each other.
+    const w = Math.floor((width - gutter * (groups.length - 1)) / groups.length);
+    col.flow.space(k.par, PAR);
+    const row = gridRow(
+      col,
+      groups.map((g) => (c: Column) => [
+        para([plain(ctx, `${g.title}: `, { bold: true, size: k.small * 2 }), plain(ctx, g.items.join(" · "), { size: k.small * 2 })], { spacing: c.next(k.small, 1, k.leadEm * k.small) }),
+      ]),
+      gutter,
+    );
+    out.push(plainTable(groups.map((_, i) => w + (i ? gutter : 0)), [row]));
+    col.flow.space(k.par, PAR).v(0.25 * k.S);
+  }
+  if (cv.highlight) {
+    col.flow.v(0.5 * k.S);
+    ctx.laid = undefined;
+    const text = `${cv.highlight.title}  ${cv.highlight.text}`;
+    out.push(columnPar(ctx, col, k, [plain(ctx, `${cv.highlight.title}  `, { bold: true, color: ctx.accent }), plain(ctx, cv.highlight.text)], text, width));
+  }
+  if (cv.summary) {
+    col.flow.v(0.4 * k.S);
+    out.push(columnPar(ctx, col, k, runs(ctx, cv.summary), cv.summary, width, { alignment: AlignmentType.JUSTIFIED }));
+  }
+  return out;
+}
+
+/** Minimal: one row of a table as tall as Typst's grid, with the name in the accent colour over the subtitle, the
+ * contacts one under the other on their right and the photo beside them; then the highlight, the summary and the skills,
+ * each group's name in a column as wide as the longest. */
+function minimalTop(ctx: Ctx, col: Column, k: Look, width: number, top: number): (Paragraph | Table)[] {
+  const { cv } = ctx;
+  const name = 2.6 * k.B;
+  const subtitle = 1.2 * k.B;
+  const names = k.cap * name + k.parEm * name + 0.15 * k.S + k.cap * subtitle;
+  const lead = k.leadEm * k.small;
+  const pitch = lead + k.cap * k.small;
+  const n = cv.contacts.length;
+  const side = 7.5 * k.B;
+  const photo = photoRun(cv, side);
+  const row = Math.max(names, n ? k.cap * k.small + (n - 1) * pitch : 0, photo ? photoHeight(side, cv.layout.photo, cv.photo?.size) : 0);
+  const left = new Column(k, col.a);
+  const nameLines = [para([plain(ctx, cv.name, { color: ctx.accent, size: name * 2 })], { spacing: left.start(top + row - names + k.cap * name) })];
+  left.flow.space(k.parEm * name, PAR).v(0.15 * k.S);
+  nameLines.push(para([plain(ctx, cv.subtitle, { color: MUTED, size: subtitle * 2 })], { spacing: left.next(subtitle) }));
+  const right = new Column(k, col.a);
+  const contactLines = cv.contacts.map((c, i) =>
+    para([contactChild(ctx, c, k.small * 2, MUTED)], { alignment: AlignmentType.RIGHT, spacing: i ? right.line(k.small, 1, lead) : right.start(top + row - (n - 1) * pitch) }),
+  );
+  const gutter = Math.round(1.4 * k.S * 20);
+  const contactWidth = n ? Math.max(...cv.contacts.map((c) => textWidth(c.value, k.small * 2))) + gutter : 0;
+  const photoWidth = photo ? Math.round(side * 20) + gutter : 0;
+  const cells = [new TableCell({ borders: NO_BORDERS, margins: NO_MARGINS, children: nameLines })];
+  if (n) cells.push(new TableCell({ borders: NO_BORDERS, margins: NO_MARGINS, children: contactLines }));
+  if (photo) cells.push(new TableCell({ borders: NO_BORDERS, margins: NO_MARGINS, children: [para([photo], { alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 0, line: 240, lineRule: LineRuleType.AUTO } })] }));
+  // The row ends where the subtitle's line does, its baseline at the bottom of Typst's grid.
+  const subtitleLine = left.last ?? 0;
+  const widths = [width - contactWidth - photoWidth, ...(n ? [contactWidth] : []), ...(photo ? [photoWidth] : [])];
+  const out: (Paragraph | Table)[] = [
+    plainTable(widths, [new TableRow({ height: { value: Math.round((top + row + (1 - col.a) * subtitleLine) * 20), rule: HeightRule.EXACT }, children: cells })]),
+  ];
+  col.below(subtitleLine);
+  col.flow.space(k.par, PAR);
+  if (cv.highlight) {
+    col.flow.v(1.4 * k.d * k.S);
+    ctx.laid = undefined;
+    const text = `${cv.highlight.title}  ${cv.highlight.text}`;
+    out.push(columnPar(ctx, col, k, [plain(ctx, `${cv.highlight.title}  `, { bold: true }), plain(ctx, cv.highlight.text)], text, width));
+  }
+  if (cv.summary) {
+    // In a size of its own, with the leading of the text size.
+    col.flow.v(1.4 * k.d * k.S);
+    const size = 1.02 * k.B;
+    out.push(columnPar(ctx, col, k, runs(ctx, cv.summary, { size: size * 2 }), cv.summary, width, { alignment: AlignmentType.JUSTIFIED }, size));
+  }
+  if (cv.skills.length) out.push(columnTitle(ctx, col, k, cv.labels.skills));
+  const gap = Math.round(1.5 * k.S * 20);
+  for (const groups of cv.skills) {
+    const titles = Math.max(...groups.map((g) => textWidth(g.title, k.small * 2)));
+    const rows = groups.map((g, i) => {
+      if (i === 0) col.flow.space(k.par, PAR);
+      else col.flow.v(0.5 * k.S);
+      return gridRow(
+        col,
+        [
+          (c) => [para([plain(ctx, g.title, { size: k.small * 2, color: MUTED })], { spacing: c.next(k.small) })],
+          (c) => [para([plain(ctx, g.items.join(" · "))], { spacing: c.next(k.S) })],
+        ],
+        gap,
+      );
+    });
+    out.push(plainTable([titles, width - titles], rows));
+    col.flow.space(k.par, PAR).v(0.5 * k.S);
+  }
+  return out;
+}
+
+/** Claustro, Recto and Llano, made for applicant tracking systems: paragraphs only (no tables), the name, the subtitle
+ * and the contacts on a line each (centred in Claustro), the photo floating beside them; every part under a standard
+ * title, the dates on a tab stop at the right margin. */
+function atsTop(ctx: Ctx, col: Column, k: Look, width: number, top: number): Paragraph[] {
+  const { cv } = ctx;
+  const style = ctx.style as AtsStyle;
+  const name = (style === "llano" ? 2 : 2.2) * k.B;
+  const subtitle = (style === "recto" ? 1.15 : 1.1) * k.B;
+  const side = (style === "llano" ? 6.5 : 7) * k.B;
+  const photo = photoRun(cv, side, top);
+  const tall = photo ? photoHeight(side, cv.layout.photo, cv.photo?.size) : 0;
+  const gutter = Math.round(((style === "claustro" ? 1 : 1.2) * k.S + side) * 20);
+  const sep = style === "recto" ? " | " : " · ";
+  const n = cv.contacts.length ? laidLines(ctx, cv.contacts.map((c) => c.value).join(sep)) : 0;
+  let y = k.cap * name;
+  if (cv.subtitle) y += k.par + k.cap * subtitle;
+  if (n) y += k.par + k.cap * k.small + (n - 1) * (k.lead + k.cap * k.small);
+  const row = Math.max(y, tall);
+  const line = {
+    alignment: style === "claustro" ? AlignmentType.CENTER : AlignmentType.LEFT,
+    indent: photo ? (style === "claustro" ? { left: gutter, right: gutter } : { right: gutter }) : undefined,
+  };
+  const nameRuns: ParagraphChild[] = [plain(ctx, cv.name, { bold: style !== "llano", color: style === "llano" ? ctx.accent : INK, size: name * 2 })];
+  if (photo) nameRuns.push(photo);
+  // Beside the photo, the header in the middle of the row.
+  const out = [para(nameRuns, { ...line, spacing: col.start(top + (row - y) / 2 + k.cap * name) })];
+  if (cv.subtitle) {
+    col.flow.space(k.par, PAR);
+    const o = { claustro: { italics: true }, recto: { color: ctx.accent }, llano: {} }[style];
+    out.push(para([plain(ctx, cv.subtitle, { ...o, size: subtitle * 2 })], { ...line, spacing: col.next(subtitle) }));
+  }
+  if (n) {
+    col.flow.space(k.par, PAR);
+    const color = style === "claustro" ? INK : MUTED;
+    const children = cv.contacts.flatMap((c, i) => [...(i ? [plain(ctx, sep, { size: k.small * 2, color })] : []), contactChild(ctx, c, k.small * 2, color)]);
+    out.push(para(children, { ...line, spacing: col.next(k.small, n) }));
+  }
+  col.flow.space(k.par, PAR).v((row - y) / 2);
+  if (cv.highlight) {
+    col.flow.v((style === "llano" ? 0.5 : 0.6) * k.d * k.S);
+    ctx.laid = undefined;
+    const title = plain(ctx, `${cv.highlight.title}: `, { bold: true, color: style === "recto" ? ctx.accent : INK });
+    out.push(columnPar(ctx, col, k, [title, plain(ctx, cv.highlight.text)], `${cv.highlight.title}: ${cv.highlight.text}`, width));
+  }
+  if (cv.summary) out.push(columnTitle(ctx, col, k, cv.labels.profile), columnPar(ctx, col, k, runs(ctx, cv.summary), cv.summary, width));
+  if (cv.skills.length) out.push(columnTitle(ctx, col, k, cv.labels.skills));
+  for (const g of cv.skills.flat()) {
+    ctx.laid = undefined;
+    out.push(columnPar(ctx, col, k, [plain(ctx, `${g.title}: `, { bold: true }), plain(ctx, g.items.join(", "))], `${g.title}: ${g.items.join(", ")}`, width));
+  }
+  return out;
+}
+
+/** Banda, Minimal, Claustro, Recto or Llano: one column. `top`: how much higher than Typst's the page's text starts. */
+function oneColumn(ctx: Ctx, k: Look, textWidth: number, top: number): (Paragraph | Table)[] {
+  const style = ctx.style as OneColumnStyle;
+  const col = new Column(k, BASELINE);
+  const head = style === "banda" ? bandaTop(ctx, col, k, textWidth, top) : style === "minimal" ? minimalTop(ctx, col, k, textWidth, top) : atsTop(ctx, col, k, textWidth, top);
+  return [...head, ...ctx.cv.sections.flatMap((s) => columnSection(ctx, col, k, s, textWidth))];
 }
 
 /** The `leading` of each Typst style (styles/*.typ). */
@@ -829,8 +1036,8 @@ export function lineSpacing(style: ExportStyle, sans: boolean): number {
 
 export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", fonts?: WordFonts, lines?: Lines): Promise<Uint8Array> {
   const l = cv.layout;
-  const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
   const accentHex = l.accent ?? DEFAULT_ACCENT;
+  const one = style === "legajo" ? undefined : look(style, l);
   const ctx: Ctx = {
     cv,
     style,
@@ -838,19 +1045,20 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", 
     accent: accentHex.slice(1).toUpperCase(),
     tint: lighten(accentHex, 0.92),
     rule: lighten(accentHex, 0.5),
-    size: Math.round(l.fontSize * 2),
-    small: Math.round(l.fontSize * 1.76),
-    sep: Math.round(l.fontSize * 20 * density),
-    smallSep: Math.round(l.fontSize * 10 * density),
+    size: one ? one.S * 2 : Math.round(l.fontSize * 2),
     lines,
   };
   const paper = PAPER[l.paper];
   const m = l.margins;
   // Typst ends a page where a line's baseline would not fit, its descent hanging over the margin; Word where its
-  // whole line would not. Legajo's lines have their height in Word: the bottom margin gives up what is below the
-  // baseline.
-  const k = legajoLook(l);
-  const hang = style === "legajo" ? (1 - baselineShare(l.font === "Noto Sans")) * (k.cap * k.S + k.lead) * 20 : 0;
+  // whole line would not. The lines have their height in Word: the bottom margin gives up what is below the baseline.
+  // Typst starts a page's first line the cap height below the top margin, Word the line's height above the baseline:
+  // the one-column styles' text starts that much higher, and their headers as much lower.
+  const k = one ?? legajoLook(l);
+  const a = BASELINE;
+  const pitch = k.cap * k.S + k.lead;
+  const hang = (1 - a) * pitch * 20;
+  const top = one ? a * pitch - k.cap * k.S : 0;
   const textWidth = Math.round((paper.width - m.left - m.right) * TWIP_PER_MM);
   const doc = new Document({
     creator: "Foja",
@@ -862,7 +1070,7 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", 
       default: {
         document: {
           // Kerning from 1 pt up, as Typst kerns all its text.
-          run: { font: ctx.font, size: ctx.size, color: INK, kern: 2, language: { value: wordLanguage(cv.language) } },
+          run: { font: ctx.font, size: Math.round(ctx.size), color: INK, kern: 2, language: { value: wordLanguage(cv.language) } },
           paragraph: { spacing: { before: 0, after: 0, line: lineSpacing(style, l.font === "Noto Sans") } },
         },
       },
@@ -877,9 +1085,13 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", 
               format: LevelFormat.BULLET,
               text: style === "banda" || style === "claustro" || style === "recto" ? "•" : "–",
               alignment: AlignmentType.LEFT,
-              // Legajo's as Typst's list: the dash, then 0.5em.
+              // As Typst's list: the marker `indent` in, the text `body-indent` after it (Legajo's: the dash, then 0.5em).
               style: {
-                paragraph: { indent: style === "legajo" ? { left: Math.round(l.fontSize * 20), hanging: Math.round(l.fontSize * 20) } : { left: 240, hanging: 200 } },
+                paragraph: {
+                  indent: one
+                    ? { left: Math.round((one.indent + one.marker + one.body) * 20), hanging: Math.round((one.marker + one.body) * 20) }
+                    : { left: Math.round(l.fontSize * 20), hanging: Math.round(l.fontSize * 20) },
+                },
                 run: { color: style === "minimal" || style === "llano" ? MUTED : style === "claustro" ? INK : ctx.accent },
               },
             },
@@ -893,7 +1105,7 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", 
           page: {
             size: { width: Math.round(paper.width * TWIP_PER_MM), height: Math.round(paper.height * TWIP_PER_MM) },
             margin: {
-              top: Math.round(m.top * TWIP_PER_MM),
+              top: Math.round(m.top * TWIP_PER_MM - top * 20),
               bottom: Math.round(m.bottom * TWIP_PER_MM - hang),
               left: Math.round(m.left * TWIP_PER_MM),
               right: Math.round(m.right * TWIP_PER_MM),
@@ -901,13 +1113,7 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", 
           },
         },
         children:
-          style === "legajo"
-            ? l.columns === 2
-              ? twoColumns(ctx, textWidth)
-              : legajoOneColumn(ctx, textWidth)
-            : isAtsStyle(style)
-              ? atsColumn(ctx, textWidth, style)
-              : oneColumn(ctx, textWidth),
+          one ? oneColumn(ctx, one, textWidth, top) : l.columns === 2 ? twoColumns(ctx, textWidth) : legajoOneColumn(ctx, textWidth),
       },
     ],
   });

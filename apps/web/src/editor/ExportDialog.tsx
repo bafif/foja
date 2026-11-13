@@ -8,7 +8,6 @@ import { openInOverleaf } from "./overleaf";
 import { t } from "./i18n";
 import { styleOf } from "@foja/core";
 import type { MeasuredWord } from "@foja/core";
-import { copiesLines } from "@foja/core/export/style";
 import { compilePdf, measureLines, renderThumb } from "./preview";
 import { useEditor } from "./store";
 import { templateFiles, wordFonts } from "./template";
@@ -82,7 +81,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   const measured = () => {
     if (!lines.current) {
       const { project, profileId } = useEditor.getState();
-      const promise = copiesLines(project!, profileId) ? measureLines(project!, profileId) : Promise.resolve(undefined);
+      const promise = measureLines(project!, profileId);
       const current: { promise: typeof promise; words?: MeasuredWord[] } = { promise };
       void promise.then((words) => (current.words = words));
       lines.current = current;
