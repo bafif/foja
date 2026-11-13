@@ -9,7 +9,7 @@ import { t } from "./i18n";
 import { styleOf } from "@foja/core";
 import { compilePdf, renderThumb } from "./preview";
 import { useEditor } from "./store";
-import { templateFiles } from "./template";
+import { templateFiles, wordFonts } from "./template";
 
 type Choice = ExportFormat | "all";
 const CHOICES: Choice[] = ["pdf", "jpg", "docx", "typ", "tex", "md", "json", "jsonresume", "all"];
@@ -44,12 +44,15 @@ async function build(format: Choice, dpi: number): Promise<ExportedFile> {
     return files.length === 1 ? files[0] : bundleExports(project!, profileId, files);
   }
   if (format === "all") {
-    const template = await templateFiles();
+    const inputs = { template: await templateFiles(), wordFonts: await wordFonts() };
     const files = [await pdf(), ...(await jpgs())];
-    for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(file, profileId, f, template)));
+    for (const f of ["docx", "typ", "tex", "md", "json", "jsonresume"] as const) files.push(...(await exportFiles(file, profileId, f, inputs)));
     return bundleExports(project!, profileId, files);
   }
-  const files = await exportFiles(file, profileId, format, format === "typ" ? await templateFiles() : undefined);
+  const files = await exportFiles(file, profileId, format, {
+    template: format === "typ" ? await templateFiles() : undefined,
+    wordFonts: format === "docx" ? await wordFonts() : undefined,
+  });
   // JSON: the project file, which is what Foja imports; the resolved profile is in "all".
   return files[0];
 }

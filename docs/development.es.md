@@ -9,7 +9,7 @@ instaladores de escritorio.
 
 ```
 packages/core      formato de proyecto (JSON Schema + tipos), validación, importadores, exportadores y utilidades
-packages/template  los nueve estilos de Typst incluidos, su biblioteca, etiquetas y fuentes
+packages/template  los nueve estilos de Typst incluidos, su biblioteca, etiquetas y fuentes, y las que incrusta Word
 packages/cli       `foja` sobre Node: genera PDF, SVG, paquetes de Typst y todas las exportaciones de un proyecto
 apps/web           el sitio y el editor en Astro
 apps/desktop       la app de escritorio: el mismo editor en una ventana de Tauri, para Linux, Windows y macOS
@@ -41,6 +41,12 @@ podman volume export foja_out | tar -x -C .out      # copia a .out/ lo que escri
   Chromium headless en un contenedor que comparte la red del stack; desde ahí no se llega a nada del host.
 - `scripts/e2e-pwa.sh` genera el sitio como lo sirve GitHub Pages (bajo `/foja/`) y lo verifica, uso sin conexión
   incluido.
+- `scripts/length.sh` exporta cada perfil de los proyectos de ejemplo en cada estilo incluido y compara las páginas
+  del PDF de Typst, de la exportación a LaTeX compilada con TeX Live y de la exportación a Word abierta en
+  LibreOffice, en un contenedor propio (`tests/length/`); usa las dependencias que instaló el stack de desarrollo.
+  `--only <proyecto>/<perfil>` y `--style <id>` lo acotan.
+- `scripts/word-fonts.py` arma las fuentes que incrusta la exportación a Word (`packages/template/word-fonts/`) a
+  partir de las de Typst, con fontTools: XCharter en TrueType, y las dos con un solo juego de métricas verticales.
 - `scripts/latex-assets.sh` arma los motores de LaTeX y los archivos de TeX Live que usan las plantillas LaTeX
   importadas, en `apps/web/public/latex/` ([qué son](../apps/web/public/latex/README.es.md)). No están en el
   repositorio: los arma el deploy, y los tests de LaTeX necesitan que el script se haya corrido una vez.

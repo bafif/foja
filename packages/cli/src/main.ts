@@ -50,10 +50,10 @@ async function build(args: string[]) {
   const profiles = values.profile ?? Object.keys(project.profiles);
   for (const id of profiles) if (!(id in project.profiles)) fail(m.noProfile(id));
 
-  const { Typst, templateFiles } = await import("./typst.ts");
+  const { Typst, templateFiles, wordFonts } = await import("./typst.ts");
   const { bundleExports, exportFiles, exportStem, latexStyleOf } = await import("@foja/core/export");
   const typst = new Typst(project);
-  const template = templateFiles();
+  const inputs = { template: templateFiles(), wordFonts: wordFonts() };
   mkdirSync(values.out, { recursive: true });
   const write = (name: string, data: Uint8Array | string, note = "") => {
     const file = join(values.out, name);
@@ -74,11 +74,11 @@ async function build(args: string[]) {
       else if (format === "svg") write(`${stem}.svg`, typst.svg(doc!), pages);
       else if (format === "all") {
         const files = doc ? [{ name: `${stem}.pdf`, mime: "application/pdf", data: new Uint8Array(typst.pdf(doc)) }] : [];
-        for (const f of latex ? (["tex", "md", "json", "jsonresume", "docx"] as const) : (["typ", "tex", "md", "json", "jsonresume", "docx"] as const)) files.push(...(await exportFiles(project, id, f, template)));
+        for (const f of latex ? (["tex", "md", "json", "jsonresume", "docx"] as const) : (["typ", "tex", "md", "json", "jsonresume", "docx"] as const)) files.push(...(await exportFiles(project, id, f, inputs)));
         const bundle = bundleExports(project, id, files);
         write(bundle.name, bundle.data, ` (${files.map((f) => (f.name.startsWith(stem) ? f.name.slice(stem.length) : f.name)).join(", ")})`);
       } else
-        for (const f of await exportFiles(project, id, format, template)) {
+        for (const f of await exportFiles(project, id, format, inputs)) {
           write(f.name, f.data);
           if (f.left) console.error(m.jsonResumeLeft(f.name, f.left.join(", ")));
         }

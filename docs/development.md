@@ -9,7 +9,7 @@ are built.
 
 ```
 packages/core      project format (JSON Schema + types), validation, importers, exporters and shared helpers
-packages/template  the nine built-in Typst styles, their library, labels and fonts
+packages/template  the nine built-in Typst styles, their library, labels and fonts, and the fonts Word embeds
 packages/cli       `foja` on Node: builds PDF, SVG, Typst bundles and every export from a project
 apps/web           the Astro site and the editor
 apps/desktop       the desktop app: the same editor in a Tauri window, for Linux, Windows and macOS
@@ -41,6 +41,12 @@ podman volume export foja_out | tar -x -C .out      # copies what the CLI wrote 
   a container that shares the stack's network; nothing on the host is reachable from it.
 - `scripts/e2e-pwa.sh` builds the site as GitHub Pages serves it (under `/foja/`) and checks it, offline use
   included.
+- `scripts/length.sh` exports every profile of the example projects in every built-in style and compares the pages of
+  the Typst PDF, of the LaTeX export compiled with TeX Live and of the Word export opened in LibreOffice, in a
+  container of its own (`tests/length/`); it uses the dependencies the dev stack installed. `--only <project>/<profile>`
+  and `--style <id>` narrow it down.
+- `scripts/word-fonts.py` makes the fonts the Word export embeds (`packages/template/word-fonts/`) from Typst's, with
+  fontTools: XCharter in TrueType, and both with one set of vertical metrics.
 - `scripts/latex-assets.sh` makes the LaTeX engines and the TeX Live files that imported LaTeX templates use, in
   `apps/web/public/latex/` ([what they are](../apps/web/public/latex/README.md)). They are not in the repository: the
   deploy makes them, and the LaTeX tests need the script run once.

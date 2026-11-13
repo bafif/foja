@@ -112,8 +112,8 @@ start-up on the first export and a bridge between two runtimes.
 Every exporter starts from one resolved profile (entries looked up, dates formatted, labels applied), so each format
 shows exactly what the PDF shows. LaTeX and Word reproduce the profile's built-in style; a style of one's own is Typst
 code, so they give it as Legajo, and the Typst export is the one that keeps it. Word is checked by opening the files
-in LibreOffice, in a container, with Gelasio, which has Georgia's metrics: valid packages are not enough, and the
-tests hold the layout to Typst's.
+in LibreOffice, which uses the fonts the file carries: valid packages are not enough, and the tests hold the layout to
+Typst's.
 
 ### Astro instead of Next.js
 
@@ -188,7 +188,7 @@ pictures are stored once per content. They stay out of undo, so Ctrl+Z never del
 - **Nine styles**, a shared Typst library, “Edit in Typst” and a style editor; interface themes, extendable with a
   small, validated JSON file or from a script. Every text and background pair meets WCAG AA contrast in every theme.
 - **Exports** to PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume and a `.zip` with all of them, and “Open in
-  Overleaf”, which sends the LaTeX one to overleaf.com only when pressed.
+  Overleaf”, which sends the LaTeX one to overleaf.com only when pressed. The Word file carries Typst's fonts inside.
 - **Imported templates**, Typst and LaTeX, and JSON Resume files.
 - **The web app** online at [`bafif.github.io/foja/`](https://bafif.github.io/foja/), offline and installable, with
   its phone interface. The deploy runs by hand.
@@ -209,19 +209,22 @@ and each channel is published once what it carries has been tried.
 
 1. **The same length in every format.** A CV that fits on one page in the PDF has to fit in LaTeX and in Word too, and
    today it can run over (see the known limitations below). The fix holds for every style and format at once, with no
-   per-style tuning: Typst decides where each line breaks and the other formats copy it.
-   - **The same font.** The `.docx` embeds XCharter and Noto Sans instead of asking for Georgia. Word embeds only
-     TrueType fonts, so XCharter, which comes as CFF OpenType, is converted; its licence allows modifying and
-     redistributing it. A program that does not read embedded fonts still has to show a similar serif.
-   - **The same lines.** Before exporting, Typst compiles the profile in the style the exporter reproduces (the
-     profile's own, or Legajo or Minimal where the exporter stands in for it) and returns where each line of each
-     paragraph ends. LaTeX and Word break there with a forced line break, with the same line spacing and the same gaps
-     between blocks, so each paragraph takes the same lines in all three formats, whatever way each program would
-     have broken them. An imported LaTeX template stays out of this: its PDF already is LaTeX's.
-   - **A test that holds it.** For each profile of the example projects and each built-in style, it compiles the
-     LaTeX with TeX Live, opens the Word file in LibreOffice and compares the page count with that of the Typst PDF. It
-     runs in a container of its own, since LibreOffice and TeX Live are heavy, and a new style is covered without
-     writing anything else.
+   per-style tuning: Typst decides where each line breaks and the other formats copy it. The same font is done (the
+   Word file embeds XCharter, turned into TrueType, and Noto Sans), and so is the test, `scripts/length.sh`: for each
+   profile of the example projects and each built-in style, it compiles the LaTeX with TeX Live, opens the Word file
+   in LibreOffice and compares the page count with that of the Typst PDF. The cases that fail are one-page CVs that
+   just fit. Still to do:
+   - **The same gaps.** LaTeX leaves more room than Typst in the header, between entries and in lists, and in Word the
+     columns are a little narrower (the items' indent, the cells' margins). Each LaTeX and Word style has to take from
+     its Typst file the same gaps between blocks, the same line spacing and the same widths.
+   - **The same lines.** Typst already tells where each line of each paragraph breaks (`measure.typ` compiles the style
+     the exporter reproduces with a marker on every word), and LaTeX and Word already know how to break there with a
+     forced line break; Word draws the letters of a line slightly closer where Typst narrowed its spaces. It is turned
+     on in the editor and the CLI once the gaps are the same: with today's widths, Word's line does not fit and the
+     length gets worse (`scripts/length.sh --lines` measures it). An imported LaTeX template stays out of this: its
+     PDF already is LaTeX's.
+   - **Without the embedded fonts.** A program that does not read the fonts the Word file carries still has to show a
+     similar serif.
 2. **Files in the desktop app**: open and save projects as files, with a file type of their own, and update itself
    (except on Flathub, where Flatpak updates it). It is the desktop integration Flathub asks for to accept it.
 
@@ -249,9 +252,8 @@ sheet. These need the real device or account:
 
 ### Known limitations
 
-- The LaTeX export breaks lines a little differently from Typst and can run a few lines past one page where the PDF
-  fits; so can the Word export, by more, since Georgia is wider than XCharter (the example's programmer profile runs
-  about twenty lines over in LibreOffice). “The same length in every format” fixes it.
+- LaTeX and Word use Typst's font, but break lines their own way and leave a little more room between blocks: a CV
+  that just fits on one page in the PDF can run a few lines over. “The same length in every format” fixes it.
 - An imported LaTeX template shows in the preview without click-to-edit or the marks of what spills over, and only the
   data of templates that need LuaLaTeX is imported.
 - The command line does not compile LaTeX: it writes the filled `.tex`.

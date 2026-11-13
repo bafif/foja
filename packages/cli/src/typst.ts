@@ -9,6 +9,7 @@ import {
   BUILTIN_STYLES,
   LABELS_PATH,
   LIB_PATH,
+  MEASURE_PATH,
   PROJECT_PATH,
   assetFiles,
   builtinStylePath,
@@ -19,6 +20,7 @@ import {
   styleOf,
   typstInputs,
   type Mark,
+  type MeasuredWord,
   type Project,
   type StyleGeometry,
   type TemplateFiles,
@@ -39,6 +41,12 @@ export function templateFiles(): TemplateFiles {
     styles: Object.fromEntries(BUILTIN_STYLES.map((s) => [s.id, readFileSync(join(TEMPLATE_DIR, "styles", `${s.id}.typ`), "utf8")])),
     fonts,
   };
+}
+
+/** The fonts the Word export embeds. */
+export function wordFonts(): Record<string, Uint8Array> {
+  const dir = join(TEMPLATE_DIR, "word-fonts");
+  return Object.fromEntries(readdirSync(dir).filter((f) => f.endsWith(".ttf")).map((f) => [f, readFileSync(join(dir, f))]));
 }
 
 export class TypstError extends Error {}
@@ -69,6 +77,7 @@ export class Typst {
     this.compiler = NodeCompiler.create({ workspace: this.root, fontArgs: [{ fontBlobs }] });
     const files = templateFiles();
     this.compiler.addSource(at(LIB_PATH), files["lib.typ"]);
+    this.compiler.addSource(at(MEASURE_PATH), readFileSync(join(TEMPLATE_DIR, "measure.typ"), "utf8"));
     for (const [id, source] of Object.entries(files.styles)) this.compiler.addSource(at(builtinStylePath(id)), source);
     for (const [path, source] of customStyleSources(project)) this.compiler.addSource(at(path), source);
     this.compiler.mapShadow(at(LABELS_PATH), Buffer.from(files["labels.json"]));
@@ -77,8 +86,13 @@ export class Typst {
     for (const [path, data] of customStyleBinaries(project)) this.compiler.mapShadow(at(path), Buffer.from(fromBase64(data)));
   }
 
-  compile(profileId: string): Doc {
-    const result = this.compiler.compile({ mainFilePath: join(this.root, styleOf(this.project, profileId).path), inputs: typstInputs(profileId) });
+  /** The profile laid out by its style, or by measure.typ around its style. */
+  compile(profileId: string, measuring = false): Doc {
+    const style = styleOf(this.project, profileId).path;
+    const result = this.compiler.compile({
+      mainFilePath: join(this.root, measuring ? MEASURE_PATH : style),
+      inputs: measuring ? { ...typstInputs(profileId), style } : typstInputs(profileId),
+    });
     const error = result.takeError();
     if (error || !result.result) {
       const diagnostics = error ? this.compiler.fetchDiagnostics(error) : [];
@@ -96,6 +110,11 @@ export class Typst {
 
   svg(doc: Doc): string {
     return this.compiler.svg(doc);
+  }
+
+  /** Where each word of the profile is, from a compilation with `measuring`. */
+  words(doc: Doc): MeasuredWord[] {
+    return this.query(doc, "foja-word");
   }
 
   marks(doc: Doc): Mark[] {

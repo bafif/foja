@@ -118,8 +118,8 @@ Pyodide además habría sumado segundos de arranque en la primera exportación y
 Todos los exportadores parten de un mismo perfil resuelto (entradas buscadas, fechas formateadas, etiquetas
 aplicadas), así que cada formato muestra exactamente lo mismo que el PDF. LaTeX y Word reproducen el estilo incluido
 del perfil; un estilo propio es código Typst, así que para él salen como Legajo, y la exportación a Typst es la que lo
-conserva. Word se comprueba abriendo los archivos en LibreOffice, en un contenedor, con Gelasio, que mide igual que
-Georgia: no alcanza con que sean paquetes válidos, y los tests sostienen la disposición igual a la de Typst.
+conserva. Word se comprueba abriendo los archivos en LibreOffice, que usa las fuentes que el archivo lleva adentro: no
+alcanza con que sean paquetes válidos, y los tests sostienen la disposición igual a la de Typst.
 
 ### Astro en vez de Next.js
 
@@ -198,7 +198,7 @@ las fotos se guardan una vez por contenido. Quedan fuera del deshacer, para que 
   ampliables con un archivo JSON chico y validado o desde un script. Cada par de texto y fondo cumple el contraste
   WCAG AA en todos los temas.
 - **Exportaciones** a PDF, JPG, Word, Typst, LaTeX, Markdown, JSON, JSON Resume y un `.zip` con todo, y «Abrir en
-  Overleaf», que manda la de LaTeX a overleaf.com solo cuando se toca.
+  Overleaf», que manda la de LaTeX a overleaf.com solo cuando se toca. El Word lleva adentro las fuentes de Typst.
 - **Plantillas importadas**, de Typst y de LaTeX, y archivos de JSON Resume.
 - **La app web** en línea en [`bafif.github.io/foja/`](https://bafif.github.io/foja/), sin conexión e instalable, con
   su interfaz para el teléfono. El deploy se corre a mano.
@@ -220,19 +220,22 @@ cualquier momento, y cada canal se publica cuando lo que lleva está probado.
 1. **El mismo largo en todos los formatos.** Un CV que entra en una página en el PDF tiene que entrar también en
    LaTeX y en Word, y hoy puede pasarse (ver las limitaciones conocidas, más abajo). El arreglo vale para todos los
    estilos y formatos a la vez, sin ajustes por estilo: Typst decide dónde corta cada renglón y los demás formatos
-   lo copian.
-   - **La misma fuente.** El `.docx` lleva incrustadas XCharter y Noto Sans en vez de pedir Georgia. Word incrusta
-     solo fuentes TrueType, así que XCharter, que viene en OpenType CFF, se convierte; su licencia permite modificarla
-     y redistribuirla. Un programa que no lea fuentes incrustadas tiene que seguir mostrando una serif parecida.
-   - **Los mismos renglones.** Antes de exportar, Typst compila el perfil con el estilo que reproduce el exportador
-     (el del perfil, o Legajo o Minimal cuando el exportador lo reemplaza) y devuelve dónde termina cada renglón de
-     cada párrafo. LaTeX y Word cortan ahí con un salto de línea forzado, con el mismo interlineado y los mismos
-     espacios entre bloques, así cada párrafo ocupa los mismos renglones en los tres formatos sin depender de cómo
-     parte las líneas cada programa. La plantilla LaTeX importada queda afuera: su PDF ya es el de LaTeX.
-   - **Un test que lo sostenga.** Para cada perfil de los proyectos de ejemplo y cada estilo incluido, compila el
-     LaTeX con TeX Live, abre el Word en LibreOffice y compara la cantidad de páginas con la del PDF de Typst. Corre en
-     un contenedor propio, porque LibreOffice y TeX Live pesan, y un estilo nuevo queda cubierto sin escribir nada
-     más.
+   lo copian. Ya están la misma fuente (el Word lleva incrustadas XCharter, convertida a TrueType, y Noto Sans) y el
+   test, `scripts/length.sh`: para cada perfil de los proyectos de ejemplo y cada estilo incluido, compila el LaTeX con
+   TeX Live, abre el Word en LibreOffice y compara la cantidad de páginas con la del PDF de Typst. Los casos que fallan
+   son los CV de una página que van justos. Falta:
+   - **Los mismos espacios.** LaTeX deja más aire que Typst en el encabezado, entre las entradas y en las listas, y en
+     Word las columnas son algo más angostas (la sangría de los ítems, el margen de las celdas). Cada estilo de LaTeX
+     y de Word tiene que tomar de su archivo de Typst los mismos espacios entre bloques, el mismo interlineado y los
+     mismos anchos.
+   - **Los mismos renglones.** Typst ya dice dónde corta cada renglón de cada párrafo (`measure.typ` compila el
+     estilo que reproduce el exportador con una marca en cada palabra), y LaTeX y Word ya saben cortar ahí con un
+     salto de línea forzado; Word junta apenas las letras de un renglón donde Typst achicó los espacios. Se enciende
+     en el editor y en la CLI cuando estén los mismos espacios: con los anchos de ahora, el renglón de Word no entra y
+     el largo empeora (`scripts/length.sh --lines` lo mide). La plantilla LaTeX importada queda afuera: su PDF ya es
+     el de LaTeX.
+   - **Sin las fuentes incrustadas.** Un programa que no lea las fuentes que lleva el Word tiene que seguir mostrando
+     una serif parecida.
 2. **Archivos en la app de escritorio**: abrir y guardar proyectos como archivos, con su propio tipo de archivo, y que
    se actualice sola (salvo la de Flathub, que la actualiza Flatpak). Es la integración con el escritorio que pide
    Flathub para aceptarla.
@@ -263,9 +266,9 @@ compartir de verdad. Esto pide el aparato o la cuenta reales:
 
 ### Limitaciones conocidas
 
-- La exportación a LaTeX corta las líneas un poco distinto que Typst y puede pasarse unas líneas de una página cuando
-  el PDF entra; la de Word también, y más, porque Georgia es más ancha que XCharter (el perfil de programador del
-  ejemplo se pasa unos veinte renglones en LibreOffice). Lo resuelve «El mismo largo en todos los formatos».
+- LaTeX y Word usan la misma fuente que Typst, pero cortan los renglones a su manera y dejan algo más de aire entre
+  los bloques: un CV que entra justo en una página en el PDF puede pasarse unos renglones. Lo resuelve «El mismo
+  largo en todos los formatos».
 - Una plantilla LaTeX importada se ve en la vista previa sin el clic para editar ni las marcas de lo que se pasa de la
   página, y de las que necesitan LuaLaTeX se importan solo los datos.
 - La línea de comandos no compila LaTeX: escribe el `.tex` lleno.

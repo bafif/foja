@@ -5,8 +5,8 @@
 // colour, titles marked with a bar of it. Minimal: the name in the accent colour, plain capitals
 // for the titles. Both are one column. Claustro, Recto and Llano, made for applicant tracking
 // systems, are paragraphs only (no tables), the contacts in the body, the dates on a right tab stop.
-// Word has no XCharter, so the serif is Georgia (Windows and macOS; LibreOffice substitutes it); the
-// sans option uses Noto Sans, or what the system offers for it.
+// The fonts are Typst's, XCharter or Noto Sans, embedded in the file in their four faces when the caller passes them
+// (packages/template/word-fonts, made by scripts/word-fonts.py).
 
 import {
   AlignmentType,
@@ -32,6 +32,7 @@ import {
   type IParagraphOptions,
   type ParagraphChild,
 } from "docx";
+import { HYPHEN_LINE, LINE, type Lines } from "../lines.ts";
 import { DEFAULT_ACCENT, inlineRuns } from "../project.ts";
 import type { ResolvedBlock, ResolvedContact, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import type { Item } from "../types.ts";
@@ -43,6 +44,20 @@ const NONE = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const NO_BORDERS = { top: NONE, bottom: NONE, left: NONE, right: NONE };
 const INK = "1F2A2E";
 const MUTED = "68767B";
+
+/** The files of packages/template/word-fonts, by name (`XCharter-Regular.ttf`): the fonts the export embeds. */
+export type WordFonts = Record<string, Uint8Array>;
+
+const FACES = { data: "Regular", bold: "Bold", italic: "Italic", boldItalic: "BoldItalic" } as const;
+
+/** The four faces of `family` to embed, when `fonts` has them. */
+function embedded(family: string, fonts: WordFonts | undefined) {
+  const face = (name: string) => fonts?.[`${family.replace(" ", "")}-${name}.ttf`];
+  if (!face("Regular")) return [];
+  const faces = Object.fromEntries(Object.entries(FACES).map(([option, name]) => [option, face(name)]).filter(([, data]) => data));
+  // The library's type says Buffer; it only slices and copies the bytes, which a Uint8Array does too.
+  return [{ name: family, ...faces } as unknown as { name: string; data: Buffer }];
+}
 
 /** `#rrggbb` mixed with white: `amount` 0 is the colour, 1 is white. */
 function lighten(hex: string, amount: number): string {
@@ -63,19 +78,65 @@ interface Ctx {
   /** Twips. */
   sep: number;
   smallSep: number;
+  /** Where Typst breaks each paragraph's lines. */
+  lines?: Lines;
 }
 
-type RunOptions = { bold?: boolean; italics?: boolean; size?: number; color?: string; smallCaps?: boolean };
+type RunOptions = { bold?: boolean; italics?: boolean; size?: number; color?: string; smallCaps?: boolean; characterSpacing?: number; break?: number };
 
 // Control characters (a pasted \\v or \\f) are not valid XML: Word would refuse the file.
 const xmlSafe = (text: string) => text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, " ");
 
 const plain = (ctx: Ctx, text: string, o: RunOptions = {}) =>
-  new TextRun({ text: xmlSafe(text), font: ctx.font, size: o.size ?? ctx.size, bold: o.bold, italics: o.italics, color: o.color ?? INK, smallCaps: o.smallCaps });
+  new TextRun({
+    text: xmlSafe(text),
+    font: ctx.font,
+    size: o.size ?? ctx.size,
+    bold: o.bold,
+    italics: o.italics,
+    color: o.color ?? INK,
+    smallCaps: o.smallCaps,
+    characterSpacing: o.characterSpacing,
+    break: o.break,
+  });
 
-function runs(ctx: Ctx, text: string, o: RunOptions = {}): TextRun[] {
-  return inlineRuns(text).map((r) => plain(ctx, r.text, { ...o, bold: o.bold || r.bold }));
+/** What a line of Word may be wider than Typst's, in pt, without being narrowed: rounding. */
+const SLACK = 0.5;
+
+/** `text`, with `**` for bold, in the lines Typst gave it when it has them: a line break where each of its lines
+ * starts, and the letters of a line drawn closer where Typst narrowed its spaces, which Word does not do (it would
+ * take the last word to one more line). */
+function runs(ctx: Ctx, text: string, o: RunOptions = {}, markup = true): TextRun[] {
+  const parts = (t: string) => (markup ? inlineRuns(t) : [{ text: t, bold: false }]);
+  const laid = ctx.lines?.lay(text);
+  if (!laid) return parts(text).map((r) => plain(ctx, r.text, { ...o, bold: o.bold || r.bold }));
+  const lineTexts = laid.text.replaceAll("**", "").split(/[\uE000\uE001]/);
+  // Word puts the spacing after every character, spaces included: in twentieths of a point.
+  const squeeze = lineTexts.map((t, i) => {
+    const over = laid.over[i] + SLACK;
+    return over > 0 ? -Math.ceil((over * 20) / Math.max(1, t.length + 1)) : undefined;
+  });
+  const out: TextRun[] = [];
+  let line = 0;
+  let broken = false;
+  for (const r of parts(laid.text)) {
+    const look = { ...o, bold: o.bold || r.bold };
+    for (const part of r.text.split(/([\uE000\uE001])/)) {
+      if (part === LINE || part === HYPHEN_LINE) {
+        if (part === HYPHEN_LINE) out.push(plain(ctx, "-", { ...look, characterSpacing: squeeze[line] }));
+        line++;
+        broken = true;
+      } else if (part) {
+        out.push(plain(ctx, part, { ...look, characterSpacing: squeeze[line], break: broken ? 1 : undefined }));
+        broken = false;
+      }
+    }
+  }
+  return out;
 }
+
+/** Text with no markup (a title, a place, a date), in Typst's lines when it has them. */
+const words = (ctx: Ctx, text: string, o: RunOptions = {}) => runs(ctx, text, o, false);
 
 function para(children: ParagraphChild[], options: Omit<IParagraphOptions, "children"> = {}): Paragraph {
   return new Paragraph({ children, ...options });
@@ -95,7 +156,7 @@ function spacer(twips: number): Paragraph {
 
 function bulletItems(ctx: Ctx, items: Item[]): Paragraph[] {
   return items.map((it) =>
-    para([...(it.heading ? [plain(ctx, `${it.heading}. `, { bold: true })] : []), ...runs(ctx, it.text)], {
+    para(runs(ctx, (it.heading ? `**${it.heading}. **` : "") + it.text), {
       numbering: { reference: "dash", level: 0 },
       alignment: AlignmentType.JUSTIFIED,
     }),
@@ -155,14 +216,14 @@ function datedEntry(ctx: Ctx, e: ResolvedEntry, compact: boolean, widthTwip: num
   const banda = ctx.style === "banda";
   const date = e.period ? [new TextRun({ children: [new Tab(), xmlSafe(e.period)], font: ctx.font, size: ctx.small, color: MUTED })] : [];
   const out = [
-    para([plain(ctx, e.title, { bold: banda }), ...date], {
+    para([...words(ctx, e.title, { bold: banda }), ...date], {
       keepNext: true,
       tabStops: [{ type: TabStopType.RIGHT, position: widthTwip }],
       spacing: { before: first ? 0 : ctx.smallSep },
     }),
   ];
-  if (e.place) out.push(para([plain(ctx, e.place, banda ? { color: ctx.accent } : { size: ctx.small, color: MUTED })], { keepNext: !!(e.note || e.items.length) }));
-  if (e.note) out.push(para([plain(ctx, e.note, { size: ctx.small, color: MUTED })]));
+  if (e.place) out.push(para(words(ctx, e.place, banda ? { color: ctx.accent } : { size: ctx.small, color: MUTED }), { keepNext: !!(e.note || e.items.length) }));
+  if (e.note) out.push(para(words(ctx, e.note, { size: ctx.small, color: MUTED })));
   if (!compact) out.push(...bulletItems(ctx, e.items));
   return out;
 }
@@ -195,9 +256,9 @@ function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragrap
     }
     const e = b.entry;
     const content = [
-      para([plain(ctx, e.title, { bold: true })], { keepNext: true }),
-      ...(e.place ? [para([plain(ctx, e.place, { italics: true, color: MUTED })])] : []),
-      ...(e.note ? [para([plain(ctx, e.note, { size: ctx.small, color: MUTED })])] : []),
+      para(words(ctx, e.title, { bold: true }), { keepNext: true }),
+      ...(e.place ? [para(words(ctx, e.place, { italics: true, color: MUTED }))] : []),
+      ...(e.note ? [para(words(ctx, e.note, { size: ctx.small, color: MUTED }))] : []),
       ...(s.compact ? [] : bulletItems(ctx, e.items)),
       spacer(ctx.smallSep),
     ];
@@ -206,7 +267,7 @@ function mainSection(ctx: Ctx, s: ResolvedSection, widthTwip: number): (Paragrap
         // An entry is never cut between two pages: it moves whole to the next one.
         cantSplit: true,
         children: [
-          new TableCell({ borders: NO_BORDERS, children: [para([plain(ctx, e.period, { size: ctx.small, color: MUTED })])] }),
+          new TableCell({ borders: NO_BORDERS, children: [para(words(ctx, e.period, { size: ctx.small, color: MUTED }))] }),
           new TableCell({ borders: NO_BORDERS, margins: { left: 160 }, children: content }),
         ],
       }),
@@ -240,19 +301,19 @@ function sideBlock(ctx: Ctx, b: ResolvedBlock): Paragraph[] {
   if (b.type === "entry") {
     const e = b.entry;
     return [
-      para([plain(ctx, e.title, { bold: true, size: ctx.small })]),
-      ...[e.place, e.period].filter(Boolean).map((v) => para([plain(ctx, v, { italics: true, size: ctx.small })])),
+      para(words(ctx, e.title, { bold: true, size: ctx.small })),
+      ...[e.place, e.period].filter(Boolean).map((v) => para(words(ctx, v, { italics: true, size: ctx.small }))),
     ];
   }
-  const heading = b.type === "item" && b.heading ? [plain(ctx, `${b.heading}. `, { bold: true, size: ctx.small })] : [];
-  return [para([...heading, ...runs(ctx, b.text, { size: ctx.small })], { alignment: AlignmentType.JUSTIFIED })];
+  const heading = b.type === "item" && b.heading ? `**${b.heading}. **` : "";
+  return [para(runs(ctx, heading + b.text, { size: ctx.small }), { alignment: AlignmentType.JUSTIFIED })];
 }
 
 /** Room between two skill groups side by side, in twips. */
 const CELL_GAP = 120;
 
-/** A generous guess of how wide `text` is in twips, at `size` half-points, in Georgia or Noto Sans (both about
- * 0.58 em a letter; small capitals about 0.72 em). */
+/** A generous guess of how wide `text` is in twips, at `size` half-points, in XCharter or Noto Sans (about 0.58 em a
+ * letter; small capitals about 0.72 em). */
 function textWidth(text: string, size: number, caps = false): number {
   return Math.ceil(text.length * (caps ? 0.72 : 0.58) * size * 10);
 }
@@ -267,12 +328,11 @@ function sidebar(ctx: Ctx, widthPt: number): (Paragraph | Table)[] {
   const block = (title: string, values: ParagraphChild[][]) => {
     out.push(heading(title), ...values.map((v) => para(v)), spacer(ctx.sep));
   };
-  if (cv.highlight) block(cv.highlight.title, [[plain(ctx, cv.highlight.text, { size: ctx.small })]]);
+  if (cv.highlight) block(cv.highlight.title, [words(ctx, cv.highlight.text, { size: ctx.small })]);
   if (cv.contacts.length) block(cv.labels.contact, cv.contacts.map((c) => [contactChild(ctx, c, ctx.small)]));
   const inner = Math.round(widthPt * 20);
   for (const row of cv.skills) {
-    // Side by side only when the groups fit: Word's fonts are wider than Typst's, and a column too narrow
-    // cuts its words in two. Each column as wide as its longest line, and what is left shared.
+    // Side by side only when the groups fit: a column too narrow cuts its words in two. Each column as wide as its longest line, and what is left shared.
     const needs = row.map((g) => Math.max(textWidth(g.title, ctx.small, true), ...g.items.map((v) => textWidth(v, ctx.small))) + CELL_GAP);
     const room = inner - needs.reduce((a, b) => a + b, 0);
     if (row.length === 1 || room < 0) {
@@ -436,7 +496,7 @@ function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
   }
   if (cv.highlight) {
     const title = plain(ctx, `${cv.highlight.title}: `, { bold: true, color: style === "recto" ? ctx.accent : INK });
-    out.push(para([title, plain(ctx, cv.highlight.text)], { spacing: { before: ctx.smallSep } }));
+    out.push(para([title, ...words(ctx, cv.highlight.text)], { spacing: { before: ctx.smallSep } }));
   }
   if (cv.summary) out.push(sectionTitle(ctx, cv.labels.profile), para(runs(ctx, cv.summary)));
   if (cv.skills.length) {
@@ -456,10 +516,10 @@ function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
           out.push(para([plain(ctx, e.place, { bold: true })], first), para([plain(ctx, e.title, { italics: true }), ...dates(e.period)], { keepNext: true, tabStops }));
         else if (style === "llano") out.push(para([plain(ctx, e.title, { bold: true }), ...(e.place ? [plain(ctx, `, ${e.place}`)] : []), ...dates(e.period)], first));
         else {
-          out.push(para([plain(ctx, e.title, { bold: true }), ...dates(e.period)], first));
-          if (e.place) out.push(para([plain(ctx, e.place, { color: MUTED })], { keepNext: true }));
+          out.push(para([...words(ctx, e.title, { bold: true }), ...dates(e.period)], first));
+          if (e.place) out.push(para(words(ctx, e.place, { color: MUTED }), { keepNext: true }));
         }
-        if (e.note) out.push(para([plain(ctx, e.note, { size: ctx.small, color: MUTED })]));
+        if (e.note) out.push(para(words(ctx, e.note, { size: ctx.small, color: MUTED })));
         if (!s.compact) out.push(...bulletItems(ctx, e.items));
       }
     }
@@ -470,21 +530,22 @@ function atsColumn(ctx: Ctx, textWidth: number, style: AtsStyle): Paragraph[] {
 /** The `leading` of each Typst style (styles/*.typ). */
 const LEADING: Record<ExportStyle, number> = { legajo: 0.55, banda: 0.6, minimal: 0.65, claustro: 0.55, recto: 0.6, llano: 0.55 };
 
-/** Word's line spacing for the distance between baselines that Typst has: the cap height of Typst's font
- * (XCharter 0.674 em, Noto Sans 0.714 em) plus the style's leading, as a share of the single line of the font
- * Word uses (Georgia 1.136 em, Noto Sans 1.362 em). In 240ths, as Word counts it. */
+/** Word's line spacing for the distance between baselines that Typst has: the cap height of the font (XCharter
+ * 0.671 em, Noto Sans 0.714 em), where Typst's lines start, plus the style's leading, as a share of the font's single
+ * line (1.199 em and 1.519 em: the ascent and descent of the embedded fonts, the one height every program reads in
+ * them). In 240ths, as Word counts it. */
 export function lineSpacing(style: ExportStyle, sans: boolean): number {
-  return Math.round((240 * ((sans ? 0.714 : 0.674) + LEADING[style])) / (sans ? 1.362 : 1.136));
+  return Math.round((240 * ((sans ? 0.714 : 0.671) + LEADING[style])) / (sans ? 1.519 : 1.199));
 }
 
-export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"): Promise<Uint8Array> {
+export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo", fonts?: WordFonts, lines?: Lines): Promise<Uint8Array> {
   const l = cv.layout;
   const density = { compact: 0.7, normal: 1, relaxed: 1.3 }[l.density];
   const accentHex = l.accent ?? DEFAULT_ACCENT;
   const ctx: Ctx = {
     cv,
     style,
-    font: l.font === "Noto Sans" ? "Noto Sans" : "Georgia",
+    font: l.font === "Noto Sans" ? "Noto Sans" : "XCharter",
     accent: accentHex.slice(1).toUpperCase(),
     tint: lighten(accentHex, 0.92),
     rule: lighten(accentHex, 0.5),
@@ -492,19 +553,22 @@ export async function renderDocx(cv: ResolvedCv, style: ExportStyle = "legajo"):
     small: Math.round(l.fontSize * 1.76),
     sep: Math.round(l.fontSize * 20 * density),
     smallSep: Math.round(l.fontSize * 10 * density),
+    lines,
   };
   const paper = PAPER[l.paper];
   const m = l.margins;
   const textWidth = Math.round((paper.width - m.left - m.right) * TWIP_PER_MM);
   const doc = new Document({
     creator: "Foja",
+    fonts: embedded(ctx.font, fonts),
     title: `${cv.name} — ${cv.subtitle}`,
     // Justified text breaks words as Typst does, by the rules of the CV's language.
     hyphenation: { autoHyphenation: true },
     styles: {
       default: {
         document: {
-          run: { font: ctx.font, size: ctx.size, color: INK, language: { value: wordLanguage(cv.language) } },
+          // Kerning from 1 pt up, as Typst kerns all its text.
+          run: { font: ctx.font, size: ctx.size, color: INK, kern: 2, language: { value: wordLanguage(cv.language) } },
           paragraph: { spacing: { before: 0, after: 0, line: lineSpacing(style, l.font === "Noto Sans") } },
         },
       },

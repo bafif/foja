@@ -18,6 +18,8 @@ export interface StyleInfo {
 export const BUILTIN_STYLES = styles as StyleInfo[];
 export const DEFAULT_STYLE = "legajo";
 export const LIB_PATH = "/lib.typ";
+/** The file that lays out a style with a marker on each word (measure.typ), for the lines of the LaTeX and Word exports. */
+export const MEASURE_PATH = "/measure.typ";
 
 export const isBuiltinStyle = (id: string) => BUILTIN_STYLES.some((s) => s.id === id);
 const ownStyle = (project: Project, id: string) => !!project.templates && Object.hasOwn(project.templates, id);

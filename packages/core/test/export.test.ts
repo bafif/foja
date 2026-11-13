@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { pickStyle, resolveProfile, imageSize, toBase64, validate, type Project } from "../src/index.ts";
+import { docxParts } from "./docx-parts.ts";
 import { ATS_STYLES, STYLE_NAMES, bundleExports, escapeLatex, exportFiles, overleafProject, inlineLatex, inlineMarkdown, lineSpacing, renderLatex, renderMarkdown, wordLanguage } from "../src/export/index.ts";
 
 const example: Project = JSON.parse(readFileSync(new URL("../../../examples/curriculum.project.json", import.meta.url), "utf8"));
@@ -19,25 +20,6 @@ function unzip(data: Uint8Array): Record<string, Uint8Array> {
     at += 30 + nameLength + size;
   }
   return out;
-}
-
-/** The parts of a .docx, as text (docx deflates them; Node's zlib reads them back). */
-async function docxParts(data: Uint8Array): Promise<Record<string, string>> {
-  const { inflateRawSync } = await import("node:zlib");
-  const view = new DataView(data.buffer, data.byteOffset);
-  const parts: Record<string, string> = {};
-  let at = 0;
-  while (view.getUint32(at, true) === 0x04034b50) {
-    const method = view.getUint16(at + 8, true);
-    const size = view.getUint32(at + 18, true);
-    const nameLength = view.getUint16(at + 26, true);
-    const extra = view.getUint16(at + 28, true);
-    const name = decoder.decode(data.subarray(at + 30, at + 30 + nameLength));
-    const body = data.subarray(at + 30 + nameLength + extra, at + 30 + nameLength + extra + size);
-    parts[name] = decoder.decode(method === 8 ? inflateRawSync(body) : body);
-    at += 30 + nameLength + extra + size;
-  }
-  return parts;
 }
 
 /** word/document.xml of a .docx. */
@@ -273,10 +255,30 @@ describe("files", () => {
     expect(parts["word/styles.xml"]).toContain('w:lang w:val="es-ES"');
     expect(wordLanguage("en")).toBe("en-US");
     expect(wordLanguage("pt-BR")).toBe("pt-BR");
-    // Baseline to baseline as in Typst: 10 pt XCharter with a leading of 0.55 em is 12.2 pt; Georgia's single
-    // line is 11.4 pt. Noto Sans has a much taller single line, so it gets less than single.
-    expect(lineSpacing("legajo", false)).toBe(259);
-    expect(lineSpacing("banda", true)).toBe(232);
+    // Baseline to baseline as in Typst: 10 pt XCharter with a leading of 0.55 em is 12.2 pt, a little more than its
+    // single line (12 pt). Noto Sans has a much taller single line, so it gets less than single.
+    expect(lineSpacing("legajo", false)).toBe(244);
+    expect(lineSpacing("banda", true)).toBe(208);
+  });
+
+  test("Word embeds Typst's fonts in their four faces, when it is given them", async () => {
+    const dir = new URL("../../template/word-fonts/", import.meta.url);
+    const wordFonts = Object.fromEntries(
+      ["XCharter", "NotoSans"].flatMap((f) => ["Regular", "Bold", "Italic", "BoldItalic"].map((face) => [`${f}-${face}.ttf`, new Uint8Array(readFileSync(new URL(`${f}-${face}.ttf`, dir)))])),
+    );
+    const parts = await docxParts((await exportFiles(example, "programador", "docx", { wordFonts }))[0].data);
+    expect(Object.keys(parts).filter((p) => p.endsWith(".odttf"))).toHaveLength(4);
+    expect(parts["word/fontTable.xml"]).toMatch(/w:name="XCharter"[\s\S]*w:embedRegular[\s\S]*w:embedBold[\s\S]*w:embedItalic[\s\S]*w:embedBoldItalic/);
+    expect(parts["word/settings.xml"]).toContain("<w:embedTrueTypeFonts/>");
+    expect(parts["word/styles.xml"]).toContain('w:ascii="XCharter"');
+    // Without them it names XCharter and embeds nothing.
+    const bare = await docxParts((await exportFiles(example, "programador", "docx"))[0].data);
+    expect(Object.keys(bare).some((p) => p.endsWith(".odttf"))).toBe(false);
+  });
+
+  test("LaTeX: Legajo loads flowfram after taking memoir's \\cleartoevenpage away, which flowfram 2 defines again", () => {
+    const tex = renderLatex(resolveProfile(example, "programador"), "legajo");
+    expect(tex).toContain("\\let\\cleartoevenpage\\undefined\\usepackage{flowfram}");
   });
 
   test.each(["banda", "minimal"] as const)("Word in %s: the dates at the right margin, as in Typst", async (style) => {

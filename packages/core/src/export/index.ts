@@ -7,7 +7,8 @@ import { resolveProfile } from "../resolve.ts";
 import type { Project } from "../types.ts";
 import { typstBundle, type TemplateFiles } from "../bundle.ts";
 import { zip } from "../zip.ts";
-import { renderDocx } from "./docx.ts";
+import { Lines, type MeasuredWord } from "../lines.ts";
+import { renderDocx, type WordFonts } from "./docx.ts";
 import { projectJson, resolvedJson } from "./json.ts";
 import { latexBundle } from "./latex.ts";
 import { latexStyleOf } from "./latex-template.ts";
@@ -18,8 +19,8 @@ export { escapeLatex, inlineLatex, latexBundle, renderLatex } from "./latex.ts";
 export { fillLatex, latexStyleOf, latexTemplateFiles } from "./latex-template.ts";
 export { inlineMarkdown, renderMarkdown } from "./markdown.ts";
 export { projectJson, resolvedJson } from "./json.ts";
-export { lineSpacing, renderDocx, wordLanguage } from "./docx.ts";
-export { ATS_STYLES, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
+export { lineSpacing, renderDocx, wordLanguage, type WordFonts } from "./docx.ts";
+export { ATS_STYLES, exportedProject, exportStyleOf, isAtsStyle, resolveStyled, STYLE_NAMES, type AtsStyle, type ExportStyle } from "./style.ts";
 
 export const EXPORT_FORMATS = ["pdf", "jpg", "typ", "tex", "md", "json", "jsonresume", "docx"] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
@@ -39,12 +40,23 @@ export function exportStem(project: Project, profileId: string): string {
   return `${fileStem(project)}-${profileId}`;
 }
 
-/** The exports that need no compiler. `typ` needs the template files. */
+/** What some exports take from the caller. */
+export interface ExportInputs {
+  /** The template files, which the Typst export needs. */
+  template?: TemplateFiles;
+  /** The fonts the Word export embeds (packages/template/word-fonts); without them it only names them. */
+  wordFonts?: WordFonts;
+  /** The words of the profile as measure.typ laid them out with `exportedProject`: the LaTeX and Word exports break
+   * their lines where Typst does. */
+  measured?: MeasuredWord[];
+}
+
+/** The exports that need no compiler. */
 export async function exportFiles(
   project: Project,
   profileId: string,
   format: Exclude<ExportFormat, "pdf" | "jpg">,
-  template?: TemplateFiles,
+  { template, wordFonts, measured }: ExportInputs = {},
 ): Promise<ExportedFile[]> {
   const stem = exportStem(project, profileId);
   switch (format) {
@@ -52,7 +64,7 @@ export async function exportFiles(
       if (!template) throw new Error("the Typst export needs the template files");
       return [{ name: `${stem}-typst.zip`, mime: "application/zip", data: zip(typstBundle(project, profileId, template)) }];
     case "tex":
-      return [{ name: `${stem}-latex.zip`, mime: "application/zip", data: zip(latexBundle(project, profileId)) }];
+      return [{ name: `${stem}-latex.zip`, mime: "application/zip", data: zip(latexBundle(project, profileId, measured)) }];
     case "md":
       return [{ name: `${stem}.md`, mime: "text/markdown", data: encoder.encode(renderMarkdown(resolveProfile(project, profileId))) }];
     case "json":
@@ -67,7 +79,7 @@ export async function exportFiles(
     }
     case "docx": {
       const { cv, style } = resolveStyled(project, profileId);
-      return [{ name: `${stem}.docx`, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", data: await renderDocx(cv, style) }];
+      return [{ name: `${stem}.docx`, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", data: await renderDocx(cv, style, wordFonts, measured && new Lines(measured)) }];
     }
   }
 }

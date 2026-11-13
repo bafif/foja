@@ -1,6 +1,7 @@
 // Builds the publishable CLI: dist/foja.mjs (one file, @foja/core and docx inside) and
-// dist/template/ (the Typst library, styles, labels and fonts with their licences). Node does not
-// run TypeScript from node_modules, so the package ships JavaScript. Runs on `npm pack`.
+// dist/template/ (the Typst library, styles, labels, fonts and the fonts Word embeds, with their
+// licences). Node does not run TypeScript from node_modules, so the package ships JavaScript.
+// Runs on `npm pack`.
 
 import { cpSync, chmodSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -29,7 +30,7 @@ chmodSync(join(dist, "foja.mjs"), 0o755);
 
 const template = dirname(fileURLToPath(import.meta.resolve("@foja/template/lib.typ")));
 mkdirSync(join(dist, "template"), { recursive: true });
-for (const item of ["lib.typ", "labels.json", "styles.json", "styles", "fonts"]) {
+for (const item of ["lib.typ", "measure.typ", "labels.json", "styles.json", "styles", "fonts", "word-fonts"]) {
   cpSync(join(template, item), join(dist, "template", item), { recursive: true });
 }
 // The licence of the package itself, from the repository root.

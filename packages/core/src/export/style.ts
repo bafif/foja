@@ -47,6 +47,20 @@ export function exportStyleOf(project: Project, profileId: string): { style: Exp
   return near ? { style: near.look, custom: false, standsIn: s.id } : { style: s.id as ExportStyle, custom: false };
 }
 
+/** The project with the profile in the style its LaTeX and Word exports reproduce: its own, Legajo for a style of the
+ * user's own, or the nearest one with the colour and the typeface of the style it stands in for. What Typst compiles
+ * to know how long those exports have to be. */
+export function exportedProject(project: Project, profileId: string): Project {
+  const { style, standsIn } = exportStyleOf(project, profileId);
+  const profile = project.profiles[profileId];
+  const layout: Layout = { ...profile.layout, template: style };
+  if (standsIn) {
+    layout.font ??= NEAREST[standsIn].font;
+    layout.accent ??= NEAREST[standsIn].accent;
+  }
+  return { ...project, profiles: { ...project.profiles, [profileId]: { ...profile, layout } } };
+}
+
 /** The profile resolved with its style's defaults where the layout says nothing (the resolver
  * fills in Legajo's): every other style is one column, with its own font, margins and accent. */
 export function resolveStyled(project: Project, profileId: string): { cv: ResolvedCv; style: ExportStyle; custom: boolean; standsIn?: string } {

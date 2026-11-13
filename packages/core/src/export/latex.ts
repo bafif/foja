@@ -4,6 +4,7 @@
 // comes out as Legajo. It follows the layout options; the measurements are in big points (`bp`,
 // the Typst point).
 
+import { HYPHEN_LINE, LINE, Lines, type MeasuredWord } from "../lines.ts";
 import type { ResolvedBlock, ResolvedCv, ResolvedEntry, ResolvedSection } from "../resolve.ts";
 import { DEFAULT_ACCENT } from "../project.ts";
 import type { Item, Project } from "../types.ts";
@@ -42,6 +43,21 @@ export function escapeLatex(text: string): string {
 /** Escaped text where `**...**` is bold. */
 export function inlineLatex(text: string): string {
   return escapeLatex(text).replace(/\*\*(.+?)\*\*/g, "\\textbf{$1}");
+}
+
+// Where Typst breaks the lines of the CV being written: set by renderLatex for the length of its run.
+let lines: Lines | undefined;
+
+/** `text` (`**` for bold, unless `markup` is false) in the lines Typst gave it when it has them: a forced break where
+ * each line starts, which keeps the line before justified, and no other place to break (ties between the words). */
+function laid(text: string, markup = true): string {
+  const tex = markup ? inlineLatex : escapeLatex;
+  const l = lines?.lay(text);
+  if (!l) return tex(text);
+  return tex(l.text)
+    .replace(/ +/g, "~")
+    .replaceAll(HYPHEN_LINE, "-\\linebreak{}")
+    .replaceAll(LINE, "\\linebreak{}");
 }
 
 const BABEL: Record<string, string> = {
@@ -113,7 +129,8 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
     `\\usepackage[${BABEL[cv.language.split("-")[0]] ?? "english"}]{babel}`,
     `\\usepackage[paperwidth=${paper.width}mm,paperheight=${paper.height}mm,top=${m.top}mm,bottom=${m.bottom}mm,left=${m.left}mm,right=${m.right}mm]{geometry}`,
     "\\usepackage{graphicx}",
-    style === "legajo" ? "\\usepackage{flowfram}" : style === "banda" ? "\\usepackage{eso-pic}" : "",
+    // flowfram 2 defines \\cleartoevenpage anew, which memoir has: LaTeX would stop there.
+    style === "legajo" ? "\\let\\cleartoevenpage\\undefined\\usepackage{flowfram}" : style === "banda" ? "\\usepackage{eso-pic}" : "",
     "\\usepackage{xcolor}",
     "\\usepackage{tikz}",
     "\\usepackage{enumitem}",
@@ -190,18 +207,18 @@ function preamble(cv: ResolvedCv, style: LatexStyle): string[] {
 
 function items(list: Item[]): string[] {
   if (list.length === 0) return [];
-  return ["\\begin{itemize}", ...list.map((it) => `\\item ${it.heading ? `\\textbf{${escapeLatex(it.heading)}.} ` : ""}${inlineLatex(it.text)}`), "\\end{itemize}"];
+  return ["\\begin{itemize}", ...list.map((it) => `\\item ${laid((it.heading ? `**${it.heading}.** ` : "") + it.text)}`), "\\end{itemize}"];
 }
 
 /** Legajo: the period in its own column, the rest beside it. */
 function legajoEntry(e: ResolvedEntry, compact: boolean): string {
   const content = [
-    `\\textbf{${escapeLatex(e.title)}}`,
-    e.place ? `\\\\{\\itshape\\color{muted}${escapeLatex(e.place)}}` : "",
-    e.note ? `\\par{\\small\\color{muted}${escapeLatex(e.note)}}` : "",
+    `\\textbf{${laid(e.title, false)}}`,
+    e.place ? `\\\\{\\itshape\\color{muted}${laid(e.place, false)}}` : "",
+    e.note ? `\\par{\\small\\color{muted}${laid(e.note, false)}}` : "",
     !compact && e.items.length ? `\\par${items(e.items).join("\n")}` : "",
   ].join("");
-  return `\\CVEntry{${escapeLatex(e.period)}}{${content}}`;
+  return `\\CVEntry{${laid(e.period, false)}}{${content}}`;
 }
 
 /** Banda and Minimal: the title with the period on the right, the place below it. */
@@ -209,11 +226,11 @@ function lineEntry(style: "banda" | "minimal") {
   return (e: ResolvedEntry, compact: boolean): string =>
     [
       "\\par\\SmallSep\\noindent ",
-      style === "banda" ? `\\textbf{${escapeLatex(e.title)}}` : escapeLatex(e.title),
+      style === "banda" ? `\\textbf{${laid(e.title, false)}}` : laid(e.title, false),
       `\\hfill{\\small\\color{muted}${escapeLatex(e.period)}}`,
-      e.place ? (style === "banda" ? `\\\\{\\small\\color{accent}\\bfseries ${escapeLatex(e.place)}}` : `\\\\{\\small\\color{muted}${escapeLatex(e.place)}}`) : "",
+      e.place ? (style === "banda" ? `\\\\{\\small\\color{accent}\\bfseries ${laid(e.place, false)}}` : `\\\\{\\small\\color{muted}${laid(e.place, false)}}`) : "",
       "\\par",
-      e.note ? `{\\small\\color{muted}${escapeLatex(e.note)}}\\par` : "",
+      e.note ? `{\\small\\color{muted}${laid(e.note, false)}}\\par` : "",
       !compact && e.items.length ? items(e.items).join("\n") : "",
     ].join("");
 }
@@ -233,7 +250,7 @@ function mainSection(s: ResolvedSection, entry: EntryLatex = legajoEntry): strin
       continue;
     }
     flush();
-    if (b.type === "paragraph") out.push(`${inlineLatex(b.text)}\\par`);
+    if (b.type === "paragraph") out.push(`${laid(b.text)}\\par`);
     else out.push(entry(b.entry, s.compact));
   }
   flush();
@@ -243,10 +260,10 @@ function mainSection(s: ResolvedSection, entry: EntryLatex = legajoEntry): strin
 function sideBlock(b: ResolvedBlock): string {
   if (b.type === "entry") {
     const e = b.entry;
-    return [`\\textbf{${escapeLatex(e.title)}}`, ...[e.place, e.period].filter(Boolean).map((v) => `\\\\{\\itshape ${escapeLatex(v)}}`)].join("") + "\\par";
+    return [`\\textbf{${laid(e.title, false)}}`, ...[e.place, e.period].filter(Boolean).map((v) => `\\\\{\\itshape ${laid(v, false)}}`)].join("") + "\\par";
   }
-  if (b.type === "item" && b.heading) return `{\\textbf{${escapeLatex(b.heading)}.} ${inlineLatex(b.text)}\\par}`;
-  return `${inlineLatex(b.text)}\\par`;
+  if (b.type === "item" && b.heading) return `{${laid(`**${b.heading}.** ${b.text}`)}\\par}`;
+  return `${laid(b.text)}\\par`;
 }
 
 /** A URL safe inside \\href: everything but a few plain characters is percent-encoded, then
@@ -298,7 +315,7 @@ function heading(cv: ResolvedCv): string[] {
 }
 
 function summary(cv: ResolvedCv): string[] {
-  return cv.summary ? [`${inlineLatex(cv.summary)}\\par`] : [];
+  return cv.summary ? [`${laid(cv.summary)}\\par`] : [];
 }
 
 function body(cv: ResolvedCv, photo: string | undefined): string[] {
@@ -381,8 +398,8 @@ function minimalBody(cv: ResolvedCv, photo: string | undefined): string[] {
  * position and the dates, the institution below) or Llano (all on one line). */
 function atsEntry(style: AtsStyle): EntryLatex {
   return (e, compact) => {
-    const title = escapeLatex(e.title);
-    const place = escapeLatex(e.place);
+    const title = laid(e.title, false);
+    const place = laid(e.place, false);
     const period = e.period ? `\\hfill{${style === "claustro" ? "" : "\\small\\color{muted}"}${escapeLatex(e.period)}}` : "";
     const head =
       style === "claustro"
@@ -396,7 +413,7 @@ function atsEntry(style: AtsStyle): EntryLatex {
       "\\par\\SmallSep\\noindent ",
       head,
       "\\par",
-      e.note ? `{\\small\\color{muted}${escapeLatex(e.note)}}\\par` : "",
+      e.note ? `{\\small\\color{muted}${laid(e.note, false)}}\\par` : "",
       !compact && e.items.length ? items(e.items).join("\n") : "",
     ].join("");
   };
@@ -434,19 +451,27 @@ function atsBody(cv: ResolvedCv, photo: string | undefined, style: AtsStyle): st
   return [...out, ...cv.sections.flatMap((s) => mainSection(s, atsEntry(style)))];
 }
 
-export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo"): string {
+/** The CV in LaTeX; with `measured` (measure.typ's words), in the lines Typst gave it. */
+export function renderLatex(cv: ResolvedCv, style: LatexStyle = "legajo", measured?: MeasuredWord[]): string {
   const photo = photoFile(cv);
-  const content =
-    style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : isAtsStyle(style) ? atsBody(cv, photo, style) : body(cv, photo);
-  return [...preamble(cv, style), "\\begin{document}", ...content, "\\end{document}", ""].join("\n");
+  lines = measured && new Lines(measured);
+  try {
+    const content =
+      style === "banda" ? bandaBody(cv, photo) : style === "minimal" ? minimalBody(cv, photo) : isAtsStyle(style) ? atsBody(cv, photo, style) : body(cv, photo);
+    // The lines are Typst's: no word is cut where Typst did not cut it.
+    const unbroken = measured ? ["\\hyphenpenalty=10000\\exhyphenpenalty=10000"] : [];
+    return [...preamble(cv, style), "\\begin{document}", ...unbroken, ...content, "\\end{document}", ""].join("\n");
+  } finally {
+    lines = undefined;
+  }
 }
 
-export function latexBundle(project: Project, profileId: string): ZipInput {
+export function latexBundle(project: Project, profileId: string, measured?: MeasuredWord[]): ZipInput {
   // An imported LaTeX template is handed out as itself, filled with the CV.
   if (latexStyleOf(project, profileId)) return latexTemplateBundle(project, profileId);
   const { cv, style, custom, standsIn } = resolveStyled(project, profileId);
   const files: ZipInput = {
-    "cv.tex": renderLatex(cv, style),
+    "cv.tex": renderLatex(cv, style, measured),
     "README.txt": [
       "CV made with Foja (https://github.com/bafif/foja).",
       "",

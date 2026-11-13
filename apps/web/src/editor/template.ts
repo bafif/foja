@@ -1,4 +1,4 @@
-// The template files for the Typst export, fetched once.
+// The template files for the Typst export and the fonts the Word export embeds, each fetched once.
 
 import type { TemplateFiles } from "@foja/core";
 import lib from "@foja/template/lib.typ?raw";
@@ -8,7 +8,17 @@ const styleSources = import.meta.glob<string>("../../../../packages/template/sty
 
 const fontUrls = import.meta.glob<string>("../../../../packages/template/fonts/*", { query: "?url", import: "default", eager: true });
 
+const wordFontUrls = import.meta.glob<string>("../../../../packages/template/word-fonts/*.ttf", { query: "?url", import: "default", eager: true });
+
 let cached: Promise<TemplateFiles> | undefined;
+let cachedWordFonts: Promise<Record<string, Uint8Array>> | undefined;
+
+export function wordFonts(): Promise<Record<string, Uint8Array>> {
+  cachedWordFonts ??= Promise.all(
+    Object.entries(wordFontUrls).map(async ([path, url]) => [path.split("/").pop()!, new Uint8Array(await (await fetch(url)).arrayBuffer())] as const),
+  ).then(Object.fromEntries);
+  return cachedWordFonts;
+}
 
 export function templateFiles(): Promise<TemplateFiles> {
   cached ??= (async () => {

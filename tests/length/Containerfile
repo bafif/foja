@@ -1,0 +1,22 @@
+# What the length test needs (scripts/length.sh): Node for Foja's exports, TeX Live for the LaTeX ones, LibreOffice
+# for the Word ones and poppler to count pages. XCharter and Noto come from TeX Live 2025's final archive, checked
+# against a fixed SHA-256, instead of the 2 GB of texmf-dist-fontsextra. LibreOffice has DejaVu and nothing else: the
+# fonts of a Word export have to come inside the file.
+FROM docker.io/library/node:26-alpine
+RUN apk add --no-cache libreoffice-writer poppler-utils font-dejavu curl xz \
+      texlive texmf-dist-latexrecommended texmf-dist-latexextra texmf-dist-fontsrecommended texmf-dist-pictures \
+      texmf-dist-langspanish texmf-dist-langenglish
+RUN set -eu; \
+    local=$(kpsewhich -var-value TEXMFLOCAL); mkdir -p "$local"; cd /tmp; \
+    for p in xcharter:8fc717152ae6ef683ebb982fbf20837f85ff03a5b440fd84b0b11eac7c14b523 \
+             noto:eec1e4a35bddb8362f61265a0282d5047d2be93ee80aadd0bff3c508ef534fcd \
+             fontaxes:91b23720cce57763bb83b4150d64a10404a40631cc762b5cf479bc19dee5fc74 \
+             mweights:1e8862b120eca1e05de7a85809ca405c1facc7709a8d69b6a0172906b6247738; do \
+      name=${p%%:*}; \
+      curl -fsSL "https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/tlnet-final/archive/$name.tar.xz" -o "$name.tar.xz"; \
+      echo "${p#*:}  $name.tar.xz" | sha256sum -c -s -; \
+      tar -xJf "$name.tar.xz" -C "$local" --exclude=tlpkg; rm "$name.tar.xz"; \
+    done; \
+    mktexlsr >/dev/null 2>&1; \
+    updmap-sys --enable Map=XCharter.map --enable Map=noto.map >/dev/null 2>&1; \
+    kpsewhich XCharter.sty noto.sty memoir.cls flowfram.sty eso-pic.sty enumitem.sty
