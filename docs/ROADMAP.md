@@ -192,7 +192,8 @@ pictures are stored once per content. They stay out of undo, so Ctrl+Z never del
 - **Imported templates**, Typst and LaTeX, and JSON Resume files.
 - **The web app** online at [`bafif.github.io/foja/`](https://bafif.github.io/foja/), offline and installable, with
   its phone interface. The deploy runs by hand.
-- **The command line**, with `build`, `validate` and `import`, and a converter from cvgen's data.
+- **The command line**, with `build`, `validate` and `import`, and a converter from cvgen's data. It is on npm as
+  [`@bafif/foja`](https://www.npmjs.com/package/@bafif/foja): `npm install -g @bafif/foja` gives the `foja` command.
 - **The desktop installers**. The Linux packages are tried; the Windows and macOS installers have not been tried yet,
   and no version has been published.
 - **Versions** of the project, off by default: snapshots on save that thin out over time, named versions, a preview,
@@ -238,15 +239,12 @@ sheet. These need the real device or account:
 
 ### Publishing
 
-1. **The CLI on npm** as `@bafif/foja` (npm does not take `foja` alone: too close to other packages), so that
-   `npm install -g @bafif/foja` gives the `foja` command without the repository. The package is ready: installed from
-   its `.tgz`, it builds the PDFs without the repository. It is left to publish it.
-2. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
+1. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
    account. The manifest already has what PWABuilder asks for and recommends: an id, icons, a screenshot, categories
    and focusing the window that is already open.
-3. **The desktop app**: the first version on GitHub Releases, once the installers have been tried; then AUR, a Flatpak
+2. **The desktop app**: the first version on GitHub Releases, once the installers have been tried; then AUR, a Flatpak
    built from source and the Flathub submission, and SignPath Foundation for Windows once the project qualifies.
-4. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
+3. **Android package**: the same Tauri 2 shell built for Android, as an APK on GitHub Releases and, if it qualifies,
    on F-Droid. On iPhone the PWA remains the app (see the distribution channels above).
 
 ### Known limitations
@@ -272,7 +270,8 @@ The name comes from *foja de servicios*, the record of someone's career.
 - Code: [`bafif/foja`](https://github.com/bafif/foja), public, GPL-3.0 (an OSI licence, as SignPath requires). cvgen
   and its data live in `cvgen/`.
 - Web: `bafif.github.io/foja/`. A custom domain can later serve the same site at its root with no other change.
-- npm: `foja`. Flathub app ID: `io.github.bafif.Foja`.
+- npm: `@bafif/foja` (npm does not take `foja` alone: too close to other packages); the command is `foja`.
+  Flathub app ID: `io.github.bafif.Foja`.
 
 ## Dependencies
 
