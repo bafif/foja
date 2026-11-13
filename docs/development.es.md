@@ -69,3 +69,6 @@ otro. Los tests fallan si falta alguno.
   mano: los arma en los runners de Linux, Windows y macOS de GitHub y los deja en un borrador de release de la versión
   de `apps/desktop/package.json`, que `src-tauri/Cargo.toml` repite. Al publicar esa release se crea su tag; su texto
   es `.github/release-notes.md`.
+- **La CLI en npm:** `scripts/cli-pack.sh` arma el paquete en un contenedor, en `.out/cli/`, y
+  `npm publish .out/cli/foja-<versión>.tgz` lo publica sin compilar nada en el host. La versión es la de
+  `packages/cli/package.json`.

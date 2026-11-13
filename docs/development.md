@@ -67,3 +67,6 @@ The tests fail when one is missing.
   come from the *Desktop installers* workflow, run by hand: it builds them on GitHub's Linux, Windows and macOS runners
   and leaves them on a draft release of the version in `apps/desktop/package.json`, which `src-tauri/Cargo.toml`
   repeats. Publishing that release creates its tag; its text is `.github/release-notes.md`.
+- **The CLI on npm:** `scripts/cli-pack.sh` builds the package in a container, in `.out/cli/`, and
+  `npm publish .out/cli/foja-<version>.tgz` publishes it without building anything on the host. The version is the
+  one in `packages/cli/package.json`.
