@@ -262,5 +262,5 @@ screen; on a phone, under **⋯**) changes it, and Foja remembers what you pick.
 ## Command line
 
 `foja build my.foja.json` builds every profile as PDF; `--format` adds svg, typ, tex, md, json, jsonresume, docx or
-all, and `foja import` brings in a template or a JSON Resume file. It is not on npm yet: see its
-[README](../packages/cli/README.md).
+all, and `foja import` brings in a template or a JSON Resume file. Install it with
+`npm install -g @bafif/foja`; more in its [README](../packages/cli/README.md).

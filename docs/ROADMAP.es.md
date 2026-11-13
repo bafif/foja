@@ -251,7 +251,8 @@ compartir de verdad. Esto pide el aparato o la cuenta reales:
 
 ### Publicación
 
-1. **La CLI en npm** como `foja`, para que `npx foja` ande sin el repositorio. El paquete está listo: instalado desde
+1. **La CLI en npm** como `@bafif/foja` (npm no acepta `foja` a secas: se parece a otros paquetes), para que
+   `npm install -g @bafif/foja` dé el comando `foja` sin el repositorio. El paquete está listo: instalado desde
    su `.tgz`, arma los PDF sin el repositorio. Falta publicarlo.
 2. **Microsoft Store**: empaquetar la PWA publicada como MSIX con PWABuilder, desde una cuenta individual gratuita de
    Partner Center. El manifest ya tiene lo que PWABuilder pide y recomienda: id, íconos, captura, categorías y abrir

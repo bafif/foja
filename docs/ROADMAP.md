@@ -238,7 +238,8 @@ sheet. These need the real device or account:
 
 ### Publishing
 
-1. **The CLI on npm** as `foja`, so that `npx foja` works without the repository. The package is ready: installed from
+1. **The CLI on npm** as `@bafif/foja` (npm does not take `foja` alone: too close to other packages), so that
+   `npm install -g @bafif/foja` gives the `foja` command without the repository. The package is ready: installed from
    its `.tgz`, it builds the PDFs without the repository. It is left to publish it.
 2. **Microsoft Store**: package the published PWA as MSIX with PWABuilder, from a free individual Partner Center
    account. The manifest already has what PWABuilder asks for and recommends: an id, icons, a screenshot, categories

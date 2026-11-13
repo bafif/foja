@@ -251,5 +251,5 @@ cambia, y Foja se acuerda de lo que elegiste.
 ## Línea de comandos
 
 `foja build my.foja.json` genera todos los perfiles en PDF; `--format` suma svg, typ, tex, md, json, jsonresume, docx o
-all, y `foja import` trae una plantilla o un archivo de JSON Resume. Todavía no está en npm: mirá su
-[README](../packages/cli/README.es.md).
+all, y `foja import` trae una plantilla o un archivo de JSON Resume. Se instala
+con `npm install -g @bafif/foja`; más en su [README](../packages/cli/README.es.md).

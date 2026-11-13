@@ -1,5 +1,5 @@
 {
-  "name": "foja",
+  "name": "@bafif/foja",
   "version": "0.1.0",
   "description": "Build CVs with Typst from a Foja project: PDF, SVG, Typst, LaTeX, Markdown, JSON and Word",
   "license": "GPL-3.0-only",
@@ -32,6 +32,9 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node build.mjs",
     "prepack": "node build.mjs"

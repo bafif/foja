@@ -6,16 +6,17 @@ The command line of [Foja](https://github.com/bafif/foja), a CV editor on Typst:
 from a Foja project (`.foja.json`, made in the editor or by hand) with the same Typst styles the
 web editor uses.
 
-It is not on npm yet: from a clone of the repository, `npm run foja -- build …` runs it from its sources
+Install it with `npm install -g @bafif/foja`, which brings the `foja` command; `npx @bafif/foja build …` runs it
+without installing. From a clone of the repository, `npm run foja -- build …` runs it from its sources
 ([how](https://github.com/bafif/foja/blob/main/docs/development.md)).
 
 ```sh
-npx foja build my.foja.json                       # a PDF per profile
-npx foja build my.foja.json --profile dev --format pdf --format docx --out out
-npx foja build my.foja.json --format all          # every format in one .zip
-npx foja validate my.foja.json
-npx foja import template.zip my.foja.json         # a Typst or LaTeX template: its content and its look
-npx foja import resume.json my.foja.json          # a CV in JSON Resume
+foja build my.foja.json                       # a PDF per profile
+foja build my.foja.json --profile dev --format pdf --format docx --out out
+foja build my.foja.json --format all          # every format in one .zip
+foja validate my.foja.json
+foja import template.zip my.foja.json         # a Typst or LaTeX template: its content and its look
+foja import resume.json my.foja.json          # a CV in JSON Resume
 ```
 
 `import` reads a Typst or LaTeX CV template (`.typ`, `.tex`, `.zip` or `.tar.gz`) with fixed rules, no AI: its
