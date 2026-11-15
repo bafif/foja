@@ -11,14 +11,27 @@ const root = join(import.meta.dirname, "..");
 // dependencies, and the CV's own texts (data, in Spanish).
 const SKIP_DIRS = new Set(["node_modules", "dist", "target", "test-results", "playwright-report"]);
 const SKIP_PATHS = ["cvgen/data/textos/"];
-const SKIP_FILES = /^(CLAUDE|LICENSE.*|CHANGELOG.*|README\.upstream)\.md$/;
+const SKIP_FILES = /^(LICENSE.*|CHANGELOG.*|README\.upstream)\.md$/;
+// Files a checkout keeps out of git on its own, listed by exact name in .git/info/exclude: notes of whoever works
+// on it, not part of the project.
+const LOCAL_FILES = new Set(
+  (() => {
+    try {
+      return readFileSync(join(root, ".git", "info", "exclude"), "utf8").split("\n");
+    } catch {
+      return [];
+    }
+  })()
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#") && !/[*?[\]/!\\]/.test(l)),
+);
 
 function docs(dir = root): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const path = join(dir, e.name);
     const rel = relative(root, path).split("\\").join("/");
     if (e.isDirectory()) return e.name.startsWith(".") || SKIP_DIRS.has(e.name) || SKIP_PATHS.some((p) => `${rel}/`.startsWith(p)) ? [] : docs(path);
-    return e.name.endsWith(".md") && !SKIP_FILES.test(e.name) ? [rel] : [];
+    return e.name.endsWith(".md") && !SKIP_FILES.test(e.name) && !LOCAL_FILES.has(e.name) ? [rel] : [];
   });
 }
 
